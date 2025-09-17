@@ -1,0 +1,86 @@
+import { GenerateContentResponse } from "@google/genai";
+
+export type View = 'dashboard' | 'records' | 'upload' | 'messages' | 'billing';
+
+export type UserRole = 'patient' | 'doctor';
+
+export type AuthView = 'chooser' | 'patient-login' | 'doctor-login';
+
+export type DoctorPortalView = 'dashboard' | 'messages';
+
+export type SubscriptionTier = 'FreeTrial' | 'Paid';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatarUrl?: string;
+}
+
+export interface Vital {
+  value: string;
+  unit: string;
+  trend?: 'up' | 'down' | 'stable';
+}
+
+export interface Vitals {
+  bloodPressure: Vital;
+  heartRate: Vital;
+  temperature: Vital;
+  glucose?: Vital;
+}
+
+export interface VitalsRecord {
+  date: string;
+  vitals: Vitals;
+}
+
+export interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+}
+
+export interface MedicalRecord {
+  id: string;
+  date: string;
+  type: string;
+  summary: string;
+  doctor: string;
+  category: string; // User-defined category
+  fileUrl?: string; // URL to the file in a secure storage (e.g., GCS)
+}
+
+export interface Doctor extends User {
+    role: 'doctor';
+    specialty: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string; // Can be patient's ID or doctor's ID
+  recipientId: string;
+  timestamp: string;
+  text?: string;
+  audioUrl?: string;
+  isRead?: boolean;
+  isUrgent?: boolean;
+}
+
+export interface Patient extends User {
+  role: 'patient';
+  dateOfBirth: string;
+  condition: string;
+  vitals: Vitals;
+  vitalsHistory: VitalsRecord[];
+  medications: Medication[];
+  records: MedicalRecord[];
+  doctors: Doctor[];
+  chatMessages: ChatMessage[];
+  subscriptionTier: SubscriptionTier;
+  urgentCredits: number;
+  trialEndsAt?: string; // ISO Date string
+  notes?: string;
+}
