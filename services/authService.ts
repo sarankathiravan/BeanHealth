@@ -2,6 +2,84 @@ import { supabase } from '../lib/supabase'
 import { Patient, Doctor, User, UserRole } from '../types'
 
 export class AuthService {
+  // Google OAuth sign in
+  static async signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin  // Redirect back to main app
+      }
+    })
+
+    if (error) throw error
+    return data
+  }
+
+  // Create or update user profile after Google OAuth
+  static async createOrUpdateProfile(userData: {
+    id: string
+    email: string
+    name: string
+    role: UserRole
+    specialty?: string
+    dateOfBirth?: string
+    condition?: string
+  }) {
+    try {
+      // Check if user already exists
+      const { data: existingUser, error: selectError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userData.id)
+        .single()
+
+      // If user doesn't exist (selectError means no user found), create new user
+      if (selectError && selectError.code === 'PGRST116') {
+        // Create new user
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+            role: userData.role,
+            specialty: userData.role === 'doctor' ? userData.specialty : null,
+            date_of_birth: userData.role === 'patient' ? userData.dateOfBirth : null,
+            condition: userData.role === 'patient' ? userData.condition : null,
+          })
+
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          throw insertError;
+        }
+      } else if (existingUser) {
+        // Update existing user
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            name: userData.name,
+            role: userData.role,
+            specialty: userData.role === 'doctor' ? userData.specialty : null,
+            date_of_birth: userData.role === 'patient' ? userData.dateOfBirth : null,
+            condition: userData.role === 'patient' ? userData.condition : null,
+          })
+          .eq('id', userData.id)
+
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
+      } else if (selectError) {
+        // Some other error occurred during select
+        console.error('Select error:', selectError);
+        throw selectError;
+      }
+    } catch (error) {
+      console.error('Error in createOrUpdateProfile:', error);
+      throw error;
+    }
+  }
+
   static async signUp(email: string, password: string, userData: {
     name: string
     role: UserRole
@@ -52,18 +130,28 @@ export class AuthService {
   }
 
   static async getCurrentUser() {
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session?.user) return null
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.user) return null
 
-    const { data: profile, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
 
-    if (error) throw error
-    return profile
+      // If user doesn't exist in database, return null (they need to set up profile)
+      if (error && error.code === 'PGRST116') {
+        return null;
+      }
+      
+      if (error) throw error
+      return profile
+    } catch (error) {
+      console.error('Error in getCurrentUser:', error);
+      return null;
+    }
   }
 
   static onAuthStateChange(callback: (user: any) => void) {

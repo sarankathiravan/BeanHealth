@@ -9,6 +9,7 @@ interface AuthContextType {
   profile: AppUser | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   signUp: (email: string, password: string, userData: {
     name: string
     role: 'patient' | 'doctor'
@@ -17,6 +18,8 @@ interface AuthContextType {
     condition?: string
   }) => Promise<void>
   signOut: () => Promise<void>
+  needsProfileSetup: boolean
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,48 +36,121 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<AppUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [needsProfileSetup, setNeedsProfileSetup] = useState(false)
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
+    let mounted = true;
+
+    // Handle OAuth callback if present
+    const handleOAuthCallback = async () => {
+      // Check if this is an OAuth callback (URL contains #access_token or ?code)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const searchParams = new URLSearchParams(window.location.search);
       
-      if (session?.user) {
+      if (hashParams.get('access_token') || searchParams.get('code')) {
+        console.log('OAuth callback detected, processing...');
         try {
-          const userProfile = await AuthService.getCurrentUser()
-          setProfile(userProfile)
+          // Let Supabase handle the callback
+          const { data, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('OAuth callback error:', error);
+          } else {
+            console.log('OAuth callback successful');
+            // Clear the URL hash/search params
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
         } catch (error) {
-          console.error('Error fetching user profile:', error)
+          console.error('Error processing OAuth callback:', error);
         }
       }
-      
-      setLoading(false)
+    };
+
+    handleOAuthCallback();
+
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        console.log('Getting initial session...');
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!mounted) return;
+        
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          console.log('User found, fetching profile...');
+          const userProfile = await AuthService.getCurrentUser()
+          if (!mounted) return;
+          
+          setProfile(userProfile)
+          setNeedsProfileSetup(!userProfile || !userProfile.role)
+          console.log('Profile loaded:', { userProfile, needsSetup: !userProfile || !userProfile.role });
+        } else {
+          console.log('No user session found');
+          setProfile(null)
+          setNeedsProfileSetup(false)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+        if (!mounted) return;
+        setUser(null)
+        setProfile(null)
+        setNeedsProfileSetup(false)
+      } finally {
+        if (mounted) {
+          console.log('Initial session loading complete');
+          setLoading(false)
+        }
+      }
     }
 
     getInitialSession()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      console.log('Auth state change:', event, session?.user?.id)
       setUser(session?.user ?? null)
       
       if (session?.user) {
         try {
           const userProfile = await AuthService.getCurrentUser()
+          if (!mounted) return;
           setProfile(userProfile)
+          setNeedsProfileSetup(!userProfile || !userProfile.role)
         } catch (error) {
           console.error('Error fetching user profile:', error)
+          if (!mounted) return;
           setProfile(null)
+          setNeedsProfileSetup(true)
         }
       } else {
+        if (!mounted) return;
         setProfile(null)
+        setNeedsProfileSetup(false)
       }
       
-      setLoading(false)
+      if (mounted) {
+        setLoading(false)
+      }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    }
   }, [])
+
+  const signInWithGoogle = async () => {
+    setLoading(true)
+    try {
+      await AuthService.signInWithGoogle()
+    } catch (error) {
+      setLoading(false)
+      throw error
+    }
+  }
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
@@ -112,13 +188,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const refreshProfile = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('Refreshing profile for user:', user.id);
+      const userProfile = await AuthService.getCurrentUser();
+      setProfile(userProfile);
+      setNeedsProfileSetup(!userProfile || !userProfile.role);
+      console.log('Profile refreshed:', { userProfile, needsSetup: !userProfile || !userProfile.role });
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    }
+  }
+
   const value = {
     user,
     profile,
     loading,
     signIn,
+    signInWithGoogle,
     signUp,
     signOut,
+    needsProfileSetup,
+    refreshProfile,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
