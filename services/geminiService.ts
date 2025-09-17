@@ -2,9 +2,9 @@
 import { GoogleGenAI, Type, Part, Content } from "@google/genai";
 import { MedicalRecord } from '../types';
 
-// FIX: Correctly instantiate GoogleGenAI with environment variable
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY || process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({apiKey});
+// FIX: Correctly instantiate GoogleGenAI with environment variable (Vite only)
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const ai = apiKey ? new GoogleGenAI({apiKey}) : null;
 
 // FIX: Use recommended model 'gemini-2.5-flash'
 const model = 'gemini-2.5-flash';
@@ -33,6 +33,18 @@ const fileToGenerativePart = async (file: File): Promise<Part> => {
 
 
 export const analyzeMedicalRecord = async (file: File): Promise<MedicalRecord> => {
+  if (!ai) {
+    // Return a default medical record if API key is not available
+    return {
+      id: Date.now().toString(),
+      date: new Date().toISOString().split('T')[0],
+      type: 'Medical Document',
+      summary: 'Document uploaded (AI analysis unavailable - no API key configured)',
+      doctor: 'Unknown',
+      category: 'General'
+    };
+  }
+
   const imagePart = await fileToGenerativePart(file);
 
   const request = {
@@ -76,6 +88,10 @@ export const analyzeMedicalRecord = async (file: File): Promise<MedicalRecord> =
 
 
 export const getChatResponse = async (history: Content[], newMessage: string): Promise<string> => {
+    if (!ai) {
+        return "AI chat is currently unavailable. Please check your configuration.";
+    }
+    
     const chat = ai.chats.create({
         model: model,
         history: history,
@@ -90,6 +106,10 @@ export const getChatResponse = async (history: Content[], newMessage: string): P
 };
 
 export const summarizeAllRecords = async (records: MedicalRecord[]): Promise<string> => {
+  if (!ai) {
+    return "AI summary is currently unavailable. Please check your configuration.";
+  }
+  
   if (records.length === 0) {
     return "No records available to summarize.";
   }

@@ -89,6 +89,14 @@ Your site will be available at: `https://your-site-name.netlify.app`
 2. **Routes don't work**: Ensure `_redirects` file is in public folder
 3. **Auth fails**: Check Supabase redirect URLs
 4. **Environment variables**: Must start with `VITE_` prefix
+5. **Secrets scanning error**: Ensure no API keys are hardcoded in source files
+
+### Secrets Scanning:
+Netlify automatically scans for exposed secrets. To avoid issues:
+- Never commit `.env` files with real API keys
+- Use only `import.meta.env.VITE_*` variables in Vite projects
+- Avoid hardcoding secrets in source code
+- Set environment variables in Netlify dashboard, not in code
 
 ### Support
 - Check Netlify build logs for detailed error messages
