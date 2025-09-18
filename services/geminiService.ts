@@ -43,12 +43,21 @@ export const analyzeMedicalRecord = async (
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        temperature: 0.1, // Lower temperature for more consistent results
+        topP: 0.8,
+        topK: 40,
+        maxOutputTokens: 1024,
+      },
+    });
+
     const imagePart = await fileToGenerativePart(file);
 
-    const prompt = `Analyze this medical record image and extract key information. 
+    const prompt = `You are a medical document analysis AI. Analyze this medical record and extract key information.
 
-IMPORTANT: You must respond with ONLY a valid JSON object in this exact format:
+CRITICAL: Respond with ONLY valid JSON in this exact format:
 {
   "date": "YYYY-MM-DD",
   "type": "document type",
@@ -56,61 +65,112 @@ IMPORTANT: You must respond with ONLY a valid JSON object in this exact format:
   "doctor": "doctor name"
 }
 
-Instructions:
-- date: Extract the date from the document in YYYY-MM-DD format. If no date found, use today's date.
-- type: Identify the document type (e.g., "Lab Report", "Doctor's Note", "Prescription", "X-Ray Report", "Blood Test")
-- summary: Write a brief 1-2 sentence summary of the key findings or information
-- doctor: Extract the doctor's name. If not found, use "Unknown"
+EXTRACTION RULES:
+- date: Look for any date on the document (visit date, report date, etc.). Format as YYYY-MM-DD. If no date found, use today's date.
+- type: Identify document type from these categories: "Lab Report", "Blood Test", "Prescription", "X-Ray Report", "MRI Report", "CT Scan", "Doctor's Note", "Discharge Summary", "Vaccination Record", "Medical Image", "Test Results", or "Medical Document"
+- summary: Write 1-2 sentences describing the key medical findings, test results, or purpose. Be specific about values, conditions, or medications mentioned.
+- doctor: Extract doctor's name, clinic name, or medical facility. If not found, use "Unknown"
 
-Do not include any text before or after the JSON object. Respond with only the JSON.`;
+IMPORTANT: Return ONLY the JSON object. No additional text, explanations, or formatting.`;
 
-    console.log("Sending request to Gemini AI...");
+    console.log("Analyzing medical record with optimized AI...");
+    const startTime = Date.now();
+
     const result = await model.generateContent([prompt, imagePart]);
-    const response = await result.response;
+    const response = result.response;
     const text = response.text().trim();
 
+    const analysisTime = Date.now() - startTime;
+    console.log(`AI analysis completed in ${analysisTime}ms`);
     console.log("Raw AI response:", text);
 
-    // Try to extract JSON from the response
-    let parsedResult;
+    // Enhanced JSON parsing with multiple fallback strategies
+    let parsedResult: any = null;
+
+    // Strategy 1: Direct JSON parsing
     try {
-      // First, try to parse the response directly as JSON
       parsedResult = JSON.parse(text);
     } catch (parseError) {
-      console.warn(
-        "Direct JSON parsing failed, trying to extract JSON from text:",
-        text
-      );
+      console.log("Direct JSON parsing failed, trying extraction methods...");
 
-      // Try to find JSON within the text using regex
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
+      // Strategy 2: Extract JSON from code blocks
+      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+      if (codeBlockMatch) {
         try {
-          parsedResult = JSON.parse(jsonMatch[0]);
-          console.log("Successfully extracted JSON from text:", parsedResult);
-        } catch (extractError) {
-          console.warn("Failed to parse extracted JSON:", extractError);
-          parsedResult = null;
+          parsedResult = JSON.parse(codeBlockMatch[1]);
+          console.log("Successfully extracted JSON from code block");
+        } catch (e) {
+          console.log("Code block extraction failed");
         }
-      } else {
-        console.warn("No JSON found in response");
-        parsedResult = null;
+      }
+
+      // Strategy 3: Find JSON object in text
+      if (!parsedResult) {
+        const jsonMatch = text.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
+        if (jsonMatch) {
+          try {
+            parsedResult = JSON.parse(jsonMatch[0]);
+            console.log("Successfully extracted JSON from text");
+          } catch (e) {
+            console.log("Text extraction failed");
+          }
+        }
+      }
+
+      // Strategy 4: Try to fix common JSON issues
+      if (!parsedResult && text.includes("{") && text.includes("}")) {
+        try {
+          let fixedText = text
+            .replace(/'/g, '"') // Replace single quotes with double quotes
+            .replace(/(\w+):/g, '"$1":') // Add quotes around keys
+            .replace(/,\s*}/g, "}") // Remove trailing commas
+            .replace(/,\s*]/g, "]"); // Remove trailing commas in arrays
+
+          const jsonMatch = fixedText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            parsedResult = JSON.parse(jsonMatch[0]);
+            console.log("Successfully parsed fixed JSON");
+          }
+        } catch (e) {
+          console.log("JSON fixing failed");
+        }
       }
     }
 
-    // If we still don't have valid JSON, create a fallback based on the text
+    // If all parsing strategies failed, create intelligent fallback
     if (!parsedResult) {
-      console.log("Creating fallback analysis from text response");
+      console.log(
+        "All JSON parsing strategies failed, creating intelligent fallback"
+      );
+
+      // Try to extract information from the text response
+      const dateMatch =
+        text.match(/\b(\d{4}[-/]\d{1,2}[-/]\d{1,2})\b/) ||
+        text.match(/\b(\d{1,2}[-/]\d{1,2}[-/]\d{4})\b/);
+      const doctorMatch =
+        text.match(/(?:dr\.?|doctor)\s+([a-z\s]+)/i) ||
+        text.match(/([a-z]+,?\s+[a-z]+)\s+(?:md|m\.d\.)/i);
+
+      let extractedDate = new Date().toISOString().split("T")[0];
+      if (dateMatch) {
+        try {
+          const date = new Date(dateMatch[1]);
+          if (!isNaN(date.getTime())) {
+            extractedDate = date.toISOString().split("T")[0];
+          }
+        } catch (e) {
+          console.log("Date extraction failed");
+        }
+      }
+
       parsedResult = {
-        date: new Date().toISOString().split("T")[0],
+        date: extractedDate,
         type: "Medical Document",
         summary:
-          text.length > 0
-            ? `AI analysis: ${text.substring(0, 100)}${
-                text.length > 100 ? "..." : ""
-              }`
-            : "Medical document uploaded and processed",
-        doctor: "Unknown",
+          text.length > 0 && text.length < 500
+            ? text.replace(/[{}"\[\]]/g, "").trim()
+            : "Medical document analyzed - please review the uploaded file for details",
+        doctor: doctorMatch ? doctorMatch[1].trim() : "Unknown",
       };
     }
 
@@ -124,13 +184,26 @@ Do not include any text before or after the JSON object. Respond with only the J
       category: "General",
     };
 
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanResult.date)) {
+      cleanResult.date = new Date().toISOString().split("T")[0];
+    }
+
     console.log("Final analysis result:", cleanResult);
     return cleanResult;
   } catch (error) {
     console.error("Error analyzing medical record:", error);
-    throw new Error(
-      "Failed to analyze medical record. Please check the console for details."
-    );
+
+    // Return a basic record instead of throwing error to prevent upload failure
+    return {
+      id: `rec-${Date.now()}`,
+      date: new Date().toISOString().split("T")[0],
+      type: "Medical Document",
+      summary:
+        "Document uploaded successfully. AI analysis encountered an issue - please review the file manually.",
+      doctor: "Unknown",
+      category: "General",
+    };
   }
 };
 
@@ -231,50 +304,93 @@ export const summarizeAllRecords = async (
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      systemInstruction: `You are an expert medical summarization AI. Your purpose is to synthesize medical record summaries into a clear, concise, and objective health overview for a patient.
-Rules:
-1. Focus on identifying key trends, significant changes, and important results.
-2. Use neutral, easy-to-understand language. Avoid overly technical jargon.
-3. **Crucially, you must NOT provide any medical advice, diagnosis, or treatment recommendations.**
-4. Do not make predictions about future health outcomes.
-5. Structure the output as a single, cohesive paragraph. Synthesize information, do not list records one by one.
-6. Keep the summary to 2-3 sentences maximum.`,
+      generationConfig: {
+        temperature: 0.3, // Slightly higher for more natural language
+        topP: 0.8,
+        topK: 40,
+        maxOutputTokens: 512, // Limit output for faster response
+      },
+      systemInstruction: `You are an expert medical summarization AI. Create clear, concise health overviews for patients.
+
+RULES:
+1. Focus on key trends, significant changes, and important results
+2. Use simple, patient-friendly language - avoid medical jargon
+3. NEVER provide medical advice, diagnosis, or treatment recommendations
+4. Do not make predictions about future health outcomes
+5. Write 2-3 sentences maximum as a cohesive summary
+6. Synthesize information - don't list records individually
+7. Highlight the most recent and significant findings`,
     });
 
-    const prompt = `Please create a brief health summary based on these medical records:
+    // Sort records by date (most recent first) and limit to most recent 10 for performance
+    const sortedRecords = records
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 10);
 
-${records.map((r) => `• ${r.date} (${r.type}): ${r.summary}`).join("\n")}
+    const prompt = `Summarize these medical records for the patient:
 
-Write a 2-3 sentence summary that gives the patient an overview of their recent health status. Focus on the most important findings and trends. Do not provide medical advice.`;
+${sortedRecords
+  .map((r, index) => `${index + 1}. ${r.date} - ${r.type}: ${r.summary}`)
+  .join("\n")}
 
-    console.log("Generating health summary for", records.length, "records...");
+Create a 2-3 sentence health overview focusing on the most important findings and recent trends. Use simple language the patient can understand.`;
+
+    console.log(
+      `Generating optimized health summary for ${sortedRecords.length} records...`
+    );
+    const startTime = Date.now();
+
     const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const response = result.response;
     const summaryText = response.text().trim();
 
-    console.log("Generated health summary:", summaryText);
+    const summaryTime = Date.now() - startTime;
+    console.log(`Health summary generated in ${summaryTime}ms:`, summaryText);
 
-    // Validate the summary
+    // Validate and clean the summary
     if (!summaryText || summaryText.length < 10) {
-      return `Based on your ${records.length} medical record${
-        records.length > 1 ? "s" : ""
-      }, your recent health information has been documented and is available for review.`;
+      return generateFallbackSummary(records);
     }
 
-    return summaryText;
+    // Remove any potential medical advice language
+    const cleanedSummary = summaryText
+      .replace(/\b(should|must|need to|recommend|suggest|advise)\b/gi, "")
+      .replace(/\bconsult.*?doctor\b/gi, "")
+      .trim();
+
+    return cleanedSummary || generateFallbackSummary(records);
   } catch (error) {
     console.error("Error summarizing records:", error);
+    return generateFallbackSummary(records);
+  }
+};
 
-    // Provide a fallback summary
-    const recordCount = records.length;
-    const latestRecord = records[0]; // Records are sorted by date desc
+// Helper function to generate fallback summary
+const generateFallbackSummary = (records: MedicalRecord[]): string => {
+  const recordCount = records.length;
 
-    if (recordCount === 0) {
-      return "No medical records available to summarize.";
-    } else if (recordCount === 1) {
-      return `Your most recent medical record from ${latestRecord.date} (${latestRecord.type}) has been documented: ${latestRecord.summary}`;
-    } else {
-      return `You have ${recordCount} medical records on file. Your most recent entry from ${latestRecord.date} shows: ${latestRecord.summary}`;
-    }
+  if (recordCount === 0) {
+    return "No medical records available to summarize.";
+  }
+
+  // Sort by date to get the most recent
+  const sortedRecords = records.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const latestRecord = sortedRecords[0];
+  const recordTypes = [...new Set(records.map((r) => r.type))];
+
+  if (recordCount === 1) {
+    return `Your medical record from ${new Date(
+      latestRecord.date
+    ).toLocaleDateString()} (${latestRecord.type}) has been documented: ${
+      latestRecord.summary
+    }`;
+  } else {
+    const typesList = recordTypes.slice(0, 3).join(", ");
+    return `You have ${recordCount} medical records including ${typesList}. Your most recent entry from ${new Date(
+      latestRecord.date
+    ).toLocaleDateString()} shows: ${latestRecord.summary}`;
   }
 };

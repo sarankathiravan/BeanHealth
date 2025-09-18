@@ -9,7 +9,7 @@ import Messages from "./Messages";
 import Billing from "./Billing";
 import { View, Patient, Vitals, Medication, MedicalRecord } from "../types";
 import { MedicalRecordsService } from "../services/medicalRecordsService";
-import { uploadFileToSupabase, uploadFileToSupabaseSimple, checkMedicalRecordsBucket, testStorageConnection } from "../services/storageService";
+import { uploadFileToSupabase, uploadFileToSupabaseSimple, checkMedicalRecordsBucket, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
 import { analyzeMedicalRecord, summarizeAllRecords } from "../services/geminiService";
 import StoragePolicyFix from "./StoragePolicyFix";
 
@@ -47,6 +47,19 @@ const PatientDashboard: React.FC = () => {
           // Load existing medical records
           const records = await MedicalRecordsService.getMedicalRecordsByPatientId(user.id);
           setMedicalRecords(records);
+          
+          // Generate initial AI summary if records exist
+          if (records.length > 0) {
+            setIsSummaryLoading(true);
+            try {
+              const summary = await summarizeAllRecords(records);
+              setAiSummary(summary);
+            } catch (error) {
+              console.error('Error generating initial AI summary:', error);
+            } finally {
+              setIsSummaryLoading(false);
+            }
+          }
         } catch (error) {
           console.error('Error initializing app:', error);
         }
@@ -55,6 +68,31 @@ const PatientDashboard: React.FC = () => {
 
     initializeApp();
   }, [user?.id]);
+
+  // Auto-refresh AI summary when records change (debounced)
+  useEffect(() => {
+    if (medicalRecords.length === 0) {
+      setAiSummary("Upload your first medical record to get an AI-powered health summary.");
+      return;
+    }
+
+    // Debounce the summary generation to avoid too many API calls
+    const timeoutId = setTimeout(async () => {
+      if (!isSummaryLoading) {
+        setIsSummaryLoading(true);
+        try {
+          const summary = await summarizeAllRecords(medicalRecords);
+          setAiSummary(summary);
+        } catch (error) {
+          console.error('Error auto-refreshing AI summary:', error);
+        } finally {
+          setIsSummaryLoading(false);
+        }
+      }
+    }, 1000); // Wait 1 second after records change
+
+    return () => clearTimeout(timeoutId);
+  }, [medicalRecords.length]); // Only trigger when the number of records changes
 
   // Convert auth user to app user format
   const appUser = {
@@ -126,6 +164,11 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handleRefreshSummary = async () => {
+    if (isSummaryLoading) {
+      console.log('Summary generation already in progress, skipping...');
+      return;
+    }
+    
     setIsSummaryLoading(true);
     try {
       const summary = await summarizeAllRecords(medicalRecords);
@@ -150,20 +193,28 @@ const PatientDashboard: React.FC = () => {
     }
 
     setIsUploadLoading(true);
+    console.log('Starting optimized file upload process...');
+    
     try {
-      // Upload file to Supabase storage
-      let fileUrl: string;
+      // Start file upload and AI analysis in parallel for faster processing
+      const uploadPromise = (async () => {
+        try {
+          // Try simplified upload first (skips bucket existence check)
+          return await uploadFileToSupabaseSimple(file);
+        } catch (simpleError) {
+          console.log('Simplified upload failed, trying full upload method...');
+          // Fallback to full upload method
+          return await uploadFileToSupabase(file);
+        }
+      })();
       
-      try {
-        // Try simplified upload first (skips bucket existence check)
-        fileUrl = await uploadFileToSupabaseSimple(file);
-      } catch (simpleError) {
-        // Fallback to full upload method
-        fileUrl = await uploadFileToSupabase(file);
-      }
+      const analysisPromise = analyzeMedicalRecord(file);
       
-      // Analyze the medical record with AI
-      const analysisResult = await analyzeMedicalRecord(file);
+      // Wait for both operations to complete
+      console.log('Running upload and analysis in parallel...');
+      const [fileUrl, analysisResult] = await Promise.all([uploadPromise, analysisPromise]);
+      
+      console.log('Upload and analysis completed, creating database record...');
       
       // Create the medical record in the database
       const newRecord = await MedicalRecordsService.createMedicalRecord({
@@ -176,13 +227,30 @@ const PatientDashboard: React.FC = () => {
         fileUrl: fileUrl,
       });
 
-      // Update local state
-      setMedicalRecords(prev => [newRecord, ...prev]);
+      // Update local state with the new record
+      const updatedRecords = [newRecord, ...medicalRecords];
+      setMedicalRecords(updatedRecords);
       
-      // Refresh AI summary with new record
-      await handleRefreshSummary();
+      // Generate AI summary with the updated records immediately
+      console.log('Generating AI summary for updated records...');
+      setIsSummaryLoading(true);
+      
+      try {
+        const summary = await summarizeAllRecords(updatedRecords);
+        setAiSummary(summary);
+      } catch (summaryError) {
+        console.error('Error generating AI summary:', summaryError);
+        // Don't fail the entire upload if summary generation fails
+        setAiSummary('Record uploaded successfully. Summary will be updated shortly.');
+      } finally {
+        setIsSummaryLoading(false);
+      }
+      
+      // Switch to records view to show the new record
+      setActiveView("records");
       
       alert('Medical record uploaded and analyzed successfully!');
+      
     } catch (error) {
       console.error('Error in file upload process:', error);
       
@@ -226,12 +294,32 @@ const PatientDashboard: React.FC = () => {
             records={patient.records}
             onRemoveRecord={async (recordId) => {
               try {
-                await MedicalRecordsService.deleteMedicalRecord(recordId);
+                // Delete the record and get the file URL
+                const fileUrl = await MedicalRecordsService.deleteMedicalRecord(recordId);
+                
+                // Delete the file from storage if it exists
+                if (fileUrl) {
+                  const storageDeleted = await deleteFileFromSupabase(fileUrl);
+                  if (!storageDeleted) {
+                    console.warn('Record deleted from database but file may still exist in storage');
+                  }
+                }
+                
+                // Update local state
                 setMedicalRecords((prev) =>
                   prev.filter((record) => record.id !== recordId)
                 );
-                // Refresh AI summary after removing record
-                await handleRefreshSummary();
+                
+                // Refresh AI summary after removing record (only if there are remaining records)
+                const remainingRecords = medicalRecords.filter((record) => record.id !== recordId);
+                if (remainingRecords.length > 0) {
+                  // Use the remaining records directly to avoid state delay
+                  const summary = await summarizeAllRecords(remainingRecords);
+                  setAiSummary(summary);
+                } else {
+                  setAiSummary("Upload your first medical record to get an AI-powered health summary.");
+                }
+                
               } catch (error) {
                 console.error('Error removing record:', error);
                 alert('Failed to remove record. Please try again.');

@@ -156,6 +156,42 @@ export const checkMedicalRecordsBucket = async (): Promise<{ exists: boolean; me
 // Legacy function name for backward compatibility
 export const createMedicalRecordsBucket = checkMedicalRecordsBucket;
 
+// Function to delete a file from Supabase storage
+export const deleteFileFromSupabase = async (fileUrl: string, bucket: string = 'medical-records'): Promise<boolean> => {
+    try {
+        console.log('Attempting to delete file from storage:', fileUrl);
+        
+        // Extract the file path from the URL
+        // URL format: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+        const urlParts = fileUrl.split('/');
+        const bucketIndex = urlParts.findIndex(part => part === bucket);
+        
+        if (bucketIndex === -1 || bucketIndex >= urlParts.length - 1) {
+            console.error('Could not extract file path from URL:', fileUrl);
+            return false;
+        }
+        
+        // Get the path after the bucket name
+        const filePath = urlParts.slice(bucketIndex + 1).join('/');
+        console.log('Extracted file path:', filePath);
+        
+        const { error } = await supabase.storage
+            .from(bucket)
+            .remove([filePath]);
+        
+        if (error) {
+            console.error('Error deleting file from storage:', error);
+            return false;
+        }
+        
+        console.log('File deleted successfully from storage:', filePath);
+        return true;
+    } catch (error) {
+        console.error('Error in deleteFileFromSupabase:', error);
+        return false;
+    }
+};
+
 // Function to test storage connectivity
 export const testStorageConnection = async (): Promise<boolean> => {
     try {
