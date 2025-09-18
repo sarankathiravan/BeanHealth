@@ -12,16 +12,23 @@ const AppContent: React.FC = () => {
   const { user, profile, loading, needsProfileSetup } = useAuth();
   const [loadingTimeout, setLoadingTimeout] = React.useState(false);
 
-  // Add a timeout to prevent infinite loading
+  // Add a longer timeout to prevent infinite loading, but be more forgiving
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (loading) {
-        console.warn('Loading timeout reached, forcing app to continue');
+        console.warn('Loading timeout reached after 15 seconds');
         setLoadingTimeout(true);
       }
-    }, 10000); // 10 second timeout
+    }, 15000); // Increased to 15 seconds for better reliability
 
     return () => clearTimeout(timer);
+  }, [loading]);
+
+  // Reset loading timeout when loading state changes
+  React.useEffect(() => {
+    if (!loading) {
+      setLoadingTimeout(false);
+    }
   }, [loading]);
 
   // Debug logging
@@ -35,21 +42,22 @@ const AppContent: React.FC = () => {
     console.log('==================');
   }, [user, profile, loading, needsProfileSetup, loadingTimeout]);
 
+  // Show loading screen while authentication is being determined
   if (loading && !loadingTimeout) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading your account...</p>
         </div>
       </div>
     );
   }
 
-  // If loading timed out, treat as not authenticated
-  if (loadingTimeout) {
-    console.log('Loading timeout reached, showing Auth');
-    return <Auth />;
+  // If we have a loading timeout but still have a user, proceed with the app
+  // This prevents getting stuck in loading state
+  if (loadingTimeout && user && profile) {
+    console.log('Loading timeout reached but user exists, proceeding to dashboard');
   }
 
   // Not authenticated - show auth flow

@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
+    let initializationComplete = false;
 
     // Handle OAuth callback if present
     const handleOAuthCallback = async () => {
@@ -65,13 +66,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    handleOAuthCallback();
-
-    // Get initial session
+    // Get initial session with better error handling
     const getInitialSession = async () => {
       try {
         console.log('Getting initial session...');
-        const { data: { session } } = await supabase.auth.getSession()
+        
+        // Wait for OAuth callback handling to complete
+        await handleOAuthCallback();
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         
         if (!mounted) return;
         
@@ -79,25 +87,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (session?.user) {
           console.log('User found, fetching profile...');
-          const userProfile = await AuthService.getCurrentUser()
-          if (!mounted) return;
-          
-          setProfile(userProfile)
-          setNeedsProfileSetup(!userProfile || !userProfile.role)
-          console.log('Profile loaded:', { userProfile, needsSetup: !userProfile || !userProfile.role });
+          try {
+            const userProfile = await AuthService.getCurrentUser()
+            if (!mounted) return;
+            
+            setProfile(userProfile)
+            setNeedsProfileSetup(!userProfile || !userProfile.role)
+            console.log('Profile loaded:', { userProfile, needsSetup: !userProfile || !userProfile.role });
+          } catch (profileError) {
+            console.error('Error fetching user profile:', profileError);
+            if (!mounted) return;
+            // Don't clear the user, just indicate profile setup is needed
+            setProfile(null)
+            setNeedsProfileSetup(true)
+          }
         } else {
           console.log('No user session found');
+          if (!mounted) return;
           setProfile(null)
           setNeedsProfileSetup(false)
         }
       } catch (error) {
         console.error('Error getting initial session:', error)
         if (!mounted) return;
-        setUser(null)
-        setProfile(null)
-        setNeedsProfileSetup(false)
+        // Only clear state if there's a real auth error, not a network issue
+        if (error?.message?.includes('Invalid JWT') || error?.message?.includes('expired')) {
+          setUser(null)
+          setProfile(null)
+          setNeedsProfileSetup(false)
+        }
       } finally {
         if (mounted) {
+          initializationComplete = true;
           console.log('Initial session loading complete');
           setLoading(false)
         }
@@ -111,6 +132,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
       
       console.log('Auth state change:', event, session?.user?.id)
+      
+      // Don't process auth state changes until initial session is loaded
+      // This prevents race conditions during app startup
+      if (!initializationComplete && event !== 'SIGNED_OUT') {
+        console.log('Skipping auth state change - initialization not complete');
+        return;
+      }
+      
       setUser(session?.user ?? null)
       
       if (session?.user) {
@@ -122,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
           console.error('Error fetching user profile:', error)
           if (!mounted) return;
+          // Don't clear the user session, just indicate profile setup is needed
           setProfile(null)
           setNeedsProfileSetup(true)
         }
@@ -131,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setNeedsProfileSetup(false)
       }
       
-      if (mounted) {
+      if (mounted && initializationComplete) {
         setLoading(false)
       }
     })

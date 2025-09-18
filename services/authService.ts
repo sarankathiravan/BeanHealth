@@ -131,10 +131,20 @@ export class AuthService {
 
   static async getCurrentUser() {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      // First check if we have an active session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (!session?.user) return null
+      if (sessionError) {
+        console.error('Session error in getCurrentUser:', sessionError);
+        throw sessionError;
+      }
+      
+      if (!session?.user) {
+        console.log('No session found in getCurrentUser');
+        return null;
+      }
 
+      // Then try to get the user profile
       const { data: profile, error } = await supabase
         .from('users')
         .select('*')
@@ -143,13 +153,31 @@ export class AuthService {
 
       // If user doesn't exist in database, return null (they need to set up profile)
       if (error && error.code === 'PGRST116') {
+        console.log('User not found in database, needs profile setup');
         return null;
       }
       
-      if (error) throw error
-      return profile
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+      }
+      
+      console.log('Successfully retrieved user profile:', profile);
+      return profile;
     } catch (error) {
       console.error('Error in getCurrentUser:', error);
+      
+      // Don't throw network errors, return null instead
+      if (error?.message?.includes('fetch') || error?.message?.includes('network')) {
+        console.warn('Network error in getCurrentUser, returning null');
+        return null;
+      }
+      
+      // Only throw auth-related errors
+      if (error?.message?.includes('JWT') || error?.message?.includes('expired') || error?.message?.includes('invalid')) {
+        throw error;
+      }
+      
       return null;
     }
   }
