@@ -13,7 +13,7 @@ interface DoctorSidebarProps {
 }
 
 const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ activeView, setActiveView, isOpen, onClose }) => {
-  const navItems: { view: DoctorPortalView; label: string; icon: JSX.Element }[] = [
+  const navItems: { view: DoctorPortalView; label: string; icon: React.ReactElement }[] = [
     { view: 'dashboard', label: 'Patient Roster', icon: <UserGroupIcon /> },
     { view: 'messages', label: 'Messages', icon: <MessagesIcon /> },
   ];

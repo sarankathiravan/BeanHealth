@@ -83,9 +83,18 @@ VITE_GEMINI_API_KEY=your_gemini_api_key  # Optional
 
 ### 5. Set Up Storage
 
+**📋 Follow the detailed guide: [STORAGE_SETUP.md](./STORAGE_SETUP.md)**
+
+**Quick Summary:**
 1. Go to Storage > Buckets in your Supabase dashboard
 2. Create a new bucket called `medical-records`
-3. Set the bucket to public for file access
+3. ✅ **Important**: Set the bucket to **public**
+4. Set file size limit to 10MB
+5. Add allowed MIME types: `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `application/pdf`
+
+**Verify Setup:**
+- Use the Storage Test component in the Upload section of the app
+- All tests should show "SUCCESS" status
 
 ### 6. Run the Application
 

@@ -20,6 +20,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 })
 
+
+
 // Database types (auto-generated from Supabase)
 export interface Database {
   public: {

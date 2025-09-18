@@ -1,5 +1,3 @@
-import { GenerateContentResponse } from "@google/genai";
-
 export type View = 'dashboard' | 'records' | 'upload' | 'messages' | 'billing';
 
 export type UserRole = 'patient' | 'doctor';
@@ -16,6 +14,20 @@ export interface User {
   email: string;
   role: UserRole;
   avatarUrl?: string;
+  avatar_url?: string; // Database field name
+  specialty?: string;
+  dateOfBirth?: string;
+  date_of_birth?: string; // Database field name
+  condition?: string;
+  subscriptionTier?: SubscriptionTier;
+  subscription_tier?: string; // Database field name
+  urgentCredits?: number;
+  urgent_credits?: number; // Database field name
+  trialEndsAt?: string;
+  trial_ends_at?: string; // Database field name
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Vital {
@@ -45,6 +57,7 @@ export interface Medication {
 
 export interface MedicalRecord {
   id: string;
+  patientId?: string; // Optional for existing records, required for new ones
   date: string;
   type: string;
   summary: string;

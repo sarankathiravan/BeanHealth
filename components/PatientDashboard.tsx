@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -8,49 +8,53 @@ import Upload from "./Upload";
 import Messages from "./Messages";
 import Billing from "./Billing";
 import { View, Patient, Vitals, Medication, MedicalRecord } from "../types";
+import { MedicalRecordsService } from "../services/medicalRecordsService";
+import { uploadFileToSupabase, uploadFileToSupabaseSimple, checkMedicalRecordsBucket, testStorageConnection } from "../services/storageService";
+import { analyzeMedicalRecord, summarizeAllRecords } from "../services/geminiService";
+import StoragePolicyFix from "./StoragePolicyFix";
 
 const PatientDashboard: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const [activeView, setActiveView] = useState<View>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Mock data and state management
+  // State management
   const [vitals, setVitals] = useState<Vitals>({
-    bloodPressure: { value: "120/80", unit: "mmHg", trend: "stable" },
-    heartRate: { value: "72", unit: "bpm", trend: "stable" },
-    temperature: { value: "98.6", unit: "°F", trend: "stable" },
+    bloodPressure: { value: "", unit: "mmHg", trend: "stable" },
+    heartRate: { value: "", unit: "bpm", trend: "stable" },
+    temperature: { value: "", unit: "°F", trend: "stable" },
   });
 
-  const [medications, setMedications] = useState<Medication[]>([
-    { id: "1", name: "Metformin", dosage: "500mg", frequency: "Twice daily" },
-    { id: "2", name: "Lisinopril", dosage: "10mg", frequency: "Once daily" },
-    { id: "3", name: "Aspirin", dosage: "81mg", frequency: "Once daily" },
-  ]);
-
-  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([
-    {
-      id: "1",
-      date: "2024-01-15",
-      type: "Lab Results",
-      summary: "Blood work showing normal glucose levels",
-      doctor: "Dr. Smith",
-      category: "Lab Work",
-    },
-    {
-      id: "2",
-      date: "2024-01-01",
-      type: "Check-up",
-      summary: "Annual physical examination - all vitals normal",
-      doctor: "Dr. Johnson",
-      category: "General",
-    },
-  ]);
+  const [medications, setMedications] = useState<Medication[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
 
   const [aiSummary, setAiSummary] = useState(
-    "Your recent vitals show stable readings. Blood pressure and heart rate are within normal ranges. Continue taking medications as prescribed."
+    "Upload your first medical record to get an AI-powered health summary."
   );
   const [summaryNote, setSummaryNote] = useState("");
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+  const [isUploadLoading, setIsUploadLoading] = useState(false);
+  const [showPolicyFix, setShowPolicyFix] = useState(false);
+
+  // Load medical records from database and setup storage
+  useEffect(() => {
+    const initializeApp = async () => {
+      if (user?.id) {
+        try {
+          // Initialize storage
+          await testStorageConnection();
+
+          // Load existing medical records
+          const records = await MedicalRecordsService.getMedicalRecordsByPatientId(user.id);
+          setMedicalRecords(records);
+        } catch (error) {
+          console.error('Error initializing app:', error);
+        }
+      }
+    };
+
+    initializeApp();
+  }, [user?.id]);
 
   // Convert auth user to app user format
   const appUser = {
@@ -82,31 +86,13 @@ const PatientDashboard: React.FC = () => {
       ],
       medications,
       records: medicalRecords,
-      doctors: [
-        {
-          id: "doc1",
-          name: "Dr. Sarah Johnson",
-          email: "dr.johnson@clinic.com",
-          role: "doctor",
-          specialty: "Internal Medicine",
-        },
-      ],
-      chatMessages: [
-        {
-          id: "msg1",
-          senderId: "doc1",
-          recipientId: appUser.id,
-          timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          text: "Hello! How are you feeling today? Please remember to take your medications as prescribed.",
-          isRead: false,
-          isUrgent: false,
-        },
-      ],
-      subscriptionTier: "FreeTrial",
-      urgentCredits: 3,
+      doctors: [],
+      chatMessages: [],
+      subscriptionTier: profile?.subscription_tier as "FreeTrial" | "Paid" || "FreeTrial",
+      urgentCredits: profile?.urgent_credits || 5,
       notes: summaryNote,
       avatarUrl: appUser.avatarUrl,
-      trialEndsAt: new Date(Date.now() + 14 * 86400000).toISOString(), // 14 days from now
+      trialEndsAt: profile?.trial_ends_at || new Date(Date.now() + 14 * 86400000).toISOString()
     }),
     [appUser, vitals, medications, medicalRecords, summaryNote, profile]
   );
@@ -141,18 +127,79 @@ const PatientDashboard: React.FC = () => {
 
   const handleRefreshSummary = async () => {
     setIsSummaryLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setAiSummary(
-        "Updated summary based on your latest health data. All readings continue to be stable."
-      );
+    try {
+      const summary = await summarizeAllRecords(medicalRecords);
+      setAiSummary(summary);
+    } catch (error) {
+      console.error('Error generating AI summary:', error);
+      setAiSummary('Unable to generate summary at this time. Please try again later.');
+    } finally {
       setIsSummaryLoading(false);
-    }, 2000);
+    }
   };
 
   const handleUpdateAvatar = (dataUrl: string) => {
     // Handle avatar update
     console.log("Avatar updated:", dataUrl);
+  };
+
+  const handleFileUpload = async (file: File, category: string) => {
+    if (!user?.id) {
+      alert('Please log in to upload files.');
+      return;
+    }
+
+    setIsUploadLoading(true);
+    try {
+      // Upload file to Supabase storage
+      let fileUrl: string;
+      
+      try {
+        // Try simplified upload first (skips bucket existence check)
+        fileUrl = await uploadFileToSupabaseSimple(file);
+      } catch (simpleError) {
+        // Fallback to full upload method
+        fileUrl = await uploadFileToSupabase(file);
+      }
+      
+      // Analyze the medical record with AI
+      const analysisResult = await analyzeMedicalRecord(file);
+      
+      // Create the medical record in the database
+      const newRecord = await MedicalRecordsService.createMedicalRecord({
+        patientId: user.id,
+        date: analysisResult.date,
+        type: analysisResult.type,
+        summary: analysisResult.summary,
+        doctor: analysisResult.doctor,
+        category: category,
+        fileUrl: fileUrl,
+      });
+
+      // Update local state
+      setMedicalRecords(prev => [newRecord, ...prev]);
+      
+      // Refresh AI summary with new record
+      await handleRefreshSummary();
+      
+      alert('Medical record uploaded and analyzed successfully!');
+    } catch (error) {
+      console.error('Error in file upload process:', error);
+      
+      let errorMessage = 'Failed to upload and analyze the medical record.';
+      if (error instanceof Error) {
+        errorMessage += ` Error: ${error.message}`;
+        
+        // Check if it's an RLS policy error
+        if (error.message.includes('row-level security policy') || error.message.includes('policy')) {
+          setShowPolicyFix(true);
+        }
+      }
+      
+      alert(errorMessage + ' Please check the console for more details.');
+    } finally {
+      setIsUploadLoading(false);
+    }
   };
 
   const renderContent = () => {
@@ -177,22 +224,30 @@ const PatientDashboard: React.FC = () => {
         return (
           <Records
             records={patient.records}
-            onRemoveRecord={(recordId) => {
-              setMedicalRecords((prev) =>
-                prev.filter((record) => record.id !== recordId)
-              );
+            onRemoveRecord={async (recordId) => {
+              try {
+                await MedicalRecordsService.deleteMedicalRecord(recordId);
+                setMedicalRecords((prev) =>
+                  prev.filter((record) => record.id !== recordId)
+                );
+                // Refresh AI summary after removing record
+                await handleRefreshSummary();
+              } catch (error) {
+                console.error('Error removing record:', error);
+                alert('Failed to remove record. Please try again.');
+              }
             }}
           />
         );
       case "upload":
         return (
-          <Upload
-            onUpload={(file, category) => {
-              // Handle file upload
-              console.log("Uploading file:", file.name, "Category:", category);
-            }}
-            isLoading={false}
-          />
+          <div className="space-y-6">
+            {showPolicyFix && <StoragePolicyFix />}
+            <Upload
+              onUpload={handleFileUpload}
+              isLoading={isUploadLoading}
+            />
+          </div>
         );
       case "messages":
         return (

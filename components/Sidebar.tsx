@@ -16,7 +16,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isOpen, onClose }) => {
-  const navItems: { view: View; label: string; icon: JSX.Element }[] = [
+  const navItems: { view: View; label: string; icon: React.ReactElement }[] = [
     { view: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     { view: 'records', label: 'View Records', icon: <RecordsIcon /> },
     { view: 'upload', label: 'Upload Record', icon: <UploadIcon /> },
