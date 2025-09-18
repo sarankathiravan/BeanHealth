@@ -26,6 +26,7 @@ const ProfileSetup: React.FC = () => {
         specialty: role === 'doctor' ? specialty : undefined,
         dateOfBirth: role === 'patient' ? dateOfBirth : undefined,
         condition: role === 'patient' ? condition : undefined,
+        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture,
       };
       
       console.log('Creating profile with data:', profileData);

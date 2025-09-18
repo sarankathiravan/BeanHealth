@@ -16,7 +16,7 @@ const PatientDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <SimpleHeader 
-        userName={profile?.first_name || user?.email || 'User'}
+        userName={profile?.name || user?.email || 'User'}
         userRole={profile?.role || 'patient'}
         onSignOut={signOut}
       />
@@ -25,7 +25,7 @@ const PatientDashboard: React.FC = () => {
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome back, {profile?.first_name || user?.email}!
+              Welcome back, {profile?.name || user?.email}!
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
               Here's your health overview for today

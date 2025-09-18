@@ -24,6 +24,7 @@ export class AuthService {
     specialty?: string
     dateOfBirth?: string
     condition?: string
+    avatarUrl?: string
   }) {
     try {
       // Check if user already exists
@@ -46,6 +47,7 @@ export class AuthService {
             specialty: userData.role === 'doctor' ? userData.specialty : null,
             date_of_birth: userData.role === 'patient' ? userData.dateOfBirth : null,
             condition: userData.role === 'patient' ? userData.condition : null,
+            avatar_url: userData.avatarUrl,
           })
 
         if (insertError) {
@@ -62,6 +64,7 @@ export class AuthService {
             specialty: userData.role === 'doctor' ? userData.specialty : null,
             date_of_birth: userData.role === 'patient' ? userData.dateOfBirth : null,
             condition: userData.role === 'patient' ? userData.condition : null,
+            avatar_url: userData.avatarUrl,
           })
           .eq('id', userData.id)
 

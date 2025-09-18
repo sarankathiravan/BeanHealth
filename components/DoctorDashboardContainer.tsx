@@ -12,7 +12,7 @@ const DoctorDashboardContainer: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <SimpleHeader 
-        userName={profile?.first_name || profile?.last_name || user?.email || 'Doctor'}
+        userName={profile?.name || user?.email || 'Doctor'}
         userRole={profile?.role || 'doctor'}
         onSignOut={signOut}
       />
@@ -21,7 +21,7 @@ const DoctorDashboardContainer: React.FC = () => {
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome, Dr. {profile?.last_name || user?.email}!
+              Welcome, {profile?.name || user?.email}!
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
               Your practice dashboard and patient overview
