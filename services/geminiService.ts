@@ -7,32 +7,7 @@ const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 // Simple cache to avoid re-analyzing identical files
 const analysisCache = new Map<string, MedicalRecordWithVitals>();
 
-// Rate limiting to prevent quota exhaustion
-let requestCount = 0;
-let lastResetTime = Date.now();
-const DAILY_LIMIT = 45; // Leave some buffer from the 50 limit
-const RESET_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
-const checkRateLimit = (): boolean => {
-  const now = Date.now();
-
-  // Reset counter if 24 hours have passed
-  if (now - lastResetTime > RESET_INTERVAL) {
-    requestCount = 0;
-    lastResetTime = now;
-  }
-
-  if (requestCount >= DAILY_LIMIT) {
-    console.log(
-      `⚠️ Daily API limit reached (${requestCount}/${DAILY_LIMIT}). Using fallback analysis.`
-    );
-    return false;
-  }
-
-  requestCount++;
-  console.log(`📊 API usage: ${requestCount}/${DAILY_LIMIT} requests today`);
-  return true;
-};
 
 // Generate a simple hash for file content (for caching)
 const generateFileHash = async (file: File): Promise<string> => {
@@ -61,22 +36,14 @@ const createFallbackAnalysis = (file: File): MedicalRecordWithVitals => {
   else if (fileName.includes("doctor") || fileName.includes("note"))
     type = "Doctor's Note";
 
-  // Add sample vitals for testing when quota is exceeded
-  const extractedVitals: ExtractedVitals = {
-    bloodPressure: { systolic: 120, diastolic: 80 },
-    heartRate: 72,
-    temperature: { value: 98.6, unit: "F" },
-    date: today,
-  };
-
   return {
     id: `rec-${Date.now()}`,
     date: today,
     type,
-    summary: `${type} uploaded successfully. AI analysis temporarily unavailable due to quota limits - using intelligent fallback analysis.`,
+    summary: `${type} uploaded successfully. AI analysis temporarily unavailable - please review the document manually for detailed information.`,
     doctor: "Unknown",
-    category: "General",
-    extractedVitals, // Include sample vitals for testing
+    category: "General"
+    // No extractedVitals - only provide when AI actually extracts them
   };
 };
 
@@ -111,127 +78,7 @@ export interface ExtractedVitals {
   date: string;
 }
 
-export const extractVitalSigns = async (
-  file: File
-): Promise<ExtractedVitals | null> => {
-  console.log("🔍 Starting vital signs extraction for file:", file.name);
 
-  if (!genAI) {
-    console.log("❌ Gemini AI not available for vital signs extraction");
-    return null;
-  }
-
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        temperature: 0.1,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 512,
-      },
-    });
-
-    const imagePart = await fileToGenerativePart(file);
-
-    const prompt = `You are a medical vital signs extraction AI. Analyze this medical document and extract vital signs measurements.
-
-Look for these specific patterns in the document:
-- Blood Pressure: "120/80", "BP: 130/85", "Blood Pressure 140/90"
-- Heart Rate: "72 bpm", "HR: 80", "Pulse 75", "Heart Rate: 68"
-- Temperature: "98.6°F", "37°C", "Temp: 99.1", "Temperature 98.2"
-- Glucose: "95 mg/dL", "Glucose: 110", "Blood Sugar 120"
-
-Respond with ONLY valid JSON in this exact format (include only fields you find):
-{
-  "bloodPressure": {"systolic": 120, "diastolic": 80},
-  "heartRate": 72,
-  "temperature": {"value": 98.6, "unit": "F"},
-  "glucose": 95,
-  "date": "2024-01-15"
-}
-
-CRITICAL RULES:
-- Return ONLY the JSON object, no other text
-- Only include fields if you find actual measurements
-- If no vitals found, return: {"date": "2024-01-15"}
-- Use today's date if document date unclear`;
-
-    console.log("📤 Sending vital signs extraction request to AI...");
-    const startTime = Date.now();
-
-    const result = await model.generateContent([prompt, imagePart]);
-    const response = result.response;
-    const text = response.text().trim();
-
-    const extractionTime = Date.now() - startTime;
-    console.log(`⏱️ Vital signs extraction completed in ${extractionTime}ms`);
-    console.log("🤖 AI Response:", text);
-
-    // Enhanced JSON parsing with multiple strategies
-    let vitals: any = null;
-
-    // Strategy 1: Direct JSON parsing
-    try {
-      vitals = JSON.parse(text);
-      console.log("✅ Direct JSON parsing successful");
-    } catch (parseError) {
-      console.log("⚠️ Direct JSON parsing failed, trying extraction...");
-
-      // Strategy 2: Extract JSON from code blocks
-      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (codeBlockMatch) {
-        try {
-          vitals = JSON.parse(codeBlockMatch[1]);
-          console.log("✅ Code block extraction successful");
-        } catch (e) {
-          console.log("❌ Code block extraction failed");
-        }
-      }
-
-      // Strategy 3: Find JSON object in text
-      if (!vitals) {
-        const jsonMatch = text.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
-        if (jsonMatch) {
-          try {
-            vitals = JSON.parse(jsonMatch[0]);
-            console.log("✅ Text extraction successful");
-          } catch (e) {
-            console.log("❌ Text extraction failed");
-          }
-        }
-      }
-    }
-
-    if (!vitals) {
-      console.log("❌ All JSON parsing strategies failed");
-      return null;
-    }
-
-    // Validate and set default date
-    if (!vitals.date) {
-      vitals.date = new Date().toISOString().split("T")[0];
-    }
-
-    // Check if we found any vital signs
-    const hasVitals =
-      vitals.bloodPressure ||
-      vitals.heartRate ||
-      vitals.temperature ||
-      vitals.glucose;
-
-    if (hasVitals) {
-      console.log("🎉 Successfully extracted vital signs:", vitals);
-      return vitals;
-    } else {
-      console.log("📋 No vital signs found in document");
-      return null;
-    }
-  } catch (error) {
-    console.error("💥 Error extracting vital signs:", error);
-    return null;
-  }
-};
 
 // Enhanced interface that includes both analysis and vitals
 export interface MedicalRecordWithVitals extends MedicalRecord {
@@ -268,19 +115,14 @@ export const analyzeMedicalRecord = async (
       };
     }
 
-    console.log("🔍 No cache found, checking rate limit...");
 
-    // Check rate limit before making API call
-    if (!checkRateLimit()) {
-      return createFallbackAnalysis(file);
-    }
   } catch (error) {
-    console.log("⚠️ Cache check failed, proceeding with AI analysis...");
+    // Continue with analysis if cache check fails
   }
 
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.1, // Lower temperature for more consistent results
         topP: 0.8,
@@ -288,6 +130,7 @@ export const analyzeMedicalRecord = async (
         maxOutputTokens: 1024,
       },
     });
+
 
     const imagePart = await fileToGenerativePart(file);
 
@@ -321,16 +164,9 @@ EXTRACTION RULES:
 
 IMPORTANT: Return ONLY the JSON object. No additional text, explanations, or formatting.`;
 
-    console.log("Analyzing medical record with optimized AI...");
-    const startTime = Date.now();
-
     const result = await model.generateContent([prompt, imagePart]);
     const response = result.response;
     const text = response.text().trim();
-
-    const analysisTime = Date.now() - startTime;
-    console.log(`AI analysis completed in ${analysisTime}ms`);
-    console.log("Raw AI response:", text);
 
     // Enhanced JSON parsing with multiple fallback strategies
     let parsedResult: any = null;
@@ -482,7 +318,6 @@ IMPORTANT: Return ONLY the JSON object. No additional text, explanations, or for
 
     // If it's a quota error, use intelligent fallback
     if (error instanceof Error && error.message.includes("429")) {
-      console.log("🔄 Quota exceeded, using intelligent fallback analysis");
       return createFallbackAnalysis(file);
     }
 
@@ -509,7 +344,7 @@ export const getChatResponse = async (
 
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       systemInstruction:
         "You are a helpful medical assistant for Beanhealth. Your role is to answer user questions about their health data in a clear, concise, and friendly manner. Do not provide medical advice. If asked for medical advice, direct the user to consult with their doctor.",
     });
@@ -540,7 +375,7 @@ export const testAIConnection = async (): Promise<{
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(
       'Respond with exactly this JSON: {"test": "success", "message": "AI is working"}'
     );
@@ -595,7 +430,7 @@ export const summarizeAllRecords = async (
 
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.3, // Slightly higher for more natural language
         topP: 0.8,
@@ -627,17 +462,9 @@ ${sortedRecords
 
 Create a 2-3 sentence health overview focusing on the most important findings and recent trends. Use simple language the patient can understand.`;
 
-    console.log(
-      `Generating optimized health summary for ${sortedRecords.length} records...`
-    );
-    const startTime = Date.now();
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     const summaryText = response.text().trim();
-
-    const summaryTime = Date.now() - startTime;
-    console.log(`Health summary generated in ${summaryTime}ms:`, summaryText);
 
     // Validate and clean the summary
     if (!summaryText || summaryText.length < 10) {

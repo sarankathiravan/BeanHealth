@@ -10,7 +10,7 @@ import Billing from "./Billing";
 import { View, Patient, Vitals, Medication, MedicalRecord } from "../types";
 import { MedicalRecordsService } from "../services/medicalRecordsService";
 import { uploadFileToSupabase, uploadFileToSupabaseSimple, checkMedicalRecordsBucket, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
-import { analyzeMedicalRecord, summarizeAllRecords, extractVitalSigns, ExtractedVitals, MedicalRecordWithVitals } from "../services/geminiService";
+import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals, MedicalRecordWithVitals } from "../services/geminiService";
 import StoragePolicyFix from "./StoragePolicyFix";
 
 const PatientDashboard: React.FC = () => {
@@ -212,29 +212,10 @@ const PatientDashboard: React.FC = () => {
     console.log("Avatar updated:", dataUrl);
   };
 
-  // Test function to manually test vitals update (for debugging)
-  const testVitalsUpdate = () => {
-    const testVitals: ExtractedVitals = {
-      bloodPressure: { systolic: 130, diastolic: 85 },
-      heartRate: 75,
-      temperature: { value: 99.1, unit: "F" },
-      date: new Date().toISOString().split("T")[0]
-    };
-    
-    console.log('🧪 Testing vitals update with sample data:', testVitals);
-    updateVitalsFromRecord(testVitals, testVitals.date, medicalRecords);
-  };
 
-  // Make test function available globally for debugging
-  (window as any).testVitalsUpdate = testVitalsUpdate;
 
   // Function to update vitals from extracted medical record data
   const updateVitalsFromRecord = (extractedVitals: ExtractedVitals, recordDate: string, allRecords: MedicalRecord[]) => {
-    console.log("🔄 Starting vitals update process...");
-    console.log("📊 Extracted vitals:", extractedVitals);
-    console.log("📅 Record date:", recordDate);
-    console.log("📋 Current vitals:", vitals);
-    
     // Check if this is the most recent record with vital signs
     const recordsWithDates = allRecords
       .map(record => ({ ...record, dateObj: new Date(record.date) }))
@@ -243,31 +224,16 @@ const PatientDashboard: React.FC = () => {
     const currentRecordDate = new Date(recordDate);
     const mostRecentRecord = recordsWithDates[0];
     
-    console.log("🗓️ Most recent record date:", mostRecentRecord.dateObj);
-    console.log("🗓️ Current record date:", currentRecordDate);
-    
     // Only update vitals if this is the most recent record or if current vitals are empty
     const isCurrentVitalsEmpty = !vitals.bloodPressure.value && !vitals.heartRate.value && !vitals.temperature.value;
     const isMostRecentRecord = mostRecentRecord.dateObj.getTime() === currentRecordDate.getTime();
     const shouldUpdate = isMostRecentRecord || isCurrentVitalsEmpty;
     
-    console.log("🔍 Update conditions:", {
-      isCurrentVitalsEmpty,
-      isMostRecentRecord,
-      shouldUpdate
-    });
-    
     if (!shouldUpdate) {
-      console.log("⏭️ Skipping vitals update - not the most recent record and vitals not empty");
       return;
     }
     
-    console.log("✅ Proceeding with vitals update...");
-    
     setVitals(prevVitals => {
-      console.log("🔧 Updating vitals state...");
-      console.log("📊 Previous vitals:", prevVitals);
-      
       const updatedVitals = { ...prevVitals };
       let hasUpdates = false;
       const updatedFields: string[] = [];
@@ -275,7 +241,6 @@ const PatientDashboard: React.FC = () => {
       // Update blood pressure
       if (extractedVitals.bloodPressure) {
         const { systolic, diastolic } = extractedVitals.bloodPressure;
-        console.log("🩸 Updating blood pressure:", `${systolic}/${diastolic}`);
         updatedVitals.bloodPressure = {
           value: `${systolic}/${diastolic}`,
           unit: "mmHg",
@@ -287,7 +252,6 @@ const PatientDashboard: React.FC = () => {
 
       // Update heart rate
       if (extractedVitals.heartRate) {
-        console.log("💓 Updating heart rate:", extractedVitals.heartRate);
         updatedVitals.heartRate = {
           value: extractedVitals.heartRate.toString(),
           unit: "bpm",
@@ -302,7 +266,6 @@ const PatientDashboard: React.FC = () => {
         const { value, unit } = extractedVitals.temperature;
         // Convert to Fahrenheit if needed
         const tempInF = unit === 'C' ? (value * 9/5) + 32 : value;
-        console.log("🌡️ Updating temperature:", `${tempInF.toFixed(1)}°F`);
         updatedVitals.temperature = {
           value: tempInF.toFixed(1),
           unit: "°F",
@@ -333,10 +296,6 @@ const PatientDashboard: React.FC = () => {
       }
 
       if (hasUpdates) {
-        console.log("🎉 Vitals updated successfully!");
-        console.log("📊 Updated vitals:", updatedVitals);
-        console.log("📝 Updated fields:", updatedFields);
-        
         // Update the tracking of when vitals were last updated from records
         setVitalsLastUpdatedFromRecord(prev => {
           const updated = { ...prev };
@@ -344,20 +303,16 @@ const PatientDashboard: React.FC = () => {
           if (extractedVitals.heartRate) updated.heartRate = recordDate;
           if (extractedVitals.temperature) updated.temperature = recordDate;
           if (extractedVitals.glucose) updated.glucose = recordDate;
-          console.log("📅 Updated vitals tracking:", updated);
           return updated;
         });
         
-        // Show a notification to the user
+        // Show a single notification to the user
         setTimeout(() => {
           const fieldsText = updatedFields.join(", ");
-          alert(`✅ Vital signs updated: ${fieldsText}\nFrom medical record dated ${new Date(recordDate).toLocaleDateString()}`);
-        }, 1500);
-      } else {
-        console.log("⚠️ No vitals were updated");
+          alert(`Vital signs updated: ${fieldsText}\nFrom medical record dated ${new Date(recordDate).toLocaleDateString()}`);
+        }, 1000);
       }
 
-      console.log("🔄 Returning updated vitals:", updatedVitals);
       return updatedVitals;
     });
   };
@@ -387,7 +342,7 @@ const PatientDashboard: React.FC = () => {
       const analysisPromise = analyzeMedicalRecord(file);
       
       // Wait for both operations to complete (reduced from 3 to 2 API calls!)
-      console.log('🚀 Running upload and combined AI analysis (quota-optimized)...');
+
       const [fileUrl, analysisResult] = await Promise.all([
         uploadPromise, 
         analysisPromise
@@ -396,14 +351,7 @@ const PatientDashboard: React.FC = () => {
       // Extract vitals from the combined analysis result
       const extractedVitals = analysisResult.extractedVitals;
       
-      console.log('🎯 Operations completed with quota optimization:', {
-        fileUrl: !!fileUrl,
-        analysisResult: !!analysisResult,
-        extractedVitals: extractedVitals,
-        apiCallsSaved: extractedVitals ? 1 : 0 // We saved 1 API call by combining!
-      });
-      
-      console.log('Upload and analysis completed, creating database record...');
+
       
       // Create the medical record in the database
       const newRecord = await MedicalRecordsService.createMedicalRecord({
@@ -446,7 +394,6 @@ const PatientDashboard: React.FC = () => {
       }
       
       // Generate AI summary with the updated records immediately
-      console.log('Generating AI summary for updated records...');
       setIsSummaryLoading(true);
       
       try {
