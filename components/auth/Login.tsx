@@ -23,7 +23,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
         Welcome to BeanHealth
       </h2>
       <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-        Sign in with your Google account to continue
+        Sign in with your Google account to access your BeanHealth dashboard
       </p>
       
       <div className="space-y-4">
