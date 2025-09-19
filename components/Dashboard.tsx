@@ -18,7 +18,7 @@ interface DashboardProps {
   onSummaryChange: (newSummary: string) => void;
   summaryNote: string;
   onSummaryNoteChange: (newNote: string) => void;
-  onVitalsChange: (vitalKey: keyof Vitals, newValue: string) => void;
+  onVitalsChange: (vitalKey: keyof Vitals, newValue: string) => Promise<void>;
   onMedicationChange: (medication: Medication) => void;
   onMedicationRemove: (medicationId: string) => void;
   onMedicationAdd: (medication: Omit<Medication, 'id'>) => void;

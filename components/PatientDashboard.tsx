@@ -14,6 +14,7 @@ import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals } from "../s
 import { UserService } from "../services/authService";
 import { PatientAdditionService } from "../services/patientInvitationService";
 import { ChatService } from "../services/chatService";
+import { VitalsService } from "../services/dataService";
 
 
 const PatientDashboard: React.FC = () => {
@@ -55,6 +56,13 @@ const PatientDashboard: React.FC = () => {
           // Initialize storage
           await testStorageConnection();
 
+          // Load existing vitals from database
+          const latestVitals = await VitalsService.getLatestVitals(user.id);
+          if (latestVitals) {
+            setVitals(latestVitals);
+            console.log('✅ Loaded vitals from database:', latestVitals);
+          }
+
           // Load existing medical records
           const records = await MedicalRecordsService.getMedicalRecordsByPatientId(user.id);
           setMedicalRecords(records);
@@ -74,7 +82,7 @@ const PatientDashboard: React.FC = () => {
           
           // Check if we need to extract vitals from the most recent record on app load
           // This is useful if vitals are empty but we have recent records
-          const hasEmptyVitals = !vitals.bloodPressure.value && !vitals.heartRate.value && !vitals.temperature.value;
+          const hasEmptyVitals = !latestVitals || (!latestVitals.bloodPressure.value && !latestVitals.heartRate.value && !latestVitals.temperature.value);
           if (hasEmptyVitals && records.length > 0) {
             // Find the most recent record
             const sortedRecords = records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -198,11 +206,23 @@ const PatientDashboard: React.FC = () => {
   );
 
   // Event handlers
-  const handleVitalsChange = (vitalKey: keyof Vitals, newValue: string) => {
+  const handleVitalsChange = async (vitalKey: keyof Vitals, newValue: string) => {
+    // Update local state immediately for responsive UI
     setVitals((prev) => ({
       ...prev,
       [vitalKey]: { ...prev[vitalKey], value: newValue },
     }));
+
+    // Save to database if user is logged in and value is not empty
+    if (user?.id && newValue.trim()) {
+      try {
+        await VitalsService.updateVital(user.id, vitalKey, newValue);
+        console.log(`✅ Updated ${vitalKey} in database:`, newValue);
+      } catch (error) {
+        console.error(`❌ Error updating ${vitalKey} in database:`, error);
+        // Could show a toast notification here instead of console.error
+      }
+    }
   };
 
   const handleMedicationAdd = (newMedication: Omit<Medication, "id">) => {
@@ -261,7 +281,7 @@ const PatientDashboard: React.FC = () => {
 
 
   // Function to update vitals from extracted medical record data
-  const updateVitalsFromRecord = (extractedVitals: ExtractedVitals, recordDate: string, allRecords: MedicalRecord[]) => {
+  const updateVitalsFromRecord = async (extractedVitals: ExtractedVitals, recordDate: string, allRecords: MedicalRecord[]) => {
     // Check if this is the most recent record with vital signs
     const recordsWithDates = allRecords
       .map(record => ({ ...record, dateObj: new Date(record.date) }))
@@ -279,69 +299,76 @@ const PatientDashboard: React.FC = () => {
       return;
     }
     
-    setVitals(prevVitals => {
-      const updatedVitals = { ...prevVitals };
-      let hasUpdates = false;
-      const updatedFields: string[] = [];
+    const updatedVitals = { ...vitals };
+    let hasUpdates = false;
+    const updatedFields: string[] = [];
 
-      // Update blood pressure
-      if (extractedVitals.bloodPressure) {
-        const { systolic, diastolic } = extractedVitals.bloodPressure;
-        updatedVitals.bloodPressure = {
-          value: `${systolic}/${diastolic}`,
-          unit: "mmHg",
-          trend: "stable"
-        };
-        hasUpdates = true;
-        updatedFields.push("Blood Pressure");
-      }
+    // Update blood pressure
+    if (extractedVitals.bloodPressure) {
+      const { systolic, diastolic } = extractedVitals.bloodPressure;
+      updatedVitals.bloodPressure = {
+        value: `${systolic}/${diastolic}`,
+        unit: "mmHg",
+        trend: "stable"
+      };
+      hasUpdates = true;
+      updatedFields.push("Blood Pressure");
+    }
 
-      // Update heart rate
-      if (extractedVitals.heartRate) {
-        updatedVitals.heartRate = {
-          value: extractedVitals.heartRate.toString(),
-          unit: "bpm",
-          trend: "stable"
-        };
-        hasUpdates = true;
-        updatedFields.push("Heart Rate");
-      }
+    // Update heart rate
+    if (extractedVitals.heartRate) {
+      updatedVitals.heartRate = {
+        value: extractedVitals.heartRate.toString(),
+        unit: "bpm",
+        trend: "stable"
+      };
+      hasUpdates = true;
+      updatedFields.push("Heart Rate");
+    }
 
-      // Update temperature
-      if (extractedVitals.temperature) {
-        const { value, unit } = extractedVitals.temperature;
-        // Convert to Fahrenheit if needed
-        const tempInF = unit === 'C' ? (value * 9/5) + 32 : value;
-        updatedVitals.temperature = {
-          value: tempInF.toFixed(1),
-          unit: "°F",
-          trend: "stable"
-        };
-        hasUpdates = true;
-        updatedFields.push("Temperature");
-      }
+    // Update temperature
+    if (extractedVitals.temperature) {
+      const { value, unit } = extractedVitals.temperature;
+      // Convert to Fahrenheit if needed
+      const tempInF = unit === 'C' ? (value * 9/5) + 32 : value;
+      updatedVitals.temperature = {
+        value: tempInF.toFixed(1),
+        unit: "°F",
+        trend: "stable"
+      };
+      hasUpdates = true;
+      updatedFields.push("Temperature");
+    }
 
-      // Update glucose if available
-      if (extractedVitals.glucose && updatedVitals.glucose) {
-        updatedVitals.glucose = {
-          value: extractedVitals.glucose.toString(),
-          unit: "mg/dL",
-          trend: "stable"
-        };
-        hasUpdates = true;
-        updatedFields.push("Blood Glucose");
-      } else if (extractedVitals.glucose) {
-        // Add glucose if it doesn't exist
-        updatedVitals.glucose = {
-          value: extractedVitals.glucose.toString(),
-          unit: "mg/dL",
-          trend: "stable"
-        };
-        hasUpdates = true;
-        updatedFields.push("Blood Glucose");
-      }
+    // Update glucose if available
+    if (extractedVitals.glucose && updatedVitals.glucose) {
+      updatedVitals.glucose = {
+        value: extractedVitals.glucose.toString(),
+        unit: "mg/dL",
+        trend: "stable"
+      };
+      hasUpdates = true;
+      updatedFields.push("Blood Glucose");
+    } else if (extractedVitals.glucose) {
+      // Add glucose if it doesn't exist
+      updatedVitals.glucose = {
+        value: extractedVitals.glucose.toString(),
+        unit: "mg/dL",
+        trend: "stable"
+      };
+      hasUpdates = true;
+      updatedFields.push("Blood Glucose");
+    }
 
-      if (hasUpdates) {
+    if (hasUpdates && user?.id) {
+      try {
+        // Save vitals to database
+        await VitalsService.addVitals(user.id, updatedVitals);
+        console.log('✅ Vitals saved to database:', updatedVitals);
+
+        // Update local state
+        setVitals(updatedVitals);
+        
         // Update the tracking of when vitals were last updated from records
         setVitalsLastUpdatedFromRecord(prev => {
           const updated = { ...prev };
@@ -355,12 +382,19 @@ const PatientDashboard: React.FC = () => {
         // Show a single notification to the user
         setTimeout(() => {
           const fieldsText = updatedFields.join(", ");
-          alert(`Vital signs updated: ${fieldsText}\nFrom medical record dated ${new Date(recordDate).toLocaleDateString()}`);
+          alert(`Vital signs updated and saved: ${fieldsText}\nFrom medical record dated ${new Date(recordDate).toLocaleDateString()}`);
+        }, 1000);
+      } catch (error) {
+        console.error('❌ Error saving vitals to database:', error);
+        // Still update local state even if database save fails
+        setVitals(updatedVitals);
+        
+        setTimeout(() => {
+          const fieldsText = updatedFields.join(", ");
+          alert(`Vital signs updated locally: ${fieldsText}\nWarning: Could not save to database. Please check your connection.`);
         }, 1000);
       }
-
-      return updatedVitals;
-    });
+    }
   };
 
   const handleFileUpload = async (file: File, category: string) => {
@@ -414,7 +448,7 @@ const PatientDashboard: React.FC = () => {
       
       // Update vitals if extracted from the medical record
       if (extractedVitals) {
-        updateVitalsFromRecord(extractedVitals, newRecord.date, updatedRecords);
+        await updateVitalsFromRecord(extractedVitals, newRecord.date, updatedRecords);
       } else {
         console.log('❌ No vitals extracted from the medical record');
         
@@ -432,7 +466,7 @@ const PatientDashboard: React.FC = () => {
           };
           
           console.log('🧪 AI quota exceeded - using simulated vitals for testing:', simulatedVitals);
-          updateVitalsFromRecord(simulatedVitals, newRecord.date, updatedRecords);
+          await updateVitalsFromRecord(simulatedVitals, newRecord.date, updatedRecords);
         }
       }
       
