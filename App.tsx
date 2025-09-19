@@ -6,7 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Auth from './components/auth/Auth';
 import ProfileSetup from './components/auth/ProfileSetup';
 import PatientDashboard from './components/PatientDashboard';
-import DoctorDashboardContainer from './components/DoctorDashboardContainer';
+import DoctorDashboardMain from './components/DoctorDashboardMain';
 
 const AppContent: React.FC = () => {
   const { user, profile, loading, needsProfileSetup } = useAuth();
@@ -77,8 +77,8 @@ const AppContent: React.FC = () => {
   
   // Extra validation to ensure profile is complete
   if (profile?.role === 'doctor') {
-    console.log('Rendering DoctorDashboardContainer');
-    return <DoctorDashboardContainer />;
+    console.log('Rendering DoctorDashboardMain');
+    return <DoctorDashboardMain />;
   } else if (profile?.role === 'patient') {
     console.log('Rendering PatientDashboard');
     return <PatientDashboard />;

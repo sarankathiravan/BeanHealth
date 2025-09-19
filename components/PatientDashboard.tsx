@@ -7,11 +7,13 @@ import Records from "./Records";
 import Upload from "./Upload";
 import Messages from "./Messages";
 import Billing from "./Billing";
-import { View, Patient, Vitals, Medication, MedicalRecord } from "../types";
+import { View, Patient, Vitals, Medication, MedicalRecord, User, Doctor, ChatMessage } from "../types";
 import { MedicalRecordsService } from "../services/medicalRecordsService";
 import { uploadFileToSupabase, uploadFileToSupabaseSimple, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
 import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals } from "../services/geminiService";
 import { UserService } from "../services/authService";
+import { PatientAdditionService } from "../services/patientInvitationService";
+import { ChatService } from "../services/chatService";
 
 
 const PatientDashboard: React.FC = () => {
@@ -28,6 +30,8 @@ const PatientDashboard: React.FC = () => {
 
   const [medications, setMedications] = useState<Medication[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [doctors, setDoctors] = useState<User[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const [aiSummary, setAiSummary] = useState(
     "Upload your first medical record to get an AI-powered health summary."
@@ -119,6 +123,36 @@ const PatientDashboard: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [medicalRecords.length]); // Only trigger when the number of records changes
 
+  // Fetch doctors for this patient
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      if (!user?.id) return;
+      try {
+        const doctorsData = await PatientAdditionService.getPatientDoctors(user.id);
+        setDoctors(doctorsData);
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+      }
+    };
+
+    fetchDoctors();
+  }, [user?.id]);
+
+  // Fetch chat messages
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!user?.id) return;
+      try {
+        const messagesData = await ChatService.getAllConversations(user.id);
+        setChatMessages(messagesData);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    fetchMessages();
+  }, [user?.id]);
+
   // Convert auth user to app user format
   const appUser = {
     id: user?.id || profile?.id || "",
@@ -158,15 +192,19 @@ const PatientDashboard: React.FC = () => {
       ],
       medications,
       records: medicalRecords,
-      doctors: [],
-      chatMessages: [],
+      doctors: doctors.map(doctor => ({
+        ...doctor,
+        role: 'doctor' as const,
+        specialty: doctor.specialty || 'General Practice'
+      })) as Doctor[],
+      chatMessages: chatMessages,
       subscriptionTier: profile?.subscription_tier as "FreeTrial" | "Paid" || "FreeTrial",
       urgentCredits: profile?.urgent_credits || 5,
       notes: summaryNote,
       avatarUrl: appUser.avatarUrl,
       trialEndsAt: profile?.trial_ends_at || new Date(Date.now() + 14 * 86400000).toISOString()
     }),
-    [appUser, vitals, medications, medicalRecords, summaryNote, profile]
+    [appUser, vitals, medications, medicalRecords, doctors, chatMessages, summaryNote, profile]
   );
 
   // Event handlers
@@ -530,11 +568,25 @@ const PatientDashboard: React.FC = () => {
             currentUser={appUser}
             contacts={patient.doctors}
             messages={patient.chatMessages}
-            onSendMessage={(message) => {
-              console.log("Sending message:", message);
+            onSendMessage={async (message) => {
+              try {
+                await ChatService.sendMessage(
+                  message.senderId,
+                  message.recipientId,
+                  message.text,
+                  message.isUrgent
+                );
+                // Refresh messages after sending
+                const updatedMessages = await ChatService.getAllConversations(user!.id);
+                setChatMessages(updatedMessages);
+              } catch (error) {
+                console.error("Error sending message:", error);
+                alert("Failed to send message. Please try again.");
+              }
             }}
             onMarkMessagesAsRead={(contactId) => {
               console.log("Marking messages as read for:", contactId);
+              // TODO: Implement mark as read functionality in ChatService
             }}
             preselectedContactId={null}
             clearPreselectedContact={() => {}}
