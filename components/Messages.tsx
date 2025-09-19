@@ -7,7 +7,7 @@ import { CheckIcon } from './icons/CheckIcon';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
 import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
-import { useRealTimeChat } from '../hooks/useRealTimeChat';
+import { useRealTimeChat } from '../hooks/useRealTimeChatV2';
 import { RealTimeStatus, TypingIndicator, MessageStatus } from './RealTimeComponents';
 
 type Contact = Doctor | Patient;
@@ -54,6 +54,7 @@ const Messages: React.FC<MessagesProps> = ({
     unreadCount,
     isConnected,
     typingUsers,
+    pendingMessages,
     sendMessage: sendRealTimeMessage,
     markConversationAsRead
   } = realTimeChat;
@@ -231,7 +232,9 @@ const Messages: React.FC<MessagesProps> = ({
                       msg.senderId === currentUser.id
                         ? 'bg-indigo-600 text-white rounded-br-none'
                         : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none'
-                    } ${msg.isUrgent ? 'border-2 border-red-500' : ''}`}>
+                    } ${msg.isUrgent ? 'border-2 border-red-500' : ''} ${
+                      pendingMessages.has(msg.id) ? 'opacity-70' : ''
+                    }`}>
                       {msg.isUrgent && <div className="font-bold text-xs text-red-200 dark:text-red-300 flex items-center mb-1"><AlertIcon className="h-4 w-4 mr-1"/>URGENT</div>}
                       {msg.text && <p className="text-sm whitespace-pre-wrap">{msg.text}</p>}
                     </div>
@@ -245,6 +248,9 @@ const Messages: React.FC<MessagesProps> = ({
                         )}
                         {msg.senderId !== currentUser.id && (
                           <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        )}
+                        {pendingMessages.has(msg.id) && (
+                          <span className="ml-2 text-xs text-slate-500">Sending...</span>
                         )}
                     </div>
                   </div>
@@ -299,8 +305,8 @@ const Messages: React.FC<MessagesProps> = ({
                   }}
                   onBlur={() => {
                     // Stop typing when losing focus
-                    if (realTimeChat.stopTyping) {
-                      realTimeChat.stopTyping();
+                    if (selectedContactId && realTimeChat.stopTyping) {
+                      realTimeChat.stopTyping(selectedContactId);
                     }
                   }}
                   placeholder="Type your message..."

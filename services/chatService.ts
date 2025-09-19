@@ -80,6 +80,17 @@ export class ChatService {
     if (error) throw error
   }
 
+  static async markMessagesAsRead(userId: string, senderId: string) {
+    const { error } = await supabase
+      .from('chat_messages')
+      .update({ is_read: true })
+      .eq('recipient_id', userId)
+      .eq('sender_id', senderId)
+      .eq('is_read', false)
+
+    if (error) throw error
+  }
+
   static async markConversationAsRead(userId: string, otherUserId: string) {
     const { error } = await supabase
       .from('chat_messages')
@@ -92,8 +103,8 @@ export class ChatService {
   }
 
   static subscribeToMessages(userId: string, callback: (message: ChatMessage) => void) {
-    return supabase
-      .channel('chat_messages')
+    const channel = supabase
+      .channel(`chat_messages_${userId}`)
       .on(
         'postgres_changes',
         {
@@ -103,7 +114,8 @@ export class ChatService {
           filter: `recipient_id=eq.${userId}`
         },
         (payload) => {
-          const msg = payload.new as any
+          console.log('Real-time message received:', payload);
+          const msg = payload.new as any;
           callback({
             id: msg.id,
             senderId: msg.sender_id,
@@ -113,10 +125,46 @@ export class ChatService {
             timestamp: msg.timestamp,
             isRead: msg.is_read,
             isUrgent: msg.is_urgent
-          })
+          });
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
+    
+    return channel;
+  }
+
+  // Subscribe to typing indicators
+  static subscribeToTyping(userId: string, callback: (data: { userId: string, isTyping: boolean, conversationId: string }) => void) {
+    const channel = supabase
+      .channel(`typing_${userId}`)
+      .on('broadcast', { event: 'typing' }, (payload) => {
+        console.log('Typing event received:', payload);
+        callback(payload.payload);
+      })
+      .subscribe((status) => {
+        console.log('Typing subscription status:', status);
+      });
+    
+    return channel;
+  }
+
+  // Broadcast typing status
+  static async broadcastTyping(recipientId: string, isTyping: boolean, senderId: string) {
+    const conversationId = [senderId, recipientId].sort().join('_');
+    
+    await supabase
+      .channel(`typing_${recipientId}`)
+      .send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: {
+          userId: senderId,
+          isTyping,
+          conversationId
+        }
+      });
   }
 
   static async getUnreadMessageCount(userId: string): Promise<number> {
