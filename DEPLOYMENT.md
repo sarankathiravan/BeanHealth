@@ -70,13 +70,17 @@ Redirect URLs: https://your-netlify-domain.netlify.app
 
 ## 🎯 Post-Deployment Checklist
 
-- [ ] Site loads correctly
-- [ ] Authentication works
+- [ ] Site loads correctly at your Netlify URL
+- [ ] Authentication works (sign up/sign in)
 - [ ] Supabase connection established
-- [ ] All routes navigate properly
+- [ ] All routes navigate properly (SPA routing)
 - [ ] Mobile responsive design working
 - [ ] Dark/light theme toggle functional
 - [ ] Environment variables configured
+- [ ] File upload functionality works
+- [ ] AI analysis works (if Gemini API key provided)
+- [ ] Storage bucket permissions configured
+- [ ] Medical records can be uploaded and viewed
 
 ## 🔗 Example Netlify Site
 
@@ -93,10 +97,11 @@ Your site will be available at: `https://your-site-name.netlify.app`
 
 ### Secrets Scanning:
 Netlify automatically scans for exposed secrets. To avoid issues:
-- Never commit `.env` files with real API keys
-- Use only `import.meta.env.VITE_*` variables in Vite projects
-- Avoid hardcoding secrets in source code
-- Set environment variables in Netlify dashboard, not in code
+- ✅ Never commit `.env` files with real API keys
+- ✅ Use only `import.meta.env.VITE_*` variables in Vite projects
+- ✅ Avoid hardcoding secrets in source code
+- ✅ Set environment variables in Netlify dashboard, not in code
+- ✅ Use `.env.example` as a template for required variables
 
 ### Support
 - Check Netlify build logs for detailed error messages

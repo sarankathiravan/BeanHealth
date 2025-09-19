@@ -53,15 +53,23 @@
 ### Step 3: Verify Setup
 
 1. **Test in the App**
-
    - Go to the Upload section in your BeanHealth app
    - Use the "Storage Test" component to verify everything works
-   - Try uploading a test file
+   - Try uploading a test medical record (PDF or image)
+   - Verify AI analysis runs (if Gemini API key is configured)
 
 2. **Check Console Logs**
    - Open browser developer tools (F12)
    - Look for any error messages in the console
    - All tests should show "SUCCESS"
+   - Upload should complete and redirect to Records view
+
+3. **Verify Features Work**
+   - ✅ File uploads successfully
+   - ✅ AI analysis extracts information
+   - ✅ Vitals are automatically updated (if detected)
+   - ✅ Records appear in the Records section
+   - ✅ Files can be viewed and deleted
 
 ## Troubleshooting
 
@@ -113,15 +121,18 @@ If you want to set up storage policies via SQL (not required for basic functiona
 2. Run the commands from `supabase_storage_setup.sql`
 3. This adds additional security policies for file access
 
-## Success Indicators
+## ✅ Success Indicators
 
-✅ **You'll know it's working when:**
+**You'll know it's working when:**
 
-- Storage Test shows all green checkmarks
-- You can upload files through the app
-- Files appear in the Supabase Storage dashboard
-- AI analysis runs on uploaded files
-- Medical records appear in the Records section
+- ✅ Storage Test shows all green checkmarks
+- ✅ You can upload files through the app (PDFs, images)
+- ✅ Files appear in the Supabase Storage dashboard
+- ✅ AI analysis runs on uploaded files (extracts date, type, doctor, summary)
+- ✅ Medical records appear in the Records section
+- ✅ Vitals are automatically extracted and updated (if present in records)
+- ✅ AI health summary is generated from all records
+- ✅ Files can be deleted from both app and storage
 
 ## Need Help?
 
