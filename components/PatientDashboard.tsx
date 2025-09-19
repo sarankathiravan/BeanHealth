@@ -9,9 +9,10 @@ import Messages from "./Messages";
 import Billing from "./Billing";
 import { View, Patient, Vitals, Medication, MedicalRecord } from "../types";
 import { MedicalRecordsService } from "../services/medicalRecordsService";
-import { uploadFileToSupabase, uploadFileToSupabaseSimple, checkMedicalRecordsBucket, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
-import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals, MedicalRecordWithVitals } from "../services/geminiService";
-import StoragePolicyFix from "./StoragePolicyFix";
+import { uploadFileToSupabase, uploadFileToSupabaseSimple, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
+import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals } from "../services/geminiService";
+import { UserService } from "../services/authService";
+
 
 const PatientDashboard: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -34,7 +35,7 @@ const PatientDashboard: React.FC = () => {
   const [summaryNote, setSummaryNote] = useState("");
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [isUploadLoading, setIsUploadLoading] = useState(false);
-  const [showPolicyFix, setShowPolicyFix] = useState(false);
+
   const [vitalsLastUpdatedFromRecord, setVitalsLastUpdatedFromRecord] = useState<{
     bloodPressure?: string;
     heartRate?: string;
@@ -71,7 +72,6 @@ const PatientDashboard: React.FC = () => {
           // This is useful if vitals are empty but we have recent records
           const hasEmptyVitals = !vitals.bloodPressure.value && !vitals.heartRate.value && !vitals.temperature.value;
           if (hasEmptyVitals && records.length > 0) {
-            console.log('Checking most recent record for vital signs...');
             // Find the most recent record
             const sortedRecords = records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             const mostRecentRecord = sortedRecords[0];
@@ -83,7 +83,6 @@ const PatientDashboard: React.FC = () => {
             if (new Date(mostRecentRecord.date) > thirtyDaysAgo) {
               // This would require the file to extract vitals, which we don't have access to here
               // So we'll skip this for now, but the feature will work for newly uploaded records
-              console.log('Most recent record is within 30 days, but file not available for vitals extraction');
             }
           }
         } catch (error) {
@@ -123,14 +122,23 @@ const PatientDashboard: React.FC = () => {
   // Convert auth user to app user format
   const appUser = {
     id: user?.id || profile?.id || "",
-    name: profile?.name || user?.email || "User",
+    name: profile?.name || user?.user_metadata?.full_name || user?.email || "User",
     email: user?.email || "",
     role: "patient" as const,
-    avatarUrl:
-      profile?.avatar_url ||
+    avatarUrl: 
+      profile?.avatar_url || 
+      user?.user_metadata?.picture || 
       user?.user_metadata?.avatar_url ||
-      user?.user_metadata?.picture,
+      "",
   };
+
+  // Debug logging for avatar sources
+  console.log('Avatar sources debug:', {
+    profileAvatarUrl: profile?.avatar_url,
+    userMetadataPicture: user?.user_metadata?.picture,
+    userMetadataAvatarUrl: user?.user_metadata?.avatar_url,
+    finalAvatarUrl: appUser.avatarUrl
+  });
 
   // Create patient object
   const patient: Patient = useMemo(
@@ -191,7 +199,6 @@ const PatientDashboard: React.FC = () => {
 
   const handleRefreshSummary = async () => {
     if (isSummaryLoading) {
-      console.log('Summary generation already in progress, skipping...');
       return;
     }
     
@@ -207,9 +214,20 @@ const PatientDashboard: React.FC = () => {
     }
   };
 
-  const handleUpdateAvatar = (dataUrl: string) => {
-    // Handle avatar update
-    console.log("Avatar updated:", dataUrl);
+  const handleUpdateAvatar = async (dataUrl: string) => {
+    // Handle avatar update by saving to the database
+    if (!user?.id) return;
+    
+    try {
+      // Update the avatar URL in the database
+      await UserService.updateUser(user.id, { avatar_url: dataUrl });
+      
+      // The avatar will be updated in the UI automatically when the profile refreshes
+      console.log("Avatar updated successfully");
+    } catch (error) {
+      console.error("Failed to update avatar:", error);
+      alert("Failed to update profile picture. Please try again.");
+    }
   };
 
 
@@ -324,7 +342,6 @@ const PatientDashboard: React.FC = () => {
     }
 
     setIsUploadLoading(true);
-    console.log('Starting optimized file upload process...');
     
     try {
       // Start file upload and combined AI analysis (saves API quota!)
@@ -333,7 +350,6 @@ const PatientDashboard: React.FC = () => {
           // Try simplified upload first (skips bucket existence check)
           return await uploadFileToSupabaseSimple(file);
         } catch (simpleError) {
-          console.log('Simplified upload failed, trying full upload method...');
           // Fallback to full upload method
           return await uploadFileToSupabase(file);
         }
@@ -370,7 +386,6 @@ const PatientDashboard: React.FC = () => {
       
       // Update vitals if extracted from the medical record
       if (extractedVitals) {
-        console.log('🎯 Extracted vitals found, updating dashboard...', extractedVitals);
         updateVitalsFromRecord(extractedVitals, newRecord.date, updatedRecords);
       } else {
         console.log('❌ No vitals extracted from the medical record');
@@ -433,10 +448,7 @@ const PatientDashboard: React.FC = () => {
       if (error instanceof Error) {
         errorMessage += ` Error: ${error.message}`;
         
-        // Check if it's an RLS policy error
-        if (error.message.includes('row-level security policy') || error.message.includes('policy')) {
-          setShowPolicyFix(true);
-        }
+
       }
       
       alert(errorMessage + ' Please check the console for more details.');
@@ -506,7 +518,6 @@ const PatientDashboard: React.FC = () => {
       case "upload":
         return (
           <div className="space-y-6">
-            {showPolicyFix && <StoragePolicyFix />}
             <Upload
               onUpload={handleFileUpload}
               isLoading={isUploadLoading}

@@ -2,21 +2,12 @@ import { supabase } from '../lib/supabase'
 
 // Simplified upload function that skips bucket existence check
 export const uploadFileToSupabaseSimple = async (file: File, bucket: string = 'medical-records'): Promise<string> => {
-    console.log('Starting simplified file upload to Supabase Storage...', {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        bucket
-    });
-
     // Generate unique file name
     const fileExt = file.name.split('.').pop() || 'bin';
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2);
     const fileName = `${timestamp}-${randomId}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
-
-    console.log('Uploading file with path:', filePath);
 
     // Upload the file directly
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -27,11 +18,8 @@ export const uploadFileToSupabaseSimple = async (file: File, bucket: string = 'm
         });
 
     if (uploadError) {
-        console.error('Supabase Storage upload error:', uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
     }
-
-    console.log('File uploaded successfully:', uploadData);
 
     // Get the public URL
     const { data: urlData } = supabase.storage
@@ -42,18 +30,14 @@ export const uploadFileToSupabaseSimple = async (file: File, bucket: string = 'm
         throw new Error('Failed to get public URL for uploaded file');
     }
 
-    console.log('Public URL generated:', urlData.publicUrl);
     return urlData.publicUrl;
 };
 
 export const uploadFileToSupabase = async (file: File, bucket: string = 'medical-records'): Promise<string> => {
-    console.log('Uploading file to Supabase Storage:', file.name);
-
     // Check if the bucket exists
     const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
     
     if (bucketsError) {
-        console.error('Error accessing storage:', bucketsError);
         throw new Error(`Failed to access storage: ${bucketsError.message}`);
     }
 
@@ -81,8 +65,6 @@ export const uploadFileToSupabase = async (file: File, bucket: string = 'medical
     const fileName = `${timestamp}-${randomId}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
-    console.log('Uploading file with path:', filePath);
-
     // Upload the file
     const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucket)
@@ -92,11 +74,8 @@ export const uploadFileToSupabase = async (file: File, bucket: string = 'medical
         });
 
     if (uploadError) {
-        console.error('Supabase Storage upload error:', uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
     }
-
-    console.log('File uploaded successfully:', uploadData);
 
     // Get the public URL
     const { data: urlData } = supabase.storage
@@ -107,7 +86,6 @@ export const uploadFileToSupabase = async (file: File, bucket: string = 'medical
         throw new Error('Failed to get public URL for uploaded file');
     }
 
-    console.log('Public URL generated:', urlData.publicUrl);
     return urlData.publicUrl;
 }
 
@@ -115,37 +93,29 @@ export const uploadFileToSupabase = async (file: File, bucket: string = 'medical
 export const checkMedicalRecordsBucket = async (): Promise<{ exists: boolean; message: string }> => {
     const bucketName = 'medical-records';
     
-    console.log('Checking if bucket exists:', bucketName);
-    
     try {
         const { data: buckets, error: listError } = await supabase.storage.listBuckets();
         if (listError) {
-            console.error('Error listing buckets:', listError);
             return {
                 exists: false,
                 message: `Failed to list buckets: ${listError.message}`
             };
         }
 
-        console.log('Available buckets:', buckets?.map(b => ({ name: b.name, public: b.public })));
-
         const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
         
         if (bucketExists) {
-            console.log('✅ Bucket exists:', bucketName);
             return {
                 exists: true,
                 message: 'medical-records bucket found and ready to use'
             };
         } else {
-            console.log('❌ Bucket does not exist:', bucketName);
             return {
                 exists: false,
                 message: 'medical-records bucket not found. Please create it manually in your Supabase dashboard under Storage > Buckets.'
             };
         }
     } catch (error) {
-        console.error('Error checking bucket:', error);
         return {
             exists: false,
             message: `Error checking bucket: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -159,35 +129,28 @@ export const createMedicalRecordsBucket = checkMedicalRecordsBucket;
 // Function to delete a file from Supabase storage
 export const deleteFileFromSupabase = async (fileUrl: string, bucket: string = 'medical-records'): Promise<boolean> => {
     try {
-        console.log('Attempting to delete file from storage:', fileUrl);
-        
         // Extract the file path from the URL
         // URL format: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
         const urlParts = fileUrl.split('/');
         const bucketIndex = urlParts.findIndex(part => part === bucket);
         
         if (bucketIndex === -1 || bucketIndex >= urlParts.length - 1) {
-            console.error('Could not extract file path from URL:', fileUrl);
             return false;
         }
         
         // Get the path after the bucket name
         const filePath = urlParts.slice(bucketIndex + 1).join('/');
-        console.log('Extracted file path:', filePath);
         
         const { error } = await supabase.storage
             .from(bucket)
             .remove([filePath]);
         
         if (error) {
-            console.error('Error deleting file from storage:', error);
             return false;
         }
         
-        console.log('File deleted successfully from storage:', filePath);
         return true;
     } catch (error) {
-        console.error('Error in deleteFileFromSupabase:', error);
         return false;
     }
 };
@@ -195,23 +158,12 @@ export const deleteFileFromSupabase = async (fileUrl: string, bucket: string = '
 // Function to test storage connectivity
 export const testStorageConnection = async (): Promise<boolean> => {
     try {
-        // Check authentication first
-        const { data: { session }, error: authError } = await supabase.auth.getSession();
-        console.log('Current auth session:', {
-            hasSession: !!session,
-            userId: session?.user?.id,
-            authError
-        });
-
         const { data, error } = await supabase.storage.listBuckets();
         if (error) {
-            console.error('Storage connection test failed:', error);
             return false;
         }
-        console.log('Storage connection successful. Available buckets:', data?.map(b => b.name));
         return true;
     } catch (error) {
-        console.error('Storage connection test error:', error);
         return false;
     }
 };
@@ -219,35 +171,28 @@ export const testStorageConnection = async (): Promise<boolean> => {
 // Function to test direct bucket access
 export const testBucketAccess = async (bucketName: string = 'medical-records'): Promise<{ accessible: boolean; message: string }> => {
     try {
-        console.log(`Testing direct access to bucket: ${bucketName}`);
-        
         // Try to list files in the bucket
         const { data, error } = await supabase.storage
             .from(bucketName)
             .list('', { limit: 1 });
         
         if (error) {
-            console.error('Bucket access test failed:', error);
             return {
                 accessible: false,
                 message: `Cannot access bucket: ${error.message}`
             };
         }
         
-        console.log('Bucket access test successful:', data);
         return {
             accessible: true,
             message: 'Bucket is accessible and ready for uploads'
         };
     } catch (error) {
-        console.error('Bucket access test error:', error);
         return {
             accessible: false,
             message: `Bucket access test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
         };
     }
 };
-
-
 
 export const uploadFileToGCS = uploadFileToSupabase;

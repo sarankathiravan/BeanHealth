@@ -47,34 +47,39 @@ export class VitalsService {
       .eq('patient_id', patientId)
       .order('recorded_at', { ascending: false })
       .limit(1)
-      .single()
 
     if (error) {
-      if (error.code === 'PGRST116') return null // No rows found
       throw error
     }
 
+    // If no data or empty array, return null
+    if (!data || data.length === 0) {
+      return null
+    }
+
+    const vital = data[0]
+
     return {
       bloodPressure: {
-        value: data.blood_pressure_value || '',
-        unit: data.blood_pressure_unit || 'mmHg',
-        trend: data.blood_pressure_trend || 'stable'
+        value: vital.blood_pressure_value || '',
+        unit: vital.blood_pressure_unit || 'mmHg',
+        trend: vital.blood_pressure_trend || 'stable'
       },
       heartRate: {
-        value: data.heart_rate_value || '',
-        unit: data.heart_rate_unit || 'bpm',
-        trend: data.heart_rate_trend || 'stable'
+        value: vital.heart_rate_value || '',
+        unit: vital.heart_rate_unit || 'bpm',
+        trend: vital.heart_rate_trend || 'stable'
       },
       temperature: {
-        value: data.temperature_value || '',
-        unit: data.temperature_unit || '°F',
-        trend: data.temperature_trend || 'stable'
+        value: vital.temperature_value || '',
+        unit: vital.temperature_unit || '°F',
+        trend: vital.temperature_trend || 'stable'
       },
-      ...(data.glucose_value && {
+      ...(vital.glucose_value && {
         glucose: {
-          value: data.glucose_value,
-          unit: data.glucose_unit || 'mg/dL',
-          trend: data.glucose_trend || 'stable'
+          value: vital.glucose_value,
+          unit: vital.glucose_unit || 'mg/dL',
+          trend: vital.glucose_trend || 'stable'
         }
       })
     }
@@ -107,13 +112,14 @@ export class VitalsService {
 
   static async updateVital(patientId: string, vitalType: keyof Vitals, value: string) {
     // Get the latest vital record
-    const { data: latestVital } = await supabase
+    const { data: vitalsData } = await supabase
       .from('vitals')
       .select('*')
       .eq('patient_id', patientId)
       .order('recorded_at', { ascending: false })
       .limit(1)
-      .single()
+    
+    const latestVital = vitalsData && vitalsData.length > 0 ? vitalsData[0] : null
 
     // Update the specific vital field
     const updateData: any = {}

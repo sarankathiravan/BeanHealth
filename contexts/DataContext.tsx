@@ -101,8 +101,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ChatService.getAllConversations(patientId)
       ])
 
-      // Get latest vitals
-      const latestVitals = await VitalsService.getLatestVitals(patientId)
+      // Get latest vitals (with error handling)
+      let latestVitals = null;
+      try {
+        latestVitals = await VitalsService.getLatestVitals(patientId);
+      } catch (error) {
+        console.warn('No vitals found for patient, using defaults:', error);
+        latestVitals = null;
+      }
 
       // Get patient's doctors from relationships
       // Note: This would need to be implemented in the UserService

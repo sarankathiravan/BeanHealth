@@ -143,7 +143,6 @@ export class AuthService {
       }
       
       if (!session?.user) {
-        console.log('No session found in getCurrentUser');
         return null;
       }
 
@@ -156,7 +155,6 @@ export class AuthService {
 
       // If user doesn't exist in database, return null (they need to set up profile)
       if (error && error.code === 'PGRST116') {
-        console.log('User not found in database, needs profile setup');
         return null;
       }
       
@@ -165,7 +163,6 @@ export class AuthService {
         throw error;
       }
       
-      console.log('Successfully retrieved user profile:', profile);
       return profile;
     } catch (error) {
       console.error('Error in getCurrentUser:', error);

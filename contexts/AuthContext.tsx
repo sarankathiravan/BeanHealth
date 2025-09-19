@@ -91,7 +91,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userProfile = await AuthService.getCurrentUser()
             if (!mounted) return;
             
-            setProfile(userProfile)
+            // If this is a Google OAuth user and we don't have their profile picture saved,
+            // update their profile with the Google picture
+            if (session.user.user_metadata?.picture && 
+                (!userProfile?.avatar_url || userProfile.avatar_url !== session.user.user_metadata.picture)) {
+              try {
+                await AuthService.createOrUpdateProfile({
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  name: session.user.user_metadata?.full_name || session.user.email || '',
+                  role: userProfile?.role || 'patient',
+                  avatarUrl: session.user.user_metadata.picture,
+                  specialty: userProfile?.specialty,
+                  dateOfBirth: userProfile?.date_of_birth,
+                  condition: userProfile?.condition
+                });
+                
+                // Refresh the profile to get the updated avatar
+                const updatedProfile = await AuthService.getCurrentUser();
+                if (mounted) {
+                  setProfile(updatedProfile);
+                }
+              } catch (updateError) {
+                console.error('Error updating Google profile picture:', updateError);
+                setProfile(userProfile);
+              }
+            } else {
+              setProfile(userProfile);
+            }
+            
             setNeedsProfileSetup(!userProfile || !userProfile.role)
             console.log('Profile loaded:', { userProfile, needsSetup: !userProfile || !userProfile.role });
           } catch (profileError) {
@@ -146,7 +174,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const userProfile = await AuthService.getCurrentUser()
           if (!mounted) return;
-          setProfile(userProfile)
+          
+          // If this is a Google OAuth user and we don't have their profile picture saved,
+          // update their profile with the Google picture
+          if (session.user.user_metadata?.picture && 
+              (!userProfile?.avatar_url || userProfile.avatar_url !== session.user.user_metadata.picture)) {
+            try {
+              await AuthService.createOrUpdateProfile({
+                id: session.user.id,
+                email: session.user.email || '',
+                name: session.user.user_metadata?.full_name || session.user.email || '',
+                role: userProfile?.role || 'patient',
+                avatarUrl: session.user.user_metadata.picture,
+                specialty: userProfile?.specialty,
+                dateOfBirth: userProfile?.date_of_birth,
+                condition: userProfile?.condition
+              });
+              
+              // Refresh the profile to get the updated avatar
+              const updatedProfile = await AuthService.getCurrentUser();
+              if (mounted) {
+                setProfile(updatedProfile);
+              }
+            } catch (updateError) {
+              console.error('Error updating Google profile picture:', updateError);
+            }
+          } else {
+            setProfile(userProfile);
+          }
+          
           setNeedsProfileSetup(!userProfile || !userProfile.role)
         } catch (error) {
           console.error('Error fetching user profile:', error)
@@ -223,6 +279,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       console.log('Refreshing profile for user:', user.id);
+      
+      // Check if we need to update Google profile picture
+      if (user.user_metadata?.picture) {
+        const currentProfile = await AuthService.getCurrentUser();
+        
+        if (!currentProfile?.avatar_url || currentProfile.avatar_url !== user.user_metadata.picture) {
+          console.log('Updating Google profile picture:', user.user_metadata.picture);
+          await AuthService.createOrUpdateProfile({
+            id: user.id,
+            email: user.email || '',
+            name: user.user_metadata?.full_name || user.email || '',
+            role: currentProfile?.role || 'patient',
+            avatarUrl: user.user_metadata.picture,
+            specialty: currentProfile?.specialty,
+            dateOfBirth: currentProfile?.date_of_birth,
+            condition: currentProfile?.condition
+          });
+        }
+      }
+      
       const userProfile = await AuthService.getCurrentUser();
       setProfile(userProfile);
       setNeedsProfileSetup(!userProfile || !userProfile.role);
