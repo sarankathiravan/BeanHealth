@@ -7,15 +7,17 @@ import { CheckIcon } from './icons/CheckIcon';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
 import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
+import { useRealTimeChat } from '../hooks/useRealTimeChat';
+import { RealTimeStatus, TypingIndicator, MessageStatus } from './RealTimeComponents';
 
 type Contact = Doctor | Patient;
 
 interface MessagesProps {
   currentUser: User;
   contacts: Contact[];
-  messages: ChatMessage[];
-  onSendMessage: (message: Omit<ChatMessage, 'id' | 'timestamp' | 'isRead'>) => void;
-  onMarkMessagesAsRead: (contactId: string) => void;
+  messages: ChatMessage[]; // This will be ignored in favor of real-time messages
+  onSendMessage: (message: Omit<ChatMessage, 'id' | 'timestamp' | 'isRead'>) => void; // This will be ignored
+  onMarkMessagesAsRead: (contactId: string) => void; // This will be ignored
   preselectedContactId: string | null;
   clearPreselectedContact: () => void;
   onNavigateToBilling: () => void;
@@ -24,9 +26,9 @@ interface MessagesProps {
 const Messages: React.FC<MessagesProps> = ({ 
     currentUser, 
     contacts, 
-    messages, 
-    onSendMessage, 
-    onMarkMessagesAsRead,
+    messages: _messages, 
+    onSendMessage: _onSendMessage, 
+    onMarkMessagesAsRead: _onMarkMessagesAsRead,
     preselectedContactId, 
     clearPreselectedContact,
     onNavigateToBilling
@@ -40,6 +42,26 @@ const Messages: React.FC<MessagesProps> = ({
   const isPatient = currentUser.role === 'patient';
   const patientData = isPatient ? (currentUser as Patient) : null;
   const hasCredits = patientData ? patientData.urgentCredits > 0 : false;
+  
+  // Real-time chat hook
+  const realTimeChat = useRealTimeChat({
+    currentUserId: currentUser.id,
+    selectedContactId: selectedContactId || undefined
+  });
+  
+  const {
+    messages,
+    unreadCount,
+    isConnected,
+    typingUsers,
+    sendMessage: sendRealTimeMessage,
+    markConversationAsRead
+  } = realTimeChat;
+  
+  // Get messages for the current conversation
+  const currentConversationMessages = selectedContactId 
+    ? realTimeChat.getConversationMessages(selectedContactId)
+    : [];
 
   const sortedContacts = useMemo(() => {
     if (currentUser.role !== 'doctor') return contacts;
@@ -65,7 +87,7 @@ const Messages: React.FC<MessagesProps> = ({
   useEffect(() => {
     if (preselectedContactId) {
       setSelectedContactId(preselectedContactId);
-      onMarkMessagesAsRead(preselectedContactId);
+      markConversationAsRead(preselectedContactId);
       clearPreselectedContact();
     } else if (sortedContacts.length > 0 && !selectedContactId) {
       // On desktop, pre-select the first contact. On mobile, show the list.
@@ -73,7 +95,7 @@ const Messages: React.FC<MessagesProps> = ({
       if (!isMobile) {
         const firstContactId = sortedContacts[0].id;
         setSelectedContactId(firstContactId);
-        onMarkMessagesAsRead(firstContactId);
+        markConversationAsRead(firstContactId);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +109,7 @@ const Messages: React.FC<MessagesProps> = ({
 
   const handleSelectContact = (contactId: string) => {
       setSelectedContactId(contactId);
-      onMarkMessagesAsRead(contactId);
+      markConversationAsRead(contactId);
   }
   
   const handleSendMessage = (e: React.FormEvent) => {
@@ -99,7 +121,7 @@ const Messages: React.FC<MessagesProps> = ({
       return;
     }
 
-    onSendMessage({ senderId: currentUser.id, recipientId: selectedContactId, text: input, isUrgent });
+    sendRealTimeMessage(selectedContactId, input, isUrgent);
     setInput('');
     setIsUrgent(false);
   };
@@ -139,10 +161,6 @@ const Messages: React.FC<MessagesProps> = ({
   };
 
   const selectedContact = contacts.find(d => d.id === selectedContactId);
-  const conversationMessages = messages.filter(
-    msg => (msg.senderId === selectedContactId && msg.recipientId === currentUser.id) ||
-           (msg.senderId === currentUser.id && msg.recipientId === selectedContactId)
-  ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   
   const cannotTurnOnUrgent = isPatient && !hasCredits && !isUrgent;
 
@@ -194,12 +212,20 @@ const Messages: React.FC<MessagesProps> = ({
               <InitialsAvatar contact={selectedContact} size="lg" />
               <div>
                 <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">{selectedContact.name}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Online</p>
+                <div className="flex items-center space-x-2">
+                  <RealTimeStatus isConnected={isConnected} />
+                  {typingUsers.has(selectedContact.id) && (
+                    <TypingIndicator 
+                      isTyping={true} 
+                      userName={selectedContact.name}
+                    />
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex-1 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-900">
               <div className="space-y-4">
-                {conversationMessages.map(msg => (
+                {currentConversationMessages.map(msg => (
                   <div key={msg.id} className={`flex flex-col ${msg.senderId === currentUser.id ? 'items-end' : 'items-start'}`}>
                     <div className={`max-w-md px-4 py-2 rounded-2xl ${
                       msg.senderId === currentUser.id
@@ -210,9 +236,15 @@ const Messages: React.FC<MessagesProps> = ({
                       {msg.text && <p className="text-sm whitespace-pre-wrap">{msg.text}</p>}
                     </div>
                      <div className="text-xs text-slate-400 mt-1 px-1 flex items-center">
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {msg.senderId === currentUser.id && (
-                            msg.isRead ? <CheckCircleIcon className="h-4 w-4 ml-1 text-indigo-500" /> : <CheckIcon className="h-4 w-4 ml-1" />
+                            <MessageStatus 
+                              isRead={msg.isRead}
+                              timestamp={msg.timestamp}
+                              isUrgent={msg.isUrgent}
+                            />
+                        )}
+                        {msg.senderId !== currentUser.id && (
+                          <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         )}
                     </div>
                   </div>
@@ -258,7 +290,19 @@ const Messages: React.FC<MessagesProps> = ({
                 <input
                   type="text"
                   value={input}
-                  onChange={e => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    // Trigger typing indicator
+                    if (selectedContactId && realTimeChat.startTyping) {
+                      realTimeChat.startTyping(selectedContactId);
+                    }
+                  }}
+                  onBlur={() => {
+                    // Stop typing when losing focus
+                    if (realTimeChat.stopTyping) {
+                      realTimeChat.stopTyping();
+                    }
+                  }}
                   placeholder="Type your message..."
                   className="flex-1 w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-900 dark:text-slate-100"
                 />
