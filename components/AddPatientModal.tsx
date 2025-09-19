@@ -4,6 +4,7 @@ import { CheckIcon } from './icons/CheckIcon';
 import { UserIcon } from './icons/UserIcon';
 import { PatientAdditionService } from '../services/patientInvitationService';
 import { User } from '../types';
+import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -178,17 +179,11 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
                       >
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
-                            {patient.avatarUrl ? (
-                              <img 
-                                src={patient.avatarUrl} 
-                                alt={patient.name}
-                                className="h-10 w-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-10 w-10 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center">
-                                <UserIcon className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-                              </div>
-                            )}
+                            <div className={`h-10 w-10 ${getInitialsColor(patient.name, patient.email)} rounded-full flex items-center justify-center`}>
+                              <span className="text-white text-sm font-medium">
+                                {getInitials(patient.name, patient.email)}
+                              </span>
+                            </div>
                           </div>
                           <div>
                             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">

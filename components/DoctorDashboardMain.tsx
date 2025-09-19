@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { User, ChatMessage } from '../types';
 import { PatientAdditionService } from '../services/patientInvitationService';
 import { ChatService } from '../services/chatService';
+import { getInitials, getInitialsColor } from '../utils/avatarUtils';
 import SimpleHeader from './SimpleHeader';
 import AddPatientModal from './AddPatientModal';
 import Messages from './Messages';
@@ -208,9 +209,9 @@ const DoctorDashboardMain: React.FC = () => {
                   {patients.slice(0, 5).map((patient) => (
                     <div key={patient.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="h-8 w-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                            {patient.name?.charAt(0) || patient.email.charAt(0).toUpperCase()}
+                        <div className={`h-8 w-8 ${getInitialsColor(patient.name, patient.email)} rounded-full flex items-center justify-center`}>
+                          <span className="text-sm font-medium text-white">
+                            {getInitials(patient.name, patient.email)}
                           </span>
                         </div>
                         <div>
@@ -315,8 +316,8 @@ const DoctorDashboardMain: React.FC = () => {
       name: profile?.name || user.email || 'Doctor',
       email: user.email!, // Required for User type
       role: 'doctor' as const,
-      avatarUrl: profile?.avatar_url || null,
-      avatar_url: profile?.avatar_url || null,
+      avatarUrl: null, // No longer use external avatar URLs
+      avatar_url: null, // No longer use external avatar URLs
       specialty: profile?.specialty || null,
       dateOfBirth: profile?.date_of_birth || null,
       date_of_birth: profile?.date_of_birth || null,

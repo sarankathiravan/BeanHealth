@@ -3,6 +3,7 @@ import { Doctor } from '../types';
 import { DoctorIcon } from './icons/DoctorIcon';
 import { EmptyDoctorsIcon } from './icons/EmptyDoctorsIcon';
 import { UserPlusIcon } from './icons/UserPlusIcon';
+import { getInitials, getInitialsColor } from '../utils/avatarUtils';
 
 interface DoctorsProps {
     doctors: Doctor[];
@@ -11,11 +12,6 @@ interface DoctorsProps {
 }
 
 const Doctors: React.FC<DoctorsProps> = ({ doctors, onSelectDoctor, messagingEnabled = true }) => {
-    const DOCTOR_AVATARS: Record<string, string> = {
-        'dr.smith@clinic.com': 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
-        'dr.jones@clinic.com': 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    };
-
     return (
         <div>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -38,11 +34,11 @@ const Doctors: React.FC<DoctorsProps> = ({ doctors, onSelectDoctor, messagingEna
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {doctors.map(doctor => (
                         <div key={doctor.id} className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm text-center flex flex-col items-center">
-                            <img 
-                                src={doctor.avatarUrl || DOCTOR_AVATARS[doctor.email] || `https://i.pravatar.cc/150?u=${doctor.email}`} 
-                                alt={`Dr. ${doctor.name}`}
-                                className="w-24 h-24 rounded-full mb-4 ring-4 ring-indigo-200 dark:ring-indigo-800 object-cover"
-                            />
+                            <div className={`w-24 h-24 ${getInitialsColor(doctor.name, doctor.email)} rounded-full mb-4 ring-4 ring-indigo-200 dark:ring-indigo-800 flex items-center justify-center`}>
+                              <span className="text-white text-2xl font-bold">
+                                {getInitials(doctor.name, doctor.email)}
+                              </span>
+                            </div>
                             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{doctor.name}</h3>
                             <p className="text-indigo-600 dark:text-indigo-400 font-medium">{doctor.specialty}</p>
                             <div className="mt-4 flex space-x-2">

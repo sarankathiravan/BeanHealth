@@ -18,8 +18,8 @@ export class PatientAdditionService {
       email: user.email,
       name: user.name,
       role: user.role,
-      avatarUrl: user.avatar_url,
-      avatar_url: user.avatar_url,
+      avatarUrl: null, // No longer use external avatar URLs
+      avatar_url: null,
       specialty: user.specialty,
       dateOfBirth: user.date_of_birth,
       date_of_birth: user.date_of_birth,
@@ -55,8 +55,8 @@ export class PatientAdditionService {
       email: data.email,
       name: data.name,
       role: data.role,
-      avatarUrl: data.avatar_url,
-      avatar_url: data.avatar_url,
+      avatarUrl: null, // No longer use external avatar URLs
+      avatar_url: null,
       specialty: data.specialty,
       dateOfBirth: data.date_of_birth,
       date_of_birth: data.date_of_birth,
@@ -131,8 +131,8 @@ export class PatientAdditionService {
         email: user.email,
         name: user.name,
         role: user.role,
-        avatarUrl: user.avatar_url,
-        avatar_url: user.avatar_url,
+        avatarUrl: null, // No longer use external avatar URLs
+        avatar_url: null,
         specialty: user.specialty,
         dateOfBirth: user.date_of_birth,
         date_of_birth: user.date_of_birth,
@@ -168,8 +168,8 @@ export class PatientAdditionService {
         email: user.email,
         name: user.name,
         role: user.role,
-        avatarUrl: user.avatar_url,
-        avatar_url: user.avatar_url,
+        avatarUrl: null, // No longer use external avatar URLs
+        avatar_url: null,
         specialty: user.specialty,
         dateOfBirth: user.date_of_birth,
         date_of_birth: user.date_of_birth,

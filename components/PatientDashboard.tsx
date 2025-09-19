@@ -159,20 +159,10 @@ const PatientDashboard: React.FC = () => {
     name: profile?.name || user?.user_metadata?.full_name || user?.email || "User",
     email: user?.email || "",
     role: "patient" as const,
-    avatarUrl: 
-      profile?.avatar_url || 
-      user?.user_metadata?.picture || 
-      user?.user_metadata?.avatar_url ||
-      "",
+    avatarUrl: "", // No longer sync Google photos or random pics - use initials only
   };
 
-  // Debug logging for avatar sources
-  console.log('Avatar sources debug:', {
-    profileAvatarUrl: profile?.avatar_url,
-    userMetadataPicture: user?.user_metadata?.picture,
-    userMetadataAvatarUrl: user?.user_metadata?.avatar_url,
-    finalAvatarUrl: appUser.avatarUrl
-  });
+  // Remove debug logging for avatar sources since we no longer use external sources
 
   // Create patient object
   const patient: Patient = useMemo(

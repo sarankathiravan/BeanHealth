@@ -4,6 +4,7 @@ import { LogoutIcon } from './icons/LogoutIcon';
 import ThemeToggle from './ThemeToggle';
 import { MenuIcon } from './icons/MenuIcon';
 import ProfilePhotoUploader from './ProfilePhotoUploader';
+import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
 
 interface HeaderProps {
     user: User;
@@ -24,48 +25,10 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, onMenuClick, onUpdateAv
     setIsUploaderOpen(false);
   };
 
-  const getAvatarSrc = (user: User) => {
-    // Debug logging to understand avatar URL sources
-    console.log('Avatar debug:', {
-      userAvatarUrl: user.avatarUrl,
-      userName: user.name,
-      userEmail: user.email,
-      userRole: user.role
-    });
-    
-    // Priority order for avatar sources:
-    // 1. Google OAuth profile picture (highest priority for Google users)
-    // 2. User's custom avatar URL from database
-    // 3. Fallback to generated avatar
-    
-    // First check if user has Google profile picture (this is the most reliable source)
-    if (user.avatarUrl && user.avatarUrl.includes('googleusercontent.com')) {
-      console.log('Using Google profile picture:', user.avatarUrl);
-      return user.avatarUrl;
-    }
-    
-    // Then check for any other custom avatar URL
-    if (user.avatarUrl && user.avatarUrl.trim() !== '' && user.avatarUrl !== 'undefined') {
-      console.log('Using custom avatar URL:', user.avatarUrl);
-      return user.avatarUrl;
-    }
-    
-    // Handle specific doctor avatars for demo purposes
-    if (user.role === 'doctor') {
-        if (user.email === 'dr.smith@clinic.com') {
-            return 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500';
-        }
-        if (user.email === 'dr.jones@clinic.com') {
-            return 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500';
-        }
-    }
-    
-    // Fallback to generated avatar based on user name or email
-    const identifier = user.name && user.name !== 'User' ? user.name : user.email;
-    const fallbackUrl = `https://i.pravatar.cc/150?u=${encodeURIComponent(identifier)}`;
-    console.log('Using fallback avatar:', fallbackUrl);
-    return fallbackUrl;
-  };
+  // Get initials and color for avatar
+  const initials = getInitials(user.name, user.email);
+  const colorClass = getInitialsColor(user.name, user.email);
+  const avatarClasses = getInitialsAvatarClasses('lg');
 
   return (
     <header className="h-20 bg-white dark:bg-slate-800 flex-shrink-0 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 sm:px-8">
@@ -84,30 +47,16 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, onMenuClick, onUpdateAv
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4">
             <ThemeToggle />
-            <button onClick={() => setIsUploaderOpen(true)} className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800" aria-label="Update profile photo">
-              <img 
-                  src={getAvatarSrc(user)} 
-                  alt="User avatar" 
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-                  onLoad={() => {
-                    console.log('Avatar image loaded successfully');
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    console.log('Avatar image failed to load:', target.src);
-                    
-                    // Only fallback if it's not already a fallback URL
-                    if (target.src.includes('googleusercontent.com')) {
-                      console.log('Google image failed, trying pravatar fallback');
-                      const identifier = user.name && user.name !== 'User' ? user.name : user.email;
-                      target.src = `https://i.pravatar.cc/150?u=${encodeURIComponent(identifier)}`;
-                    } else if (target.src.includes('pravatar.cc') && !target.src.includes('ui-avatars.com')) {
-                      console.log('Pravatar failed, trying ui-avatars fallback');
-                      const name = user.name && user.name !== 'User' ? user.name : user.email.split('@')[0];
-                      target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=150`;
-                    }
-                  }}
-              />
+            <button 
+              onClick={() => setIsUploaderOpen(true)} 
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800" 
+              aria-label="Update profile photo"
+            >
+              <div className={`${avatarClasses} ${colorClass}`}>
+                <span className="text-white font-medium">
+                  {initials}
+                </span>
+              </div>
             </button>
             <button 
               onClick={onLogout} 

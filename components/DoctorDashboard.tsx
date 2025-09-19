@@ -1,5 +1,6 @@
 import React from 'react';
-import { Patient } from '../types';
+import { Patient, Vitals, Medication, MedicalRecord } from '../types';
+import { getInitials, getInitialsColor } from '../utils/avatarUtils';
 import { UserIcon } from './icons/UserIcon';
 import { UserPlusIcon } from './icons/UserPlusIcon';
 import { MessagesIcon } from './icons/MessagesIcon';
@@ -95,7 +96,11 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ patients, onSelectPat
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                            <img className="h-10 w-10 rounded-full object-cover" src={patient.avatarUrl || `https://i.pravatar.cc/150?u=${patient.email}`} alt={`${patient.name}'s avatar`} />
+                            <div className={`h-10 w-10 ${getInitialsColor(patient.name, patient.email)} rounded-full flex items-center justify-center`}>
+                              <span className="text-white text-sm font-medium">
+                                {getInitials(patient.name, patient.email)}
+                              </span>
+                            </div>
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{patient.name}</div>

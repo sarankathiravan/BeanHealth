@@ -6,6 +6,7 @@ import { AlertIcon } from './icons/AlertIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
+import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
 
 type Contact = Doctor | Patient;
 
@@ -117,18 +118,24 @@ const Messages: React.FC<MessagesProps> = ({
   };
 
   const getAvatarSrc = (contact: Contact) => {
-    if (contact.avatarUrl) {
-      return contact.avatarUrl;
-    }
-    if (contact.role === 'doctor') {
-      if (contact.email === 'dr.smith@clinic.com') {
-        return 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500';
-      }
-      if (contact.email === 'dr.jones@clinic.com') {
-        return 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500';
-      }
-    }
-    return `https://i.pravatar.cc/150?u=${contact.email}`;
+    // No longer use external images - this function is deprecated
+    // We now use initials avatars only
+    return null;
+  };
+
+  // Create initials avatar component
+  const InitialsAvatar = ({ contact, size = 'md' }: { contact: Contact; size?: 'sm' | 'md' | 'lg' }) => {
+    const initials = getInitials(contact.name, contact.email);
+    const colorClass = getInitialsColor(contact.name, contact.email);
+    const sizeClasses = getInitialsAvatarClasses(size);
+    
+    return (
+      <div className={`${sizeClasses} ${colorClass}`}>
+        <span className="text-white font-medium">
+          {initials}
+        </span>
+      </div>
+    );
   };
 
   const selectedContact = contacts.find(d => d.id === selectedContactId);
@@ -157,7 +164,7 @@ const Messages: React.FC<MessagesProps> = ({
                     className={`w-full text-left p-4 flex items-center space-x-3 transition-colors ${selectedContactId === contact.id ? 'bg-indigo-50 dark:bg-slate-700' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
                 >
                     <div className="relative">
-                        <img src={getAvatarSrc(contact)} alt={contact.name} className="w-12 h-12 rounded-full object-cover" />
+                        <InitialsAvatar contact={contact} size="lg" />
                         {hasUnreadUrgent && <span className="absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-800"></span>}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -184,7 +191,7 @@ const Messages: React.FC<MessagesProps> = ({
               <button onClick={() => setSelectedContactId(null)} className="md:hidden p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700">
                 <ArrowLeftIcon className="h-6 w-6 text-slate-600 dark:text-slate-300"/>
               </button>
-              <img src={getAvatarSrc(selectedContact)} alt={selectedContact.name} className="w-12 h-12 rounded-full object-cover" />
+              <InitialsAvatar contact={selectedContact} size="lg" />
               <div>
                 <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">{selectedContact.name}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Online</p>
