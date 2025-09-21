@@ -196,3 +196,157 @@ export const testBucketAccess = async (bucketName: string = 'medical-records'): 
 };
 
 export const uploadFileToGCS = uploadFileToSupabase;
+
+// Chat file upload functions
+export const uploadChatFile = async (
+    file: File, 
+    senderId: string, 
+    recipientId: string, 
+    fileType: 'pdf' | 'image' | 'audio'
+): Promise<{
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+}> => {
+    try {
+        // Generate organized file path
+        const fileExt = file.name.split('.').pop() || 'bin';
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(2);
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const fileName = `${timestamp}-${randomId}-${sanitizedFileName}`;
+        
+        // Organize files in folders by type and participants
+        const conversationId = [senderId, recipientId].sort().join('-');
+        const filePath = `chat-files/${conversationId}/${fileType}/${fileName}`;
+
+        // Upload to chat-files bucket
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('chat-files')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (uploadError) {
+            throw new Error(`Chat file upload failed: ${uploadError.message}`);
+        }
+
+        // Get the public URL
+        const { data: urlData } = supabase.storage
+            .from('chat-files')
+            .getPublicUrl(uploadData.path);
+
+        if (!urlData.publicUrl) {
+            throw new Error('Failed to get public URL for uploaded chat file');
+        }
+
+        return {
+            fileUrl: urlData.publicUrl,
+            fileName: file.name,
+            fileSize: file.size,
+            mimeType: file.type
+        };
+    } catch (error) {
+        console.error('Chat file upload error:', error);
+        throw error;
+    }
+};
+
+// Convert audio blob to file and upload
+export const uploadAudioRecording = async (
+    audioBlob: Blob, 
+    senderId: string, 
+    recipientId: string, 
+    duration: number
+): Promise<{
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+}> => {
+    try {
+        // Create a file from the blob
+        const timestamp = Date.now();
+        const fileName = `voice-message-${timestamp}.webm`;
+        const audioFile = new File([audioBlob], fileName, { 
+            type: 'audio/webm;codecs=opus' 
+        });
+
+        return await uploadChatFile(audioFile, senderId, recipientId, 'audio');
+    } catch (error) {
+        console.error('Audio recording upload error:', error);
+        throw error;
+    }
+};
+
+// Delete chat file
+export const deleteChatFile = async (fileUrl: string): Promise<boolean> => {
+    try {
+        // Extract file path from URL
+        const url = new URL(fileUrl);
+        const pathParts = url.pathname.split('/');
+        const bucketIndex = pathParts.findIndex(part => part === 'chat-files');
+        
+        if (bucketIndex === -1) {
+            throw new Error('Invalid chat file URL');
+        }
+        
+        const filePath = pathParts.slice(bucketIndex + 1).join('/');
+        
+        const { error } = await supabase.storage
+            .from('chat-files')
+            .remove([filePath]);
+            
+        if (error) {
+            console.error('File deletion error:', error);
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Chat file deletion error:', error);
+        return false;
+    }
+};
+
+// Get file info from URL
+export const getChatFileInfo = async (fileUrl: string): Promise<{
+    size: number;
+    lastModified: string;
+    mimeType: string;
+} | null> => {
+    try {
+        // Extract file path from URL
+        const url = new URL(fileUrl);
+        const pathParts = url.pathname.split('/');
+        const bucketIndex = pathParts.findIndex(part => part === 'chat-files');
+        
+        if (bucketIndex === -1) {
+            return null;
+        }
+        
+        const filePath = pathParts.slice(bucketIndex + 1).join('/');
+        
+        const { data, error } = await supabase.storage
+            .from('chat-files')
+            .list(filePath.split('/').slice(0, -1).join('/'), {
+                search: filePath.split('/').pop()
+            });
+            
+        if (error || !data || data.length === 0) {
+            return null;
+        }
+        
+        const fileInfo = data[0];
+        return {
+            size: fileInfo.metadata?.size || 0,
+            lastModified: fileInfo.updated_at || fileInfo.created_at || '',
+            mimeType: fileInfo.metadata?.mimetype || 'application/octet-stream'
+        };
+    } catch (error) {
+        console.error('Get chat file info error:', error);
+        return null;
+    }
+};

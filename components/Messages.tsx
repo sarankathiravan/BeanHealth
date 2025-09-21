@@ -6,9 +6,17 @@ import { AlertIcon } from './icons/AlertIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
+import { DocumentUploadIcon } from './icons/DocumentUploadIcon';
+import { MicrophoneIcon } from './icons/MicrophoneIcon';
 import { getInitials, getInitialsColor, getInitialsAvatarClasses } from '../utils/avatarUtils';
 import { useRealTimeChat } from '../hooks/useRealTimeChatV2';
 import { RealTimeStatus, TypingIndicator, MessageStatus } from './RealTimeComponents';
+import { ChatFilePicker } from './ChatFilePicker';
+import { AudioRecorder } from './AudioRecorder';
+import { FileMessage } from './FileMessage';
+import { FileUploadProgress } from './FileUploader';
+import { uploadChatFile, uploadAudioRecording } from '../services/storageService';
+import { ChatService } from '../services/chatService';
 
 type Contact = Doctor | Patient;
 
@@ -37,6 +45,10 @@ const Messages: React.FC<MessagesProps> = ({
   const [input, setInput] = useState('');
   const [isUrgent, setIsUrgent] = useState(false);
   const [showCreditWarning, setShowCreditWarning] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<FileUploadProgress | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showFilePicker, setShowFilePicker] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isPatient = currentUser.role === 'patient';
@@ -150,6 +162,134 @@ const Messages: React.FC<MessagesProps> = ({
     setIsUrgent(prev => !prev);
   };
 
+  const handleFileUpload = async (file: File, fileType: 'pdf' | 'image' | 'audio') => {
+    if (!selectedContactId) return;
+
+    setIsUploading(true);
+    setUploadProgress({
+      fileName: file.name,
+      progress: 0,
+      status: 'uploading'
+    });
+
+    try {
+      // Upload file to storage
+      const fileData = await uploadChatFile(file, currentUser.id, selectedContactId, fileType);
+      
+      setUploadProgress({
+        fileName: file.name,
+        progress: 100,
+        status: 'success'
+      });
+
+      // Send file message
+      const sentMessage = await ChatService.sendFileMessage(
+        currentUser.id,
+        selectedContactId,
+        fileData.fileUrl,
+        fileData.fileName,
+        fileType,
+        fileData.fileSize,
+        fileData.mimeType,
+        undefined, // no text with file
+        isUrgent
+      );
+
+      // Manually add the sent message to real-time chat to show immediately
+      if (realTimeChat.addMessage) {
+        realTimeChat.addMessage(sentMessage);
+      }
+
+      // Reset urgent flag if it was set
+      setIsUrgent(false);
+      
+      // Clear upload progress after a delay
+      setTimeout(() => {
+        setUploadProgress(null);
+      }, 2000);
+
+    } catch (error) {
+      console.error('File upload error:', error);
+      setUploadProgress({
+        fileName: file.name,
+        progress: 0,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Upload failed'
+      });
+      
+      // Clear error after delay
+      setTimeout(() => {
+        setUploadProgress(null);
+      }, 5000);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleAudioRecording = async (audioBlob: Blob, duration: number) => {
+    if (!selectedContactId) return;
+
+    setIsUploading(true);
+    setUploadProgress({
+      fileName: 'Voice message',
+      progress: 0,
+      status: 'uploading'
+    });
+
+    try {
+      // Upload audio recording
+      const audioData = await uploadAudioRecording(audioBlob, currentUser.id, selectedContactId, duration);
+      
+      setUploadProgress({
+        fileName: 'Voice message',
+        progress: 100,
+        status: 'success'
+      });
+
+      // Send audio message
+      const sentMessage = await ChatService.sendFileMessage(
+        currentUser.id,
+        selectedContactId,
+        audioData.fileUrl,
+        audioData.fileName,
+        'audio',
+        audioData.fileSize,
+        audioData.mimeType,
+        undefined, // no text with audio
+        isUrgent
+      );
+
+      // Manually add the sent message to real-time chat to show immediately
+      if (realTimeChat.addMessage) {
+        realTimeChat.addMessage(sentMessage);
+      }
+
+      // Reset urgent flag if it was set
+      setIsUrgent(false);
+      
+      // Clear upload progress after a delay
+      setTimeout(() => {
+        setUploadProgress(null);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Audio upload error:', error);
+      setUploadProgress({
+        fileName: 'Voice message',
+        progress: 0,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Upload failed'
+      });
+      
+      // Clear error after delay
+      setTimeout(() => {
+        setUploadProgress(null);
+      }, 5000);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const getAvatarSrc = (contact: Contact) => {
     // No longer use external images - this function is deprecated
     // We now use initials avatars only
@@ -255,7 +395,14 @@ const Messages: React.FC<MessagesProps> = ({
                         pendingMessages.has(msg.id) ? 'opacity-70' : ''
                       }`}>
                         {msg.isUrgent && <div className="font-bold text-xs text-red-200 dark:text-red-300 flex items-center mb-1"><AlertIcon className="h-3 w-3 mr-1"/>URGENT</div>}
-                        {msg.text && <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>}
+                        {msg.fileUrl ? (
+                          <FileMessage 
+                            message={msg}
+                            isCurrentUser={msg.senderId === currentUser.id}
+                          />
+                        ) : msg.text && (
+                          <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                        )}
                       </div>
                        <div className="text-xs text-slate-400 mt-1 px-1 flex items-center">
                           {msg.senderId === currentUser.id && (
@@ -292,6 +439,22 @@ const Messages: React.FC<MessagesProps> = ({
                     </button>
                 </div>
                )}
+
+               {/* Upload Progress */}
+               {uploadProgress && (
+                 <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                   <div className="flex items-center justify-between text-sm text-blue-800 dark:text-blue-200 mb-2">
+                     <span>Uploading {uploadProgress.fileName}...</span>
+                     <span>{Math.round(uploadProgress.progress)}%</span>
+                   </div>
+                   <div className="w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
+                     <div 
+                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                       style={{ width: `${uploadProgress.progress}%` }}
+                     ></div>
+                   </div>
+                 </div>
+               )}
               <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
                  <div className="relative group flex-shrink-0">
                     <button
@@ -315,6 +478,26 @@ const Messages: React.FC<MessagesProps> = ({
                       </div>
                     )}
                  </div>
+
+                 {/* File Upload Button */}
+                 <button
+                    type="button"
+                    onClick={() => setShowFilePicker(true)}
+                    className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+                    aria-label="Attach file"
+                 >
+                    <DocumentUploadIcon className="h-4 w-4" />
+                 </button>
+
+                 {/* Audio Recording Button */}
+                 <button
+                    type="button"
+                    onClick={() => setShowAudioRecorder(true)}
+                    className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+                    aria-label="Record audio"
+                 >
+                    <MicrophoneIcon className="h-4 w-4" />
+                 </button>
                 <input
                   type="text"
                   value={input}
@@ -352,6 +535,53 @@ const Messages: React.FC<MessagesProps> = ({
           </div>
         )}
       </div>
+
+      {/* File Upload Modals */}
+      {showFilePicker && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                Choose File Type
+              </h3>
+              <button
+                onClick={() => setShowFilePicker(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ×
+              </button>
+            </div>
+            <ChatFilePicker
+              onFileSelect={handleFileUpload}
+              onUploadProgress={setUploadProgress}
+              disabled={isUploading}
+            />
+          </div>
+        </div>
+      )}
+
+      {showAudioRecorder && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                Record Audio Message
+              </h3>
+              <button
+                onClick={() => setShowAudioRecorder(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ×
+              </button>
+            </div>
+            <AudioRecorder
+              onRecordingComplete={handleAudioRecording}
+              onRecordingCancel={() => setShowAudioRecorder(false)}
+              disabled={isUploading}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

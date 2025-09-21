@@ -62,7 +62,12 @@ export function useRealTimeChat({
         audioUrl: null,
         timestamp: new Date().toISOString(),
         isRead: false,
-        isUrgent
+        isUrgent,
+        fileUrl: undefined,
+        fileName: undefined,
+        fileType: undefined,
+        fileSize: undefined,
+        mimeType: undefined
       };
       
       setMessages(prev => [...prev, optimisticMessage]);
@@ -309,6 +314,21 @@ export function useRealTimeChat({
     };
   }, []);
 
+  // Manually add a message to the state (for file uploads)
+  const addMessage = useCallback((message: ChatMessage) => {
+    setMessages(prev => {
+      const exists = prev.find(msg => msg.id === message.id);
+      if (exists) {
+        console.log('Message already exists, skipping duplicate');
+        return prev;
+      }
+      
+      const updated = [...prev, message];
+      console.log('Manually added message to state, total messages:', updated.length);
+      return updated;
+    });
+  }, []);
+
   return {
     // State
     messages,
@@ -325,6 +345,7 @@ export function useRealTimeChat({
     stopTyping,
     loadMessages,
     getConversationMessages,
+    addMessage,
     
     // Computed values
     conversationMessages: getConversationMessages(selectedContactId)

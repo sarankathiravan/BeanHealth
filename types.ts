@@ -80,6 +80,12 @@ export interface ChatMessage {
   audioUrl?: string;
   isRead?: boolean;
   isUrgent?: boolean;
+  // File upload support
+  fileUrl?: string;
+  fileName?: string;
+  fileType?: 'pdf' | 'image' | 'audio';
+  fileSize?: number;
+  mimeType?: string;
 }
 
 export interface Patient extends User {

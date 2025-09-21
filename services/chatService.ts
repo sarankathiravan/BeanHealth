@@ -19,7 +19,12 @@ export class ChatService {
       audioUrl: msg.audio_url,
       timestamp: msg.timestamp,
       isRead: msg.is_read,
-      isUrgent: msg.is_urgent
+      isUrgent: msg.is_urgent,
+      fileUrl: msg.file_url,
+      fileName: msg.file_name,
+      fileType: msg.file_type,
+      fileSize: msg.file_size,
+      mimeType: msg.mime_type
     }))
   }
 
@@ -40,7 +45,12 @@ export class ChatService {
       audioUrl: msg.audio_url,
       timestamp: msg.timestamp,
       isRead: msg.is_read,
-      isUrgent: msg.is_urgent
+      isUrgent: msg.is_urgent,
+      fileUrl: msg.file_url,
+      fileName: msg.file_name,
+      fileType: msg.file_type,
+      fileSize: msg.file_size,
+      mimeType: msg.mime_type
     }))
   }
 
@@ -67,7 +77,59 @@ export class ChatService {
       audioUrl: data.audio_url,
       timestamp: data.timestamp,
       isRead: data.is_read,
-      isUrgent: data.is_urgent
+      isUrgent: data.is_urgent,
+      fileUrl: data.file_url,
+      fileName: data.file_name,
+      fileType: data.file_type,
+      fileSize: data.file_size,
+      mimeType: data.mime_type
+    } as ChatMessage
+  }
+
+  static async sendFileMessage(
+    senderId: string, 
+    recipientId: string, 
+    fileUrl: string,
+    fileName: string,
+    fileType: 'pdf' | 'image' | 'audio',
+    fileSize: number,
+    mimeType: string,
+    text?: string,
+    isUrgent: boolean = false
+  ) {
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        sender_id: senderId,
+        recipient_id: recipientId,
+        text: text || null,
+        file_url: fileUrl,
+        file_name: fileName,
+        file_type: fileType,
+        file_size: fileSize,
+        mime_type: mimeType,
+        is_urgent: isUrgent,
+        is_read: false
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return {
+      id: data.id,
+      senderId: data.sender_id,
+      recipientId: data.recipient_id,
+      text: data.text,
+      audioUrl: data.audio_url,
+      timestamp: data.timestamp,
+      isRead: data.is_read,
+      isUrgent: data.is_urgent,
+      fileUrl: data.file_url,
+      fileName: data.file_name,
+      fileType: data.file_type,
+      fileSize: data.file_size,
+      mimeType: data.mime_type
     } as ChatMessage
   }
 
@@ -124,7 +186,12 @@ export class ChatService {
             audioUrl: msg.audio_url,
             timestamp: msg.timestamp,
             isRead: msg.is_read,
-            isUrgent: msg.is_urgent
+            isUrgent: msg.is_urgent,
+            fileUrl: msg.file_url,
+            fileName: msg.file_name,
+            fileType: msg.file_type,
+            fileSize: msg.file_size,
+            mimeType: msg.mime_type
           });
         }
       )
