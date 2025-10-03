@@ -11,12 +11,27 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'supabase.auth.token',
+    flowType: 'pkce'
   },
   realtime: {
     params: {
       eventsPerSecond: 10
+    },
+    heartbeatIntervalMs: 30000,
+    reconnectAfterMs: (tries) => {
+      return Math.min(1000 * 2 ** tries, 10000);
     }
+  },
+  global: {
+    headers: {
+      'x-client-info': 'beanhealth-app'
+    }
+  },
+  db: {
+    schema: 'public'
   }
 })
 

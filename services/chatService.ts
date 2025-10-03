@@ -168,8 +168,29 @@ export class ChatService {
     const channelName = `chat_messages_${userId}_${Date.now()}`;
     console.log(`[ChatService] Creating subscription channel: ${channelName}`);
     
+    const transformMessage = (msg: any): ChatMessage => ({
+      id: msg.id,
+      senderId: msg.sender_id,
+      recipientId: msg.recipient_id,
+      text: msg.text || null,
+      audioUrl: msg.audio_url || null,
+      timestamp: msg.timestamp,
+      isRead: msg.is_read || false,
+      isUrgent: msg.is_urgent || false,
+      fileUrl: msg.file_url || undefined,
+      fileName: msg.file_name || undefined,
+      fileType: msg.file_type || undefined,
+      fileSize: msg.file_size || undefined,
+      mimeType: msg.mime_type || undefined
+    });
+    
     const channel = supabase
-      .channel(channelName)
+      .channel(channelName, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: userId }
+        }
+      })
       // Listen for messages where user is RECIPIENT
       .on(
         'postgres_changes',
@@ -180,25 +201,10 @@ export class ChatService {
           filter: `recipient_id=eq.${userId}`
         },
         (payload) => {
-          console.log('[ChatService] Real-time RECEIVED message:', payload);
-          const msg = payload.new as any;
-          
+          console.log('[ChatService] Real-time RECEIVED message:', payload.new);
           try {
-            callback({
-              id: msg.id,
-              senderId: msg.sender_id,
-              recipientId: msg.recipient_id,
-              text: msg.text || null,
-              audioUrl: msg.audio_url || null,
-              timestamp: msg.timestamp,
-              isRead: msg.is_read || false,
-              isUrgent: msg.is_urgent || false,
-              fileUrl: msg.file_url || undefined,
-              fileName: msg.file_name || undefined,
-              fileType: msg.file_type || undefined,
-              fileSize: msg.file_size || undefined,
-              mimeType: msg.mime_type || undefined
-            });
+            const message = transformMessage(payload.new);
+            callback(message);
           } catch (error) {
             console.error('[ChatService] Error processing received message:', error);
           }
@@ -214,25 +220,10 @@ export class ChatService {
           filter: `sender_id=eq.${userId}`
         },
         (payload) => {
-          console.log('[ChatService] Real-time SENT message confirmation:', payload);
-          const msg = payload.new as any;
-          
+          console.log('[ChatService] Real-time SENT message confirmation:', payload.new);
           try {
-            callback({
-              id: msg.id,
-              senderId: msg.sender_id,
-              recipientId: msg.recipient_id,
-              text: msg.text || null,
-              audioUrl: msg.audio_url || null,
-              timestamp: msg.timestamp,
-              isRead: msg.is_read || false,
-              isUrgent: msg.is_urgent || false,
-              fileUrl: msg.file_url || undefined,
-              fileName: msg.file_name || undefined,
-              fileType: msg.file_type || undefined,
-              fileSize: msg.file_size || undefined,
-              mimeType: msg.mime_type || undefined
-            });
+            const message = transformMessage(payload.new);
+            callback(message);
           } catch (error) {
             console.error('[ChatService] Error processing sent message:', error);
           }
@@ -248,17 +239,21 @@ export class ChatService {
           filter: `sender_id=eq.${userId}`
         },
         (payload) => {
-          console.log('[ChatService] Real-time message UPDATE (read receipt):', payload);
+          console.log('[ChatService] Real-time message UPDATE (read receipt):', payload.new);
           // Handle read status updates for messages we sent
         }
       )
-      .subscribe((status) => {
+      .subscribe((status, err) => {
         console.log(`[ChatService] Subscription status for ${channelName}:`, status);
         
         if (status === 'SUBSCRIBED') {
-          console.log('[ChatService] Successfully subscribed to real-time messages (send + receive)');
-        } else if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
-          console.error('[ChatService] Subscription error:', status);
+          console.log('[ChatService] ✅ Successfully subscribed to real-time messages');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[ChatService] ⏱️ Subscription timed out');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[ChatService] ❌ Channel error:', err);
+        } else if (status === 'CLOSED') {
+          console.warn('[ChatService] 🔒 Channel closed');
         }
       });
     
@@ -267,14 +262,33 @@ export class ChatService {
 
   // Subscribe to typing indicators
   static subscribeToTyping(userId: string, callback: (data: { userId: string, isTyping: boolean, conversationId: string }) => void) {
+    const channelName = `typing_${userId}_${Date.now()}`;
+    console.log(`[ChatService] Creating typing channel: ${channelName}`);
+    
     const channel = supabase
-      .channel(`typing_${userId}`)
-      .on('broadcast', { event: 'typing' }, (payload) => {
-        console.log('Typing event received:', payload);
-        callback(payload.payload);
+      .channel(channelName, {
+        config: {
+          broadcast: { self: false, ack: false }
+        }
       })
-      .subscribe((status) => {
-        console.log('Typing subscription status:', status);
+      .on('broadcast', { event: 'typing' }, (payload) => {
+        console.log('[ChatService] Typing event received:', payload);
+        try {
+          callback(payload.payload);
+        } catch (error) {
+          console.error('[ChatService] Error processing typing event:', error);
+        }
+      })
+      .subscribe((status, err) => {
+        console.log(`[ChatService] Typing subscription status:`, status);
+        
+        if (status === 'SUBSCRIBED') {
+          console.log('[ChatService] ✅ Successfully subscribed to typing indicators');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[ChatService] ⏱️ Typing subscription timed out');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[ChatService] ❌ Typing channel error:', err);
+        }
       });
     
     return channel;

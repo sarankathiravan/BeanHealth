@@ -1,7 +1,11 @@
 import { supabase } from '../lib/supabase'
 
-// Simplified upload function that skips bucket existence check
-export const uploadFileToSupabaseSimple = async (file: File, bucket: string = 'medical-records'): Promise<string> => {
+// Optimized upload function with retry logic
+export const uploadFileToSupabaseSimple = async (
+  file: File, 
+  bucket: string = 'medical-records',
+  onProgress?: (progress: number) => void
+): Promise<string> => {
     // Generate unique file name
     const fileExt = file.name.split('.').pop() || 'bin';
     const timestamp = Date.now();
@@ -9,28 +13,65 @@ export const uploadFileToSupabaseSimple = async (file: File, bucket: string = 'm
     const fileName = `${timestamp}-${randomId}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
-    // Upload the file directly
-    const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-        });
+    console.log('[Storage] Starting upload:', fileName, 'Size:', file.size);
+    
+    let retries = 3;
+    let lastError: Error | null = null;
+    
+    while (retries > 0) {
+        try {
+            // Upload the file directly with timeout
+            const uploadPromise = supabase.storage
+                .from(bucket)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+            
+            // Add timeout (30 seconds)
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Upload timeout after 30s')), 30000);
+            });
+            
+            const { data: uploadData, error: uploadError } = await Promise.race([
+                uploadPromise,
+                timeoutPromise
+            ]) as any;
 
-    if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
+            if (uploadError) {
+                throw new Error(`Upload failed: ${uploadError.message}`);
+            }
+
+            console.log('[Storage] Upload successful:', uploadData.path);
+            
+            // Get the public URL
+            const { data: urlData } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(uploadData.path);
+
+            if (!urlData.publicUrl) {
+                throw new Error('Failed to get public URL for uploaded file');
+            }
+
+            console.log('[Storage] Public URL generated:', urlData.publicUrl);
+            return urlData.publicUrl;
+            
+        } catch (error) {
+            lastError = error as Error;
+            retries--;
+            
+            if (retries > 0) {
+                console.warn(`[Storage] Upload failed, retrying... (${retries} attempts left)`, lastError.message);
+                // Wait before retry (exponential backoff)
+                await new Promise(resolve => setTimeout(resolve, (4 - retries) * 1000));
+            } else {
+                console.error('[Storage] Upload failed after all retries:', lastError);
+                throw new Error(`Upload failed after 3 attempts: ${lastError.message}`);
+            }
+        }
     }
-
-    // Get the public URL
-    const { data: urlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(uploadData.path);
-
-    if (!urlData.publicUrl) {
-        throw new Error('Failed to get public URL for uploaded file');
-    }
-
-    return urlData.publicUrl;
+    
+    throw lastError || new Error('Upload failed');
 };
 
 export const uploadFileToSupabase = async (file: File, bucket: string = 'medical-records'): Promise<string> => {

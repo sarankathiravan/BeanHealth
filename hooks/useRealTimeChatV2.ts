@@ -26,19 +26,38 @@ export function useRealTimeChat({
   const typingChannelRef = useRef<any>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load initial messages
+  // Load initial messages with retry logic
   const loadMessages = useCallback(async () => {
     try {
-      console.log('Loading messages for user:', currentUserId);
-      const allMessages = await ChatService.getAllConversations(currentUserId);
+      console.log('[Chat] Loading messages for user:', currentUserId);
+      
+      // Add timeout to prevent hanging
+      const loadPromise = ChatService.getAllConversations(currentUserId);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Message load timeout after 10s')), 10000);
+      });
+      
+      const allMessages = await Promise.race([loadPromise, timeoutPromise]);
+      
+      console.log('[Chat] Loaded messages:', allMessages.length);
       setMessages(allMessages);
       
-      // Update unread count
-      const unread = await ChatService.getUnreadMessageCount(currentUserId);
-      setUnreadCount(unread);
-      console.log('Loaded messages:', allMessages.length, 'Unread:', unread);
+      // Update unread count (don't let this block)
+      ChatService.getUnreadMessageCount(currentUserId)
+        .then(unread => {
+          setUnreadCount(unread);
+          console.log('[Chat] Unread count:', unread);
+        })
+        .catch(err => {
+          console.warn('[Chat] Failed to get unread count:', err);
+          setUnreadCount(0);
+        });
+        
     } catch (error) {
-      console.error('Error loading messages:', error);
+      console.error('[Chat] Error loading messages:', error);
+      // Set empty array so UI doesn't hang
+      setMessages([]);
+      setUnreadCount(0);
     }
   }, [currentUserId]);
 
@@ -209,133 +228,180 @@ export function useRealTimeChat({
 
   // Setup real-time message subscription
   useEffect(() => {
-    console.log('Setting up real-time subscriptions for user:', currentUserId);
+    console.log('[Chat] Setting up real-time subscriptions for user:', currentUserId);
     
     const setupMessageSubscription = () => {
       if (messageChannelRef.current) {
-        messageChannelRef.current.unsubscribe();
+        try {
+          messageChannelRef.current.unsubscribe();
+        } catch (e) {
+          console.warn('[Chat] Error unsubscribing from previous channel:', e);
+        }
+        messageChannelRef.current = null;
       }
       
-      messageChannelRef.current = ChatService.subscribeToMessages(currentUserId, (newMessage) => {
-        console.log('[useRealTimeChat] Real-time message received:', {
-          id: newMessage.id,
-          from: newMessage.senderId,
-          to: newMessage.recipientId,
-          isOwnMessage: newMessage.senderId === currentUserId
-        });
-        
-        // Add new message to state (avoid duplicates)
-        setMessages(prev => {
-          const exists = prev.find(msg => msg.id === newMessage.id);
-          if (exists) {
-            console.log('[useRealTimeChat] Message already exists, skipping duplicate:', newMessage.id);
+      try {
+        console.log('[Chat] Creating message subscription');
+        messageChannelRef.current = ChatService.subscribeToMessages(currentUserId, (newMessage) => {
+          console.log('[Chat] Real-time message received:', {
+            id: newMessage.id,
+            from: newMessage.senderId,
+            to: newMessage.recipientId,
+            isOwnMessage: newMessage.senderId === currentUserId
+          });
+          
+          // Add new message to state (avoid duplicates)
+          setMessages(prev => {
+            const exists = prev.find(msg => msg.id === newMessage.id);
+            if (exists) {
+              console.log('[Chat] Message already exists, skipping duplicate:', newMessage.id);
+              return prev;
+            }
+            
+            // Also check if we have a pending temp message that should be replaced
+            const hasPending = prev.some(msg => msg.id.startsWith('temp_'));
+            if (hasPending && newMessage.senderId === currentUserId) {
+              console.log('[Chat] Received own message, replacing any pending temps');
+              // Remove temp messages from this user and add the real one
+              const withoutTemps = prev.filter(msg => !msg.id.startsWith('temp_'));
+              return [...withoutTemps, newMessage];
+            }
+            
+            const updated = [...prev, newMessage];
+            console.log('[Chat] Added new message to state, total:', updated.length);
+            return updated;
+          });
+          
+          // Clear any pending status since the message came through
+          setPendingMessages(prev => {
+            if (prev.size > 0) {
+              console.log('[Chat] Clearing pending messages');
+              return new Set();
+            }
             return prev;
+          });
+          
+          // Update unread count only if not from current user
+          if (newMessage.senderId !== currentUserId) {
+            setUnreadCount(prev => prev + 1);
           }
           
-          // Also check if we have a pending temp message that should be replaced
-          const hasPending = prev.some(msg => msg.id.startsWith('temp_'));
-          if (hasPending && newMessage.senderId === currentUserId) {
-            console.log('[useRealTimeChat] Received own message, replacing any pending temps');
-            // Remove temp messages from this user and add the real one
-            const withoutTemps = prev.filter(msg => !msg.id.startsWith('temp_'));
-            return [...withoutTemps, newMessage];
+          // Call callback if provided
+          if (onNewMessage) {
+            onNewMessage(newMessage);
           }
           
-          const updated = [...prev, newMessage];
-          console.log('[useRealTimeChat] Added new message to state, total:', updated.length);
-          return updated;
-        });
-        
-        // Clear any pending status since the message came through
-        setPendingMessages(prev => {
-          if (prev.size > 0) {
-            console.log('[useRealTimeChat] Clearing pending messages');
-            return new Set();
+          // Auto-mark as read if the conversation is currently open
+          if (selectedContactId === newMessage.senderId) {
+            setTimeout(() => {
+              markConversationAsRead(newMessage.senderId).catch(console.error);
+            }, 1000);
           }
-          return prev;
         });
         
-        // Update unread count only if not from current user
-        if (newMessage.senderId !== currentUserId) {
-          setUnreadCount(prev => prev + 1);
-        }
+        setIsConnected(true);
+        console.log('[Chat] Message subscription established successfully');
+      } catch (error) {
+        console.error('[Chat] Failed to setup message subscription:', error);
+        setIsConnected(false);
         
-        // Call callback if provided
-        if (onNewMessage) {
-          onNewMessage(newMessage);
-        }
-        
-        // Auto-mark as read if the conversation is currently open
-        if (selectedContactId === newMessage.senderId) {
-          setTimeout(() => {
-            markConversationAsRead(newMessage.senderId).catch(console.error);
-          }, 1000);
-        }
-      });
-      
-      setIsConnected(true);
-      console.log('Message subscription established');
+        // Retry after 5 seconds
+        setTimeout(() => {
+          console.log('[Chat] Retrying message subscription...');
+          setupMessageSubscription();
+        }, 5000);
+      }
     };
 
     const setupTypingSubscription = () => {
       if (typingChannelRef.current) {
-        typingChannelRef.current.unsubscribe();
+        try {
+          typingChannelRef.current.unsubscribe();
+        } catch (e) {
+          console.warn('[Chat] Error unsubscribing from typing channel:', e);
+        }
+        typingChannelRef.current = null;
       }
       
-      typingChannelRef.current = ChatService.subscribeToTyping(currentUserId, (data) => {
-        console.log('Typing event received:', data);
-        
-        const { userId, isTyping: userIsTyping, conversationId } = data;
-        
-        // Don't process typing events from self
-        if (userId === currentUserId) {
-          return;
-        }
-        
-        // Update typing users
-        setTypingUsers(prev => {
-          const newTypingUsers = new Set(prev);
-          if (userIsTyping) {
-            newTypingUsers.add(userId);
-            console.log('User started typing:', userId);
-          } else {
-            newTypingUsers.delete(userId);
-            console.log('User stopped typing:', userId);
+      try {
+        console.log('[Chat] Creating typing subscription');
+        typingChannelRef.current = ChatService.subscribeToTyping(currentUserId, (data) => {
+          console.log('[Chat] Typing event received:', data);
+          
+          const { userId, isTyping: userIsTyping, conversationId } = data;
+          
+          // Don't process typing events from self
+          if (userId === currentUserId) {
+            return;
           }
-          return newTypingUsers;
+          
+          // Update typing users
+          setTypingUsers(prev => {
+            const newTypingUsers = new Set(prev);
+            if (userIsTyping) {
+              newTypingUsers.add(userId);
+              console.log('[Chat] User started typing:', userId);
+            } else {
+              newTypingUsers.delete(userId);
+              console.log('[Chat] User stopped typing:', userId);
+            }
+            return newTypingUsers;
+          });
+          
+          // Auto-clear typing after 5 seconds as fallback
+          if (userIsTyping) {
+            setTimeout(() => {
+              setTypingUsers(prev => {
+                const newTypingUsers = new Set(prev);
+                newTypingUsers.delete(userId);
+                return newTypingUsers;
+              });
+            }, 5000);
+          }
         });
         
-        // Auto-clear typing after 5 seconds as fallback
-        if (userIsTyping) {
-          setTimeout(() => {
-            setTypingUsers(prev => {
-              const newTypingUsers = new Set(prev);
-              newTypingUsers.delete(userId);
-              return newTypingUsers;
-            });
-          }, 5000);
-        }
-      });
-      
-      console.log('Typing subscription established');
+        console.log('[Chat] Typing subscription established successfully');
+      } catch (error) {
+        console.error('[Chat] Failed to setup typing subscription:', error);
+        
+        // Retry after 5 seconds (less critical than messages)
+        setTimeout(() => {
+          console.log('[Chat] Retrying typing subscription...');
+          setupTypingSubscription();
+        }, 5000);
+      }
     };
 
+    // Setup subscriptions immediately
     setupMessageSubscription();
     setupTypingSubscription();
 
     return () => {
-      console.log('Cleaning up real-time subscriptions');
+      console.log('[Chat] Cleaning up real-time subscriptions');
+      
+      // Cleanup message channel
       if (messageChannelRef.current) {
-        messageChannelRef.current.unsubscribe();
+        try {
+          messageChannelRef.current.unsubscribe();
+        } catch (e) {
+          console.warn('[Chat] Error unsubscribing message channel on cleanup:', e);
+        }
         messageChannelRef.current = null;
       }
+      
+      // Cleanup typing channel
       if (typingChannelRef.current) {
-        typingChannelRef.current.unsubscribe();
+        try {
+          typingChannelRef.current.unsubscribe();
+        } catch (e) {
+          console.warn('[Chat] Error unsubscribing typing channel on cleanup:', e);
+        }
         typingChannelRef.current = null;
       }
+      
       setIsConnected(false);
     };
-  }, [currentUserId]); // Removed selectedContactId from deps to prevent unnecessary re-subscriptions
+  }, [currentUserId, selectedContactId, onNewMessage, markConversationAsRead]);
 
   // Load initial messages on mount
   useEffect(() => {
