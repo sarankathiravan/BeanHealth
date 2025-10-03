@@ -18,6 +18,8 @@ import { FileUploadProgress } from './FileUploader';
 import { uploadChatFile, uploadAudioRecording } from '../services/storageService';
 import { ChatService } from '../services/chatService';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../utils/toastUtils';
+import PrescriptionModal from './PrescriptionModal';
+import { DocumentIcon } from './icons/DocumentIcon';
 
 type Contact = Doctor | Patient;
 
@@ -50,9 +52,11 @@ const Messages: React.FC<MessagesProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isPatient = currentUser.role === 'patient';
+  const isDoctor = currentUser.role === 'doctor';
   const patientData = isPatient ? (currentUser as Patient) : null;
   const hasCredits = patientData ? patientData.urgentCredits > 0 : false;
   
@@ -481,6 +485,18 @@ const Messages: React.FC<MessagesProps> = ({
                   )}
                 </div>
               </div>
+              {/* Prescription Button - Only for doctors */}
+              {isDoctor && selectedContact.role === 'patient' && (
+                <button
+                  onClick={() => setShowPrescriptionModal(true)}
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-xl hover:from-sky-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                  aria-label="Create prescription"
+                >
+                  <DocumentIcon className="h-5 w-5" />
+                  <span className="hidden sm:inline">Send Prescription</span>
+                  <span className="sm:hidden">Rx</span>
+                </button>
+              )}
             </div>
             
             {/* Messages Area - Fixed Height Scrollable Window */}
@@ -752,6 +768,16 @@ const Messages: React.FC<MessagesProps> = ({
             />
           </div>
         </div>
+      )}
+
+      {/* Prescription Modal - Only for doctors */}
+      {isDoctor && selectedContact && selectedContact.role === 'patient' && (
+        <PrescriptionModal
+          isOpen={showPrescriptionModal}
+          onClose={() => setShowPrescriptionModal(false)}
+          doctor={currentUser as Doctor}
+          patient={selectedContact as Patient}
+        />
       )}
     </div>
   );

@@ -103,3 +103,34 @@ export interface Patient extends User {
   trialEndsAt?: string; // ISO Date string
   notes?: string;
 }
+
+// Prescription related types
+export interface PrescriptionMedication {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions?: string;
+  timing?: string; // e.g., "Morning", "After meals", etc.
+}
+
+export type PrescriptionStatus = 'active' | 'completed' | 'cancelled';
+
+export interface Prescription {
+  id: string;
+  doctorId: string;
+  doctor_id?: string; // Database field name
+  patientId: string;
+  patient_id?: string; // Database field name
+  medications: PrescriptionMedication[];
+  notes?: string;
+  status: PrescriptionStatus;
+  createdAt: string;
+  created_at?: string; // Database field name
+  updatedAt?: string;
+  updated_at?: string; // Database field name
+  // Populated fields (from joins)
+  doctorName?: string;
+  patientName?: string;
+  doctorSpecialty?: string;
+}
