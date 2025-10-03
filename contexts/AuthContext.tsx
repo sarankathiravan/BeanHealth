@@ -3,6 +3,7 @@ import { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { AuthService } from '../services/authService'
 import { User as AppUser } from '../types'
+import { showErrorToast, showSuccessToast } from '../utils/toastUtils'
 
 interface AuthContextType {
   user: User | null
@@ -232,8 +233,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true)
     try {
       await AuthService.signInWithGoogle()
+      // Success toast will show after redirect
     } catch (error) {
       setLoading(false)
+      showErrorToast('Failed to sign in with Google. Please try again.')
       throw error
     }
   }
@@ -242,8 +245,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true)
     try {
       await AuthService.signIn(email, password)
+      showSuccessToast('Welcome back!')
     } catch (error) {
       setLoading(false)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in'
+      showErrorToast(errorMessage)
       throw error
     }
   }
@@ -258,8 +264,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true)
     try {
       await AuthService.signUp(email, password, userData)
+      showSuccessToast('Account created successfully! Welcome to BeanHealth.')
     } catch (error) {
       setLoading(false)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create account'
+      showErrorToast(errorMessage)
       throw error
     }
   }
@@ -268,8 +277,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true)
     try {
       await AuthService.signOut()
+      showSuccessToast('Signed out successfully')
     } catch (error) {
       setLoading(false)
+      showErrorToast('Failed to sign out')
       throw error
     }
   }

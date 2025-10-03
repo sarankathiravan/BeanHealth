@@ -51,7 +51,7 @@ export function useRealTimeChat({
     const tempId = `temp_${Date.now()}_${Math.random()}`;
     
     try {
-      console.log('Sending message to:', recipientId, 'Text:', text);
+      console.log('[useRealTimeChat] Sending message to:', recipientId, 'Text:', text.substring(0, 50));
       
       // Add optimistic message immediately
       const optimisticMessage: ChatMessage = {
@@ -73,13 +73,39 @@ export function useRealTimeChat({
       setMessages(prev => [...prev, optimisticMessage]);
       setPendingMessages(prev => new Set([...prev, tempId]));
       
+      // Set a timeout to clear pending status even if something goes wrong
+      const pendingTimeout = setTimeout(() => {
+        console.warn('[useRealTimeChat] Message send timeout, clearing pending status');
+        setPendingMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(tempId);
+          return newSet;
+        });
+      }, 10000); // 10 second timeout
+      
       // Send message to database
       const newMessage = await ChatService.sendMessage(currentUserId, recipientId, text, isUrgent);
+      console.log('[useRealTimeChat] Message saved to database:', newMessage.id);
       
-      // Replace optimistic message with real message
-      setMessages(prev => prev.map(msg => 
-        msg.id === tempId ? newMessage : msg
-      ));
+      // Clear the timeout since we succeeded
+      clearTimeout(pendingTimeout);
+      
+      // Replace optimistic message with real message AND remove from pending
+      setMessages(prev => {
+        // Remove the temp message and add the real one if not already there
+        const withoutTemp = prev.filter(msg => msg.id !== tempId);
+        const exists = withoutTemp.find(msg => msg.id === newMessage.id);
+        
+        if (exists) {
+          console.log('[useRealTimeChat] Real message already in state (from subscription)');
+          return withoutTemp;
+        }
+        
+        console.log('[useRealTimeChat] Adding real message to state');
+        return [...withoutTemp, newMessage];
+      });
+      
+      // Clear pending status
       setPendingMessages(prev => {
         const newSet = new Set(prev);
         newSet.delete(tempId);
@@ -91,10 +117,10 @@ export function useRealTimeChat({
         await ChatService.broadcastTyping(recipientId, false, currentUserId);
       }
       
-      console.log('Message sent successfully:', newMessage);
+      console.log('[useRealTimeChat] Message sent successfully:', newMessage.id);
       return newMessage;
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('[useRealTimeChat] Error sending message:', error);
       
       // Remove failed optimistic message
       setMessages(prev => prev.filter(msg => msg.id !== tempId));
@@ -191,19 +217,42 @@ export function useRealTimeChat({
       }
       
       messageChannelRef.current = ChatService.subscribeToMessages(currentUserId, (newMessage) => {
-        console.log('New real-time message received:', newMessage);
+        console.log('[useRealTimeChat] Real-time message received:', {
+          id: newMessage.id,
+          from: newMessage.senderId,
+          to: newMessage.recipientId,
+          isOwnMessage: newMessage.senderId === currentUserId
+        });
         
         // Add new message to state (avoid duplicates)
         setMessages(prev => {
           const exists = prev.find(msg => msg.id === newMessage.id);
           if (exists) {
-            console.log('Message already exists, skipping duplicate');
+            console.log('[useRealTimeChat] Message already exists, skipping duplicate:', newMessage.id);
             return prev;
           }
           
+          // Also check if we have a pending temp message that should be replaced
+          const hasPending = prev.some(msg => msg.id.startsWith('temp_'));
+          if (hasPending && newMessage.senderId === currentUserId) {
+            console.log('[useRealTimeChat] Received own message, replacing any pending temps');
+            // Remove temp messages from this user and add the real one
+            const withoutTemps = prev.filter(msg => !msg.id.startsWith('temp_'));
+            return [...withoutTemps, newMessage];
+          }
+          
           const updated = [...prev, newMessage];
-          console.log('Updated messages state with new message, total messages:', updated.length);
+          console.log('[useRealTimeChat] Added new message to state, total:', updated.length);
           return updated;
+        });
+        
+        // Clear any pending status since the message came through
+        setPendingMessages(prev => {
+          if (prev.size > 0) {
+            console.log('[useRealTimeChat] Clearing pending messages');
+            return new Set();
+          }
+          return prev;
         });
         
         // Update unread count only if not from current user

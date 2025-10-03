@@ -39,7 +39,9 @@ const PatientProfileForDoctor: React.FC<PatientProfileForDoctorProps> = ({ patie
         onRefreshSummary: () => handlers.onRefreshSummary(patient.id, patient.records),
         onSummaryChange: (newSummary: string) => handlers.onSummaryChange(patient.id, newSummary),
         onSummaryNoteChange: (newNote: string) => handlers.onSummaryNoteChange(patient.id, newNote),
-        onVitalsChange: (key: keyof Vitals, val: string) => handlers.onVitalsChange(patient.id, key, val),
+        onVitalsChange: async (key: keyof Vitals, val: string) => {
+            handlers.onVitalsChange(patient.id, key, val);
+        },
         onMedicationAdd: (med: Omit<Medication, 'id'>) => handlers.onMedicationAdd(patient.id, med),
         onMedicationChange: (med: Medication) => handlers.onMedicationChange(patient.id, med),
         onMedicationRemove: (medId: string) => handlers.onMedicationRemove(patient.id, medId),

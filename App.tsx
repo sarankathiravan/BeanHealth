@@ -1,8 +1,10 @@
 import React from 'react';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from './contexts/AuthContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Auth from './components/auth/Auth';
 import ProfileSetup from './components/auth/ProfileSetup';
 import PatientDashboard from './components/PatientDashboard';
@@ -90,15 +92,28 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <DataProvider>
-          <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <AppContent />
-          </div>
-        </DataProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider>
+          <DataProvider>
+            <Toaster
+              position="top-right"
+              reverseOrder={false}
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+              }}
+            />
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+              <AppContent />
+            </div>
+          </DataProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

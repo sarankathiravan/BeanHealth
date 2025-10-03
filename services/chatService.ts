@@ -165,8 +165,12 @@ export class ChatService {
   }
 
   static subscribeToMessages(userId: string, callback: (message: ChatMessage) => void) {
+    const channelName = `chat_messages_${userId}_${Date.now()}`;
+    console.log(`[ChatService] Creating subscription channel: ${channelName}`);
+    
     const channel = supabase
-      .channel(`chat_messages_${userId}`)
+      .channel(channelName)
+      // Listen for messages where user is RECIPIENT
       .on(
         'postgres_changes',
         {
@@ -176,27 +180,86 @@ export class ChatService {
           filter: `recipient_id=eq.${userId}`
         },
         (payload) => {
-          console.log('Real-time message received:', payload);
+          console.log('[ChatService] Real-time RECEIVED message:', payload);
           const msg = payload.new as any;
-          callback({
-            id: msg.id,
-            senderId: msg.sender_id,
-            recipientId: msg.recipient_id,
-            text: msg.text,
-            audioUrl: msg.audio_url,
-            timestamp: msg.timestamp,
-            isRead: msg.is_read,
-            isUrgent: msg.is_urgent,
-            fileUrl: msg.file_url,
-            fileName: msg.file_name,
-            fileType: msg.file_type,
-            fileSize: msg.file_size,
-            mimeType: msg.mime_type
-          });
+          
+          try {
+            callback({
+              id: msg.id,
+              senderId: msg.sender_id,
+              recipientId: msg.recipient_id,
+              text: msg.text || null,
+              audioUrl: msg.audio_url || null,
+              timestamp: msg.timestamp,
+              isRead: msg.is_read || false,
+              isUrgent: msg.is_urgent || false,
+              fileUrl: msg.file_url || undefined,
+              fileName: msg.file_name || undefined,
+              fileType: msg.file_type || undefined,
+              fileSize: msg.file_size || undefined,
+              mimeType: msg.mime_type || undefined
+            });
+          } catch (error) {
+            console.error('[ChatService] Error processing received message:', error);
+          }
+        }
+      )
+      // Listen for messages where user is SENDER (for confirmation)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `sender_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('[ChatService] Real-time SENT message confirmation:', payload);
+          const msg = payload.new as any;
+          
+          try {
+            callback({
+              id: msg.id,
+              senderId: msg.sender_id,
+              recipientId: msg.recipient_id,
+              text: msg.text || null,
+              audioUrl: msg.audio_url || null,
+              timestamp: msg.timestamp,
+              isRead: msg.is_read || false,
+              isUrgent: msg.is_urgent || false,
+              fileUrl: msg.file_url || undefined,
+              fileName: msg.file_name || undefined,
+              fileType: msg.file_type || undefined,
+              fileSize: msg.file_size || undefined,
+              mimeType: msg.mime_type || undefined
+            });
+          } catch (error) {
+            console.error('[ChatService] Error processing sent message:', error);
+          }
+        }
+      )
+      // Listen for message updates (read receipts)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `sender_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('[ChatService] Real-time message UPDATE (read receipt):', payload);
+          // Handle read status updates for messages we sent
         }
       )
       .subscribe((status) => {
-        console.log('Subscription status:', status);
+        console.log(`[ChatService] Subscription status for ${channelName}:`, status);
+        
+        if (status === 'SUBSCRIBED') {
+          console.log('[ChatService] Successfully subscribed to real-time messages (send + receive)');
+        } else if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+          console.error('[ChatService] Subscription error:', status);
+        }
       });
     
     return channel;

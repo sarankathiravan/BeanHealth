@@ -4,6 +4,7 @@ import { VitalsService, MedicationService, MedicalRecordService } from '../servi
 import { ChatService } from '../services/chatService'
 import { UserService } from '../services/authService'
 import { useAuth } from './AuthContext'
+import { showErrorToast, showSuccessToast } from '../utils/toastUtils'
 
 interface DataContextType {
   // Patient data
@@ -63,15 +64,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Subscribe to real-time chat messages
   useEffect(() => {
-    if (user) {
-      const subscription = ChatService.subscribeToMessages(user.id, (newMessage) => {
-        setMessages(prev => [...prev, newMessage])
-      })
+    if (!user) return;
 
-      return () => {
-        subscription.unsubscribe()
+    console.log('[DataContext] Setting up real-time chat subscription for user:', user.id);
+    
+    const subscription = ChatService.subscribeToMessages(user.id, (newMessage) => {
+      console.log('[DataContext] Received new real-time message:', newMessage.id);
+      
+      setMessages(prev => {
+        // Prevent duplicate messages
+        const exists = prev.find(msg => msg.id === newMessage.id);
+        if (exists) {
+          console.log('[DataContext] Message already exists, skipping duplicate');
+          return prev;
+        }
+        
+        // Add new message
+        return [...prev, newMessage];
+      });
+    });
+
+    return () => {
+      console.log('[DataContext] Cleaning up real-time chat subscription');
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
       }
-    }
+    };
   }, [user])
 
   const loadInitialData = async () => {
@@ -162,25 +180,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const updateVitals = async (vitalType: keyof Vitals, value: string) => {
-    if (!currentPatient) return
+    if (!currentPatient) {
+      showErrorToast('No patient data available')
+      return
+    }
 
     try {
       await VitalsService.updateVital(currentPatient.id, vitalType, value)
       await refreshPatientData()
+      showSuccessToast('Vitals updated successfully')
     } catch (error) {
       console.error('Error updating vitals:', error)
+      showErrorToast('Failed to update vitals')
       throw error
     }
   }
 
   const addMedication = async (medication: Omit<Medication, 'id'>) => {
-    if (!currentPatient) return
+    if (!currentPatient) {
+      showErrorToast('No patient data available')
+      return
+    }
 
     try {
       await MedicationService.addMedication(currentPatient.id, medication)
       await refreshPatientData()
+      showSuccessToast('Medication added successfully')
     } catch (error) {
       console.error('Error adding medication:', error)
+      showErrorToast('Failed to add medication')
       throw error
     }
   }
@@ -189,8 +217,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await MedicationService.updateMedication(medication.id, medication)
       await refreshPatientData()
+      showSuccessToast('Medication updated successfully')
     } catch (error) {
       console.error('Error updating medication:', error)
+      showErrorToast('Failed to update medication')
       throw error
     }
   }
@@ -199,20 +229,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await MedicationService.removeMedication(medicationId)
       await refreshPatientData()
+      showSuccessToast('Medication removed successfully')
     } catch (error) {
       console.error('Error removing medication:', error)
+      showErrorToast('Failed to remove medication')
       throw error
     }
   }
 
   const addMedicalRecord = async (record: Omit<MedicalRecord, 'id'>) => {
-    if (!currentPatient) return
+    if (!currentPatient) {
+      showErrorToast('No patient data available')
+      return
+    }
 
     try {
       await MedicalRecordService.addMedicalRecord(currentPatient.id, record)
       await refreshPatientData()
+      showSuccessToast('Medical record added successfully')
     } catch (error) {
       console.error('Error adding medical record:', error)
+      showErrorToast('Failed to add medical record')
       throw error
     }
   }
@@ -221,20 +258,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await MedicalRecordService.removeMedicalRecord(recordId)
       await refreshPatientData()
+      showSuccessToast('Medical record removed successfully')
     } catch (error) {
       console.error('Error removing medical record:', error)
+      showErrorToast('Failed to remove medical record')
       throw error
     }
   }
 
   const sendMessage = async (recipientId: string, text: string, isUrgent: boolean = false) => {
-    if (!user) return
+    if (!user) {
+      showErrorToast('You must be logged in to send messages')
+      return
+    }
 
     try {
       const newMessage = await ChatService.sendMessage(user.id, recipientId, text, isUrgent)
-      setMessages(prev => [...prev, newMessage])
+      setMessages(prev => {
+        const exists = prev.find(msg => msg.id === newMessage.id);
+        if (exists) return prev;
+        return [...prev, newMessage];
+      })
     } catch (error) {
       console.error('Error sending message:', error)
+      showErrorToast('Failed to send message')
       throw error
     }
   }
@@ -249,6 +296,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       )
     } catch (error) {
       console.error('Error marking message as read:', error)
+      // Don't show error toast for read receipts as it's not critical
       throw error
     }
   }

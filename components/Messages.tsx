@@ -17,6 +17,7 @@ import { FileMessage } from './FileMessage';
 import { FileUploadProgress } from './FileUploader';
 import { uploadChatFile, uploadAudioRecording } from '../services/storageService';
 import { ChatService } from '../services/chatService';
+import { showErrorToast, showSuccessToast, showWarningToast } from '../utils/toastUtils';
 
 type Contact = Doctor | Patient;
 
@@ -135,27 +136,39 @@ const Messages: React.FC<MessagesProps> = ({
       markConversationAsRead(contactId);
   }
   
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !selectedContactId) return;
 
     if (isPatient && isUrgent && !hasCredits) {
-      alert("You don't have any urgent credits left.");
+      showErrorToast("You don't have any urgent credits left. Please purchase more from the Billing page.");
       return;
     }
 
-    sendRealTimeMessage(selectedContactId, input, isUrgent);
-    setInput('');
-    setIsUrgent(false);
+    try {
+      await sendRealTimeMessage(selectedContactId, input, isUrgent);
+      setInput('');
+      setIsUrgent(false);
+      
+      // Stop typing indicator after sending
+      if (realTimeChat.stopTyping) {
+        realTimeChat.stopTyping(selectedContactId);
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      showErrorToast('Failed to send message. Please try again.');
+    }
   };
 
   const handleToggleUrgent = () => {
     if (isPatient && patientData) {
         if (!hasCredits && !isUrgent) {
+          showWarningToast('You have no urgent credits left. Purchase more from the Billing page.');
           return;
         }
         if(patientData.urgentCredits === 1 && !isUrgent) {
             setShowCreditWarning(true);
+            showWarningToast('This is your last urgent credit!');
             setTimeout(() => setShowCreditWarning(false), 5000);
         }
     }
@@ -163,9 +176,13 @@ const Messages: React.FC<MessagesProps> = ({
   };
 
   const handleFileUpload = async (file: File, fileType: 'pdf' | 'image' | 'audio') => {
-    if (!selectedContactId) return;
+    if (!selectedContactId) {
+      showErrorToast('Please select a conversation first');
+      return;
+    }
 
     setIsUploading(true);
+    setShowFilePicker(false); // Close the picker
     setUploadProgress({
       fileName: file.name,
       progress: 0,
@@ -203,6 +220,8 @@ const Messages: React.FC<MessagesProps> = ({
       // Reset urgent flag if it was set
       setIsUrgent(false);
       
+      showSuccessToast('File sent successfully');
+      
       // Clear upload progress after a delay
       setTimeout(() => {
         setUploadProgress(null);
@@ -210,11 +229,14 @@ const Messages: React.FC<MessagesProps> = ({
 
     } catch (error) {
       console.error('File upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      showErrorToast(`File upload failed: ${errorMessage}`);
+      
       setUploadProgress({
         fileName: file.name,
         progress: 0,
         status: 'error',
-        error: error instanceof Error ? error.message : 'Upload failed'
+        error: errorMessage
       });
       
       // Clear error after delay
@@ -227,9 +249,13 @@ const Messages: React.FC<MessagesProps> = ({
   };
 
   const handleAudioRecording = async (audioBlob: Blob, duration: number) => {
-    if (!selectedContactId) return;
+    if (!selectedContactId) {
+      showErrorToast('Please select a conversation first');
+      return;
+    }
 
     setIsUploading(true);
+    setShowAudioRecorder(false); // Close the recorder
     setUploadProgress({
       fileName: 'Voice message',
       progress: 0,
@@ -267,6 +293,8 @@ const Messages: React.FC<MessagesProps> = ({
       // Reset urgent flag if it was set
       setIsUrgent(false);
       
+      showSuccessToast('Voice message sent successfully');
+      
       // Clear upload progress after a delay
       setTimeout(() => {
         setUploadProgress(null);
@@ -274,11 +302,14 @@ const Messages: React.FC<MessagesProps> = ({
 
     } catch (error) {
       console.error('Audio upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      showErrorToast(`Voice message failed: ${errorMessage}`);
+      
       setUploadProgress({
         fileName: 'Voice message',
         progress: 0,
         status: 'error',
-        error: error instanceof Error ? error.message : 'Upload failed'
+        error: errorMessage
       });
       
       // Clear error after delay
