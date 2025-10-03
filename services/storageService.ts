@@ -391,3 +391,60 @@ export const getChatFileInfo = async (fileUrl: string): Promise<{
         return null;
     }
 };
+
+// Upload prescription PDF to storage
+export const uploadPrescriptionPDF = async (
+    pdfBlob: Blob,
+    prescriptionId: string,
+    doctorId: string,
+    patientId: string
+): Promise<{
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+}> => {
+    try {
+        const timestamp = Date.now();
+        const fileName = `Prescription_${prescriptionId}_${timestamp}.pdf`;
+        
+        // Organize in folders by conversation
+        const conversationId = [doctorId, patientId].sort().join('-');
+        const filePath = `chat-files/${conversationId}/pdf/${fileName}`;
+
+        // Create file from blob
+        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+        // Upload to chat-files bucket
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('chat-files')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: 'application/pdf'
+            });
+
+        if (uploadError) {
+            throw new Error(`Prescription PDF upload failed: ${uploadError.message}`);
+        }
+
+        // Get the public URL
+        const { data: urlData } = supabase.storage
+            .from('chat-files')
+            .getPublicUrl(uploadData.path);
+
+        if (!urlData.publicUrl) {
+            throw new Error('Failed to get public URL for prescription PDF');
+        }
+
+        return {
+            fileUrl: urlData.publicUrl,
+            fileName: fileName,
+            fileSize: pdfBlob.size,
+            mimeType: 'application/pdf'
+        };
+    } catch (error) {
+        console.error('Prescription PDF upload error:', error);
+        throw error;
+    }
+};

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { PrescriptionMedication, Doctor, Patient } from '../types';
+import { PrescriptionMedication, Doctor, Patient, Prescription } from '../types';
 import { XIcon } from './icons/XIcon';
 import { PlusCircleIcon } from './icons/PlusCircleIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { PrescriptionService } from '../services/prescriptionService';
 import { PDFGenerator } from '../utils/pdfGenerator';
+import { uploadPrescriptionPDF } from '../services/storageService';
+import { ChatService } from '../services/chatService';
 import { showSuccessToast, showErrorToast } from '../utils/toastUtils';
 
 interface PrescriptionModalProps {
@@ -12,6 +14,7 @@ interface PrescriptionModalProps {
   onClose: () => void;
   doctor: Doctor;
   patient: Patient;
+  onPrescriptionSent?: () => void; // Callback after sending prescription
 }
 
 const emptyMedication: PrescriptionMedication = {
@@ -27,11 +30,15 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
   isOpen,
   onClose,
   doctor,
-  patient
+  patient,
+  onPrescriptionSent
 }) => {
   const [medications, setMedications] = useState<PrescriptionMedication[]>([{ ...emptyMedication }]);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [createdPrescription, setCreatedPrescription] = useState<Prescription | null>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const handleAddMedication = () => {
     setMedications([...medications, { ...emptyMedication }]);
@@ -93,8 +100,8 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
         ? Math.floor((Date.now() - new Date(patient.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)).toString()
         : undefined;
 
-      // Generate and download PDF
-      PDFGenerator.downloadPrescriptionPDF({
+      // Generate PDF blob (don't download yet)
+      const blob = PDFGenerator.getPrescriptionPDFBlob({
         prescription,
         doctorName: doctor.name,
         doctorSpecialty: doctor.specialty,
@@ -102,8 +109,12 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
         patientAge
       });
 
-      showSuccessToast('Prescription created and downloaded successfully!');
-      handleClose();
+      // Store prescription and PDF blob for preview
+      setCreatedPrescription(prescription);
+      setPdfBlob(blob);
+      setShowPreview(true);
+
+      showSuccessToast('Prescription created! Review and send to patient.');
     } catch (error) {
       console.error('Error creating prescription:', error);
       showErrorToast('Failed to create prescription. Please try again.');
@@ -112,13 +123,216 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
     }
   };
 
+  const handleSendToPatient = async () => {
+    if (!createdPrescription || !pdfBlob) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Upload PDF to storage
+      const fileData = await uploadPrescriptionPDF(
+        pdfBlob,
+        createdPrescription.id,
+        doctor.id,
+        patient.id
+      );
+
+      // Send as file message in chat
+      await ChatService.sendFileMessage(
+        doctor.id,
+        patient.id,
+        fileData.fileUrl,
+        fileData.fileName,
+        'pdf',
+        fileData.fileSize,
+        fileData.mimeType,
+        `📋 Prescription sent - ${medications.length} medication${medications.length > 1 ? 's' : ''} prescribed`,
+        false // not urgent
+      );
+
+      showSuccessToast('Prescription sent to patient successfully!');
+      
+      // Call callback if provided
+      if (onPrescriptionSent) {
+        onPrescriptionSent();
+      }
+      
+      handleClose();
+    } catch (error) {
+      console.error('Error sending prescription:', error);
+      showErrorToast('Failed to send prescription. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDownloadOnly = () => {
+    if (!createdPrescription || !pdfBlob) return;
+
+    // Download the PDF
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Prescription_${patient.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showSuccessToast('Prescription downloaded!');
+    handleClose();
+  };
+
+  const handlePreviewPDF = () => {
+    if (!pdfBlob) return;
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, '_blank');
+  };
+
   const handleClose = () => {
     setMedications([{ ...emptyMedication }]);
     setNotes('');
+    setShowPreview(false);
+    setCreatedPrescription(null);
+    setPdfBlob(null);
     onClose();
   };
 
+  const handleBackToEdit = () => {
+    setShowPreview(false);
+  };
+
   if (!isOpen) return null;
+
+  // Preview Modal
+  if (showPreview && createdPrescription) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          {/* Background overlay */}
+          <div
+            className="fixed inset-0 transition-opacity bg-slate-500 bg-opacity-75 dark:bg-slate-900 dark:bg-opacity-75"
+            onClick={handleClose}
+          ></div>
+
+          {/* Modal panel */}
+          <div className="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">✅ Prescription Created!</h3>
+                  <p className="text-emerald-100 text-sm mt-1">
+                    Review and send to {patient.name}
+                  </p>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="text-white hover:text-emerald-100 transition-colors p-2 hover:bg-white/20 rounded-lg"
+                >
+                  <XIcon className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6">
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-6 mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <svg className="h-12 w-12 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h4 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                      Prescription Ready
+                    </h4>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      {createdPrescription.medications.length} medication{createdPrescription.medications.length > 1 ? 's' : ''} prescribed
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  {createdPrescription.medications.map((med, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-slate-700 dark:text-slate-300">
+                      <span className="font-semibold">{index + 1}.</span>
+                      <span className="font-medium">{med.name}</span>
+                      <span className="text-slate-500">•</span>
+                      <span>{med.dosage}</span>
+                      <span className="text-slate-500">•</span>
+                      <span>{med.frequency}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <button
+                  onClick={handlePreviewPDF}
+                  className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium underline"
+                >
+                  👁️ Preview PDF in new tab
+                </button>
+              </div>
+
+              <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl p-4 mb-6">
+                <h4 className="font-semibold text-sky-900 dark:text-sky-100 mb-2">
+                  What would you like to do?
+                </h4>
+                <ul className="text-sm text-sky-800 dark:text-sky-200 space-y-1">
+                  <li>• <strong>Send to Patient:</strong> Upload PDF and send directly in chat</li>
+                  <li>• <strong>Download Only:</strong> Save PDF to your device</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-3 border-t border-slate-200 dark:border-slate-700">
+              <button
+                onClick={handleBackToEdit}
+                disabled={isSubmitting}
+                className="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ← Back to Edit
+              </button>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleDownloadOnly}
+                  disabled={isSubmitting}
+                  className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  💾 Download Only
+                </button>
+                <button
+                  onClick={handleSendToPatient}
+                  disabled={isSubmitting}
+                  className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      <span>Send to Patient</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">

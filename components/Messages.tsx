@@ -777,6 +777,11 @@ const Messages: React.FC<MessagesProps> = ({
           onClose={() => setShowPrescriptionModal(false)}
           doctor={currentUser as Doctor}
           patient={selectedContact as Patient}
+          onPrescriptionSent={() => {
+            // Message will automatically appear via real-time subscription
+            // Just close the modal
+            setShowPrescriptionModal(false);
+          }}
         />
       )}
     </div>
