@@ -13,6 +13,7 @@ import { DocumentIcon } from './icons/DocumentIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { UserPlusIcon } from './icons/UserPlusIcon';
 import { DashboardIcon } from './icons/DashboardIcon';
+import { AlertIcon } from './icons/AlertIcon';
 
 const DoctorDashboardMain: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -102,64 +103,66 @@ const DoctorDashboardMain: React.FC = () => {
   const renderDashboard = () => (
     <>
       {/* Welcome Section */}
-      <div className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome, {profile?.name || user?.email}!
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
-              Your practice dashboard and patient overview
-            </p>
+      <div className="mb-8 animate-fadeIn">
+        <div className="card">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">
+                Welcome, {profile?.name || user?.email}!
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-2">
+                Your practice dashboard and patient overview
+              </p>
+            </div>
+            <button
+              onClick={handleAddPatientClick}
+              className="btn-primary flex items-center justify-center mt-4 md:mt-0"
+            >
+              <UserPlusIcon className="h-5 w-5 mr-2" />
+              Add New Patient
+            </button>
           </div>
-          <button
-            onClick={handleAddPatientClick}
-            className="flex items-center justify-center mt-4 md:mt-0 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-          >
-            <UserPlusIcon className="h-5 w-5 mr-2" />
-            Add New Patient
-          </button>
         </div>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <UserGroupIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gradient-to-br from-sky-400 to-indigo-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+              <UserGroupIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Patients</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Patients</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">
                 {loading ? '...' : patients.length}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <MessagesIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+              <MessagesIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">New Messages</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">New Messages</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
                 {unreadMessagesCount}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <DocumentIcon className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+              <DocumentIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Reviews</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">0</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Pending Reviews</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">0</p>
             </div>
           </div>
         </div>
@@ -169,36 +172,42 @@ const DoctorDashboardMain: React.FC = () => {
       <div className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Patients */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Patients</h2>
+          <div className="card">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Recent Patients</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Quick access to recently added patients</p>
             </div>
             <div className="p-6">
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading patients...</p>
+                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-sky-200 border-t-sky-600 dark:border-slate-700 dark:border-t-sky-400 mx-auto"></div>
+                  <p className="mt-4 text-sm text-slate-600 dark:text-slate-400 font-medium">Loading patients...</p>
                 </div>
               ) : error ? (
                 <div className="text-center py-8">
-                  <p className="text-red-600 dark:text-red-400">{error}</p>
+                  <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-2xl inline-block mb-4">
+                    <AlertIcon className="h-8 w-8 text-red-600 dark:text-red-400" />
+                  </div>
+                  <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
                   <button 
                     onClick={fetchPatients}
-                    className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
+                    className="mt-4 px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
                   >
                     Try again
                   </button>
                 </div>
               ) : patients.length === 0 ? (
                 <div className="text-center py-8">
-                  <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No patients yet</h3>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-sky-900/30 dark:to-indigo-900/30 p-6 rounded-3xl inline-block mb-4">
+                    <UserGroupIcon className="h-16 w-16 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">No patients yet</h3>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
                     Get started by adding existing patients to your roster.
                   </p>
                   <button
                     onClick={handleAddPatientClick}
-                    className="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
+                    className="btn-primary mt-6 inline-flex items-center"
                   >
                     <UserPlusIcon className="h-4 w-4 mr-2" />
                     Add First Patient
@@ -206,33 +215,33 @@ const DoctorDashboardMain: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {patients.slice(0, 5).map((patient) => (
-                    <div key={patient.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`h-8 w-8 ${getInitialsColor(patient.name, patient.email)} rounded-full flex items-center justify-center`}>
-                          <span className="text-sm font-medium text-white">
+                  {patients.slice(0, 5).map((patient, index) => (
+                    <div key={patient.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 animate-slideUp" style={{ animationDelay: `${index * 50}ms` }}>
+                      <div className="flex items-center space-x-4">
+                        <div className={`h-12 w-12 ${getInitialsColor(patient.name, patient.email)} rounded-2xl flex items-center justify-center shadow-md`}>
+                          <span className="text-sm font-bold text-white">
                             {getInitials(patient.name, patient.email)}
                           </span>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                             {patient.name || patient.email}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {patient.email}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={() => setActiveView('messages')}
-                        className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
+                        className="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
                       >
                         Message
                       </button>
                     </div>
                   ))}
                   {patients.length > 5 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 text-center pt-2 font-medium">
                       And {patients.length - 5} more patients...
                     </p>
                   )}
@@ -242,39 +251,46 @@ const DoctorDashboardMain: React.FC = () => {
           </div>
 
           {/* Getting Started */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Getting Started</h2>
+          <div className="card">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Getting Started</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Complete these steps to set up your practice</p>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <SparklesIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Complete your profile</span>
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '0ms' }}>
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gradient-to-br from-purple-400 to-pink-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
+                      <SparklesIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Complete your profile</span>
                   </div>
-                  <button className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
+                  <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
                     Complete
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <UserGroupIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Add patients</span>
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/30 dark:to-indigo-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '100ms' }}>
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gradient-to-br from-sky-400 to-indigo-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
+                      <UserGroupIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Add patients</span>
                   </div>
                   <button 
                     onClick={handleAddPatientClick}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
+                    className="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
                   >
                     Add
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <DocumentIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Set up practice info</span>
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '200ms' }}>
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
+                      <DocumentIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Set up practice info</span>
                   </div>
-                  <button className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
+                  <button className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
                     Setup
                   </button>
                 </div>
@@ -350,7 +366,7 @@ const DoctorDashboardMain: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <SimpleHeader 
         userName={profile?.name || user?.email || 'Doctor'}
         userRole={profile?.role || 'doctor'}
@@ -358,32 +374,32 @@ const DoctorDashboardMain: React.FC = () => {
       />
       
       {/* Navigation */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="glass-effect border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
             <button
               onClick={() => setActiveView('dashboard')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeView === 'dashboard'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'border-sky-500 bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent'
+                  : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              <DashboardIcon className="inline h-5 w-5 mr-2" />
+              <DashboardIcon className={`inline h-5 w-5 mr-2 ${activeView === 'dashboard' ? 'text-sky-500' : ''}`} />
               Dashboard
             </button>
             <button
               onClick={() => setActiveView('messages')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`relative py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeView === 'messages'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'border-sky-500 bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent'
+                  : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              <MessagesIcon className="inline h-5 w-5 mr-2" />
+              <MessagesIcon className={`inline h-5 w-5 mr-2 ${activeView === 'messages' ? 'text-sky-500' : ''}`} />
               Messages
               {unreadMessagesCount > 0 && (
-                <span className="ml-2 inline-block px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-rose-500 to-pink-600 rounded-full shadow-lg animate-pulse">
                   {unreadMessagesCount}
                 </span>
               )}
