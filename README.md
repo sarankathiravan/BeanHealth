@@ -70,29 +70,24 @@ npm run dev
 
 ```
 BeanHealth/
-├── components/          # React components
-├── services/           # API and business logic
-├── utils/              # Utility functions
-├── contexts/           # React contexts
+├── components/          # React components (40+ files)
+├── services/           # Business logic & API calls
+├── utils/              # Helper functions (PDF, avatars, etc.)
+├── contexts/           # React contexts (Auth, Data, Theme)
 ├── hooks/              # Custom React hooks
-├── styles/             # Global styles
-├── docs/               # Documentation
-│   ├── PRESCRIPTION_README.md
-│   ├── DEPLOYMENT.md
-│   └── ...
-├── *.sql               # Database schemas
-├── SETUP.md            # Setup guide
-└── README.md           # This file
+├── docs/               # Feature documentation
+├── *.sql               # Database migration files
+└── config files        # TypeScript, Vite, Tailwind
 ```
 
 ---
 
 ## 📚 Documentation
 
-- **[SETUP.md](./SETUP.md)** - Complete setup guide
+- **[SETUP.md](./SETUP.md)** - Installation & configuration
+- **[DATABASE.md](./DATABASE.md)** - Database setup guide
 - **[docs/PRESCRIPTION_README.md](./docs/PRESCRIPTION_README.md)** - Prescription feature
-- **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Deployment guide
-- **[docs/REALTIME_CHAT_SETUP.md](./docs/REALTIME_CHAT_SETUP.md)** - Chat setup
+- **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Production deployment
 
 ---
 
@@ -118,91 +113,13 @@ npm run build
 
 ---
 
-## 📱 Screenshots
-
-Coming soon...
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-## 📄 License
+##  License
 
 This project is private and proprietary.
 
 ---
 
-## 🙏 Acknowledgments
-
-Built with ❤️ using:
-- React & TypeScript
-- Supabase
-- Google Gemini
-- Tailwind CSS
-
----
-
-**Made for BeanHealth** 🫘💚
-2. Go to Settings > API in your Supabase dashboard
-3. Copy your Project URL and anon public key
-
-### 3. Configure Environment Variables
-
-1. Copy the example environment file:
-```bash
-cp .env.example .env
-```
-
-2. Fill in your Supabase credentials in `.env`:
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_GEMINI_API_KEY=your_gemini_api_key  # Optional
-```
-
-### 4. Set Up Database
-
-1. Go to your Supabase project > SQL Editor
-2. Copy and run the SQL commands from `supabase_schema.sql`
-3. This will create all necessary tables, indexes, and security policies
-
-### 5. Set Up Storage
-
-**📋 Follow the detailed guide: [STORAGE_SETUP.md](./STORAGE_SETUP.md)**
-
-**Quick Summary:**
-1. Go to Storage > Buckets in your Supabase dashboard
-2. Create a new bucket called `medical-records`
-3. ✅ **Important**: Set the bucket to **public**
-4. Set file size limit to 10MB
-5. Add allowed MIME types: `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `application/pdf`
-
-**Verify Setup:**
-- Use the Storage Test component in the Upload section of the app
-- All tests should show "SUCCESS" status
-
-### 6. Run the Application
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`
-
-## 🗄 Database Schema
-
-The application uses the following main tables:
-- **`users`** - Patient and doctor profiles with authentication
-- **`vitals`** - Patient health measurements and trends
-- **`medications`** - Patient medications with dosage and frequency
+**Made with ❤️ for BeanHealth** 🫘
 - **`medical_records`** - Uploaded medical documents with AI analysis
 - **`chat_messages`** - Secure messaging between patients and doctors
 - **`patient_doctor_relationships`** - Links patients to their doctors
