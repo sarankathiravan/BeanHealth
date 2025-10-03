@@ -1,53 +1,156 @@
-# BeanHealth - Healthcare Management Platform
+# 🏥 BeanHealth - Healthcare Management Platform
 
-<div align="center">
+> A comprehensive healthcare management platform connecting patients and doctors
 
-BeanHealth is a comprehensive healthcare management platform built with React, TypeScript, and Supabase. It provides separate portals for patients and doctors with features like health tracking, medical record management, secure messaging, and AI-powered health summaries.
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)]()
+[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)]()
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)]()
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)]()
 
-</div>
+---
 
-## ✨ Features
+## ✨ Key Features
 
-### For Patients
-- 📊 **Health Dashboard** - Track vitals (blood pressure, heart rate, temperature, glucose)
-- � ***Medication Management** - Add, edit, and track medications with timeline view
-- 📄 **Medical Records** - Upload and organize medical documents with AI analysis
-- � ***Secure Messaging** - Chat with your doctors, send urgent messages
-- 📈 **Progress Tracking** - View health trends over time with interactive charts
-- �  **AI Health Summaries** - Get insights from your medical data
-- 📸 **Profile Management** - Upload profile pictures and manage personal information
-- 🤖 **Smart Vitals Extraction** - Automatically extract vitals from uploaded medical records
+### 👤 For Patients
+- 📊 Health Dashboard with vitals tracking
+- 💊 Medication management with timeline
+- 📄 Medical records with AI analysis
+- 💬 Secure messaging with doctors
+- 📈 Health progress tracking
+- 💊 Receive and download prescriptions
 
-### For Doctors
-- 👥 **Patient Management** - View and manage assigned patients
-- � **Patientt Overview** - Access patient vitals, medications, and records
-- 💬 **Professional Messaging** - Secure communication with patients
-- 🚨 **Urgent Alerts** - Receive and respond to urgent patient messages
-- 📋 **Patient Roster** - Comprehensive patient list with key metrics
-- 🔍 **Medical Record Review** - Access and analyze patient medical documents
+### 👨‍⚕️ For Doctors
+- � Patient management dashboard
+- 💬 Secure patient communication
+- 🚨 Urgent message alerts
+- 💊 Create & send prescriptions (PDF)
+- 📋 Comprehensive patient records
+- � Patient health monitoring
+
+### 🆕 Latest Features
+- **Prescription System** - Doctors can create professional prescriptions with automatic PDF generation and chat delivery
+- **AI Health Assistant** - Google Gemini-powered medical insights
+- **Real-time Chat** - Instant messaging with file sharing
+- **Smart Vitals Extraction** - Auto-extract health data from documents
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Add your Supabase and Gemini API keys
+
+# Run database migrations (see SETUP.md)
+
+# Start development server
+npm run dev
+```
+
+📖 **Detailed setup instructions**: See [`SETUP.md`](./SETUP.md)
+
+---
 
 ## 🛠 Tech Stack
 
 - **Frontend**: React 19, TypeScript, Vite
-- **Backend**: Supabase (PostgreSQL, Auth, Storage, Real-time)
-- **AI**: Google Gemini for medical record analysis and vitals extraction
-- **Styling**: Tailwind CSS with dark/light theme support
-- **Authentication**: Supabase Auth with Row Level Security
-- **File Storage**: Supabase Storage with secure bucket policies
-- **Deployment**: Netlify with automatic builds
+- **Backend**: Supabase (PostgreSQL, Auth, Storage, Realtime)
+- **AI**: Google Gemini API
+- **Styling**: Tailwind CSS (Dark/Light mode)
+- **PDF**: jsPDF + jspdf-autotable
+- **Deployment**: Netlify
 
-## Setup Instructions
+---
 
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd BeanHealth
-npm install
+## 📁 Project Structure
+
+```
+BeanHealth/
+├── components/          # React components
+├── services/           # API and business logic
+├── utils/              # Utility functions
+├── contexts/           # React contexts
+├── hooks/              # Custom React hooks
+├── styles/             # Global styles
+├── docs/               # Documentation
+│   ├── PRESCRIPTION_README.md
+│   ├── DEPLOYMENT.md
+│   └── ...
+├── *.sql               # Database schemas
+├── SETUP.md            # Setup guide
+└── README.md           # This file
 ```
 
-### 2. Set Up Supabase
+---
 
-1. Go to [Supabase](https://supabase.com) and create a new project
+## 📚 Documentation
+
+- **[SETUP.md](./SETUP.md)** - Complete setup guide
+- **[docs/PRESCRIPTION_README.md](./docs/PRESCRIPTION_README.md)** - Prescription feature
+- **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Deployment guide
+- **[docs/REALTIME_CHAT_SETUP.md](./docs/REALTIME_CHAT_SETUP.md)** - Chat setup
+
+---
+
+## 🔒 Security
+
+- Row Level Security (RLS) on all tables
+- Secure authentication with Supabase Auth
+- Role-based access control
+- Encrypted file storage
+- HIPAA-compliant architecture
+
+---
+
+## 🚀 Deployment
+
+See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for production deployment instructions.
+
+Quick deploy to Netlify:
+```bash
+npm run build
+# Deploy dist/ folder to Netlify
+```
+
+---
+
+## 📱 Screenshots
+
+Coming soon...
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ using:
+- React & TypeScript
+- Supabase
+- Google Gemini
+- Tailwind CSS
+
+---
+
+**Made for BeanHealth** 🫘💚
 2. Go to Settings > API in your Supabase dashboard
 3. Copy your Project URL and anon public key
 
