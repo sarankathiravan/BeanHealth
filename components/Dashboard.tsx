@@ -9,6 +9,7 @@ import { EditIcon } from './icons/EditIcon';
 import { BloodPressureIcon } from './icons/BloodPressureIcon';
 import { TemperatureIcon } from './icons/TemperatureIcon';
 import { FeatureVitalsIcon } from './icons/FeatureVitalsIcon';
+import RichSummaryDisplay from './RichSummaryDisplay';
 
 interface DashboardProps {
   patient: Patient;
@@ -205,13 +206,15 @@ const Dashboard: React.FC<DashboardProps> = ({
               {isSummaryLoading ? 'Refreshing...' : 'Refresh'}
             </button>
         </div>
-        <textarea
-            value={aiSummary}
-            onChange={(e) => onSummaryChange(e.target.value)}
-            className="w-full h-32 px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 resize-none"
-            placeholder="AI summary will appear here..."
-            aria-label="AI Health Summary"
-        />
+        {isSummaryLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-2 border-slate-200 dark:border-slate-700">
+            <RichSummaryDisplay summary={aiSummary} />
+          </div>
+        )}
 
         <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
             <h4 className="text-lg font-display font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center">
