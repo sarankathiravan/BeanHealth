@@ -1,24 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Patient, Vitals, Medication } from '../types';
-import { SparklesIcon } from './icons/SparklesIcon';
 import MedicationCard from './MedicationCard';
 import MedicationTimeline from './MedicationTimeline';
-import { RefreshIcon } from './icons/RefreshIcon';
-import { NotesIcon } from './icons/NotesIcon';
 import { EditIcon } from './icons/EditIcon';
 import { BloodPressureIcon } from './icons/BloodPressureIcon';
 import { TemperatureIcon } from './icons/TemperatureIcon';
 import { FeatureVitalsIcon } from './icons/FeatureVitalsIcon';
-import RichSummaryDisplay from './RichSummaryDisplay';
 
 interface DashboardProps {
   patient: Patient;
-  aiSummary: string;
-  onRefreshSummary: () => void;
-  isSummaryLoading: boolean;
-  onSummaryChange: (newSummary: string) => void;
-  summaryNote: string;
-  onSummaryNoteChange: (newNote: string) => void;
   onVitalsChange: (vitalKey: keyof Vitals, newValue: string) => Promise<void>;
   onMedicationChange: (medication: Medication) => void;
   onMedicationRemove: (medicationId: string) => void;
@@ -128,12 +118,6 @@ const VitalCard: React.FC<{
 
 const Dashboard: React.FC<DashboardProps> = ({ 
     patient, 
-    aiSummary, 
-    onRefreshSummary, 
-    isSummaryLoading, 
-    onSummaryChange, 
-    summaryNote, 
-    onSummaryNoteChange,
     onVitalsChange,
     onMedicationAdd,
     onMedicationChange,
@@ -185,49 +169,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             iconBgColor="bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/50 dark:to-orange-800/50"
             lastUpdatedFromRecord={vitalsLastUpdatedFromRecord?.temperature}
           />
-        </div>
-      </div>
-
-      {/* Health Summary Section */}
-      <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 animate-slide-up">
-        <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100 flex items-center">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl mr-3 shadow-lg">
-                  <SparklesIcon className="h-6 w-6 text-white"/>
-                </div>
-                AI Health Summary
-            </h3>
-            <button 
-              onClick={onRefreshSummary}
-              disabled={isSummaryLoading}
-              className="flex items-center px-4 py-2 text-sm font-semibold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 rounded-xl hover:bg-sky-100 dark:hover:bg-sky-900/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
-            >
-              <RefreshIcon className={`h-4 w-4 mr-2 ${isSummaryLoading ? 'animate-spin' : ''}`} />
-              {isSummaryLoading ? 'Refreshing...' : 'Refresh'}
-            </button>
-        </div>
-        {isSummaryLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-2 border-slate-200 dark:border-slate-700">
-            <RichSummaryDisplay summary={aiSummary} />
-          </div>
-        )}
-
-        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <h4 className="text-lg font-display font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center">
-              <NotesIcon className="mr-2 h-5 w-5 text-indigo-600 dark:text-indigo-400"/>
-              My Notes
-            </h4>
-            <textarea
-              value={summaryNote}
-              onChange={(e) => onSummaryNoteChange(e.target.value)}
-              className="w-full h-24 px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
-              placeholder="Add your thoughts or questions about the summary..."
-              aria-label="Personal notes on AI summary"
-            />
         </div>
       </div>
       

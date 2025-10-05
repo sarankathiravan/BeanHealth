@@ -140,7 +140,14 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown, no explanations):
 {
   "date": "YYYY-MM-DD",
   "type": "document type",
-  "summary": "detailed summary with bullet points",
+  "summary": {
+    "Current Issue/Reason for Visit": ["bullet point 1", "bullet point 2"],
+    "Medical History": ["history item 1", "history item 2"],
+    "Findings/Results": ["finding 1", "finding 2"],
+    "Diagnosis": ["diagnosis 1", "diagnosis 2"],
+    "Medications/Treatment": ["medication 1", "treatment 1"],
+    "Recommendations/Follow-up": ["recommendation 1", "follow-up 1"]
+  },
   "doctor": "doctor/facility name",
   "vitals": {
     "bloodPressure": {"systolic": 120, "diastolic": 80},
@@ -162,8 +169,8 @@ EXTRACTION INSTRUCTIONS:
    - Choose from: "Lab Report", "Blood Test", "Prescription", "X-Ray Report", "MRI Report", "CT Scan", "Ultrasound", "Doctor's Note", "Discharge Summary", "Vaccination Record", "Medical Image", "Medical Document"
    - Be specific (e.g., prefer "Blood Test" over "Lab Report" if it's specifically blood work)
 
-3. SUMMARY (MOST IMPORTANT - BE DETAILED):
-   - Write a comprehensive, structured summary with these sections:
+3. SUMMARY (MOST IMPORTANT - STRUCTURED JSON FORMAT):
+   Create a structured JSON object with these sections (only include sections with content):
    
    **Current Issue/Reason for Visit:**
    - Main complaint or purpose of document
@@ -192,7 +199,7 @@ EXTRACTION INSTRUCTIONS:
    - Lifestyle recommendations
    - Warning signs to watch for
    
-   Format as bullet points for readability. Be specific with numbers, dosages, and measurements.
+   Format each section as an array of strings. Only include sections that have relevant content from the document.
 
 4. DOCTOR:
    - Extract: Doctor's full name, credentials (MD, DO, etc.)
@@ -301,10 +308,13 @@ CRITICAL: Return ONLY the JSON object. No markdown formatting, no code blocks, n
       parsedResult = {
         date: extractedDate,
         type: "Medical Document",
-        summary:
-          text.length > 0 && text.length < 500
-            ? text.replace(/[{}"\[\]]/g, "").trim()
-            : "Medical document analyzed - please review the uploaded file for details",
+        summary: {
+          "Current Issue/Reason for Visit": [
+            text.length > 0 && text.length < 500
+              ? text.replace(/[{}"\[\]]/g, "").trim()
+              : "Medical document analyzed - please review the uploaded file for details"
+          ]
+        },
         doctor: doctorMatch ? doctorMatch[1].trim() : "Unknown",
       };
     }
@@ -314,7 +324,9 @@ CRITICAL: Return ONLY the JSON object. No markdown formatting, no code blocks, n
       id: `rec-${Date.now()}`,
       date: parsedResult.date || new Date().toISOString().split("T")[0],
       type: parsedResult.type || "Medical Document",
-      summary: parsedResult.summary || "Medical record analyzed",
+      summary: typeof parsedResult.summary === 'object' 
+        ? JSON.stringify(parsedResult.summary)
+        : (parsedResult.summary || "Medical record analyzed"),
       doctor: parsedResult.doctor || "Unknown",
       category: "General",
     };
