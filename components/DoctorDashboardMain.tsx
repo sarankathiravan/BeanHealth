@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, ChatMessage } from '../types';
+import { User, ChatMessage, Patient } from '../types';
 import { PatientAdditionService } from '../services/patientInvitationService';
 import { ChatService } from '../services/chatService';
+import { MedicalRecordsService } from '../services/medicalRecordsService';
+import { VitalsService, MedicationService } from '../services/dataService';
 import { getInitials, getInitialsColor } from '../utils/avatarUtils';
 import SimpleHeader from './SimpleHeader';
 import AddPatientModal from './AddPatientModal';
 import Messages from './Messages';
+import DoctorPatientView from './DoctorPatientView';
 import { UserGroupIcon } from './icons/UserGroupIcon';
 import { MessagesIcon } from './icons/MessagesIcon';
 import { DocumentIcon } from './icons/DocumentIcon';
@@ -22,7 +25,8 @@ const DoctorDashboardMain: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'dashboard' | 'messages'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'messages' | 'patient-detail'>('dashboard');
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   // Fetch doctor's patients
   const fetchPatients = async () => {
@@ -94,6 +98,64 @@ const DoctorDashboardMain: React.FC = () => {
     // Implementation for marking messages as read
     // This would need to be added to ChatService
     console.log('Mark messages as read for patient:', patientId);
+  };
+
+  const handleViewPatient = async (patient: User) => {
+    try {
+      // Fetch patient's medical records
+      const records = await MedicalRecordsService.getMedicalRecordsByPatientId(patient.id);
+      
+      // Fetch patient's vitals
+      let vitalsData;
+      try {
+        vitalsData = await VitalsService.getPatientVitals(patient.id);
+      } catch (err) {
+        console.log('No vitals data available for patient');
+        vitalsData = null;
+      }
+      
+      // Fetch patient's medications
+      let medicationsData;
+      try {
+        medicationsData = await MedicationService.getPatientMedications(patient.id);
+      } catch (err) {
+        console.log('No medications data available for patient');
+        medicationsData = [];
+      }
+
+      // Convert User to Patient format with real data
+      const patientData: Patient = {
+        ...patient,
+        role: 'patient' as const,
+        dateOfBirth: patient.dateOfBirth || patient.date_of_birth || '1990-01-01',
+        condition: patient.condition || 'General Health',
+        subscriptionTier: (patient.subscriptionTier || patient.subscription_tier || 'FreeTrial') as 'FreeTrial' | 'Paid',
+        urgentCredits: patient.urgentCredits || patient.urgent_credits || 0,
+        vitals: vitalsData || {
+          bloodPressure: { value: 'N/A', unit: 'mmHg', trend: 'stable' as const },
+          heartRate: { value: 'N/A', unit: 'bpm', trend: 'stable' as const },
+          temperature: { value: 'N/A', unit: '°F', trend: 'stable' as const }
+        },
+        vitalsHistory: [],
+        medications: medicationsData || [],
+        records: records || [],
+        doctors: [],
+        chatMessages: messages.filter(m => 
+          (m.senderId === patient.id && m.recipientId === user?.id) ||
+          (m.senderId === user?.id && m.recipientId === patient.id)
+        )
+      };
+      setSelectedPatient(patientData);
+      setActiveView('patient-detail');
+    } catch (err) {
+      console.error('Error loading patient data:', err);
+      // Show error notification or fallback to basic data
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    setSelectedPatient(null);
+    setActiveView('dashboard');
   };
 
   const unreadMessagesCount = messages.filter(m => 
@@ -216,8 +278,8 @@ const DoctorDashboardMain: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {patients.slice(0, 5).map((patient, index) => (
-                    <div key={patient.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 animate-slideUp" style={{ animationDelay: `${index * 50}ms` }}>
-                      <div className="flex items-center space-x-4">
+                    <div key={patient.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 rounded-2xl hover:shadow-md transition-all duration-200 animate-slideUp" style={{ animationDelay: `${index * 50}ms` }}>
+                      <div className="flex items-center space-x-4 flex-1 cursor-pointer" onClick={() => handleViewPatient(patient)}>
                         <div className={`h-12 w-12 ${getInitialsColor(patient.name, patient.email)} rounded-2xl flex items-center justify-center shadow-md`}>
                           <span className="text-sm font-bold text-white">
                             {getInitials(patient.name, patient.email)}
@@ -232,12 +294,20 @@ const DoctorDashboardMain: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setActiveView('messages')}
-                        className="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
-                      >
-                        Message
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleViewPatient(patient)}
+                          className="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+                        >
+                          View Profile
+                        </button>
+                        <button
+                          onClick={() => setActiveView('messages')}
+                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+                        >
+                          Message
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {patients.length > 5 && (
@@ -410,7 +480,14 @@ const DoctorDashboardMain: React.FC = () => {
 
       <main className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {activeView === 'dashboard' ? renderDashboard() : renderMessages()}
+          {activeView === 'dashboard' && renderDashboard()}
+          {activeView === 'messages' && renderMessages()}
+          {activeView === 'patient-detail' && selectedPatient && (
+            <DoctorPatientView 
+              patient={selectedPatient}
+              onBack={handleBackToDashboard}
+            />
+          )}
         </div>
       </main>
 
