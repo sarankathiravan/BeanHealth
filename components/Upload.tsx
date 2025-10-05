@@ -1,18 +1,15 @@
 import React, { useState, useRef } from "react";
 import { DocumentUploadIcon } from "./icons/DocumentUploadIcon";
-import { TagIcon } from "./icons/TagIcon";
 import { CameraIcon } from "./icons/CameraIcon";
 import CameraCapture from "./CameraCapture";
 
 interface UploadProps {
-  onUpload: (file: File, category: string) => void;
+  onUpload: (file: File) => void;
   isLoading: boolean;
 }
 
 const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [category, setCategory] = useState("");
-  const [customCategory, setCustomCategory] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,12 +34,11 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalCategory = category === "Other" ? customCategory : category;
-    if (!selectedFile || !finalCategory.trim()) {
-      alert("Please select a file and a category.");
+    if (!selectedFile) {
+      alert("Please select a file.");
       return;
     }
-    onUpload(selectedFile, finalCategory);
+    onUpload(selectedFile);
   };
 
   const handlePhotoTaken = (file: File) => {
@@ -50,17 +46,13 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
     setIsCameraOpen(false);
   };
 
-  const isSubmitDisabled =
-    !selectedFile ||
-    !category ||
-    (category === "Other" && !customCategory.trim()) ||
-    isLoading;
+  const isSubmitDisabled = !selectedFile || isLoading;
 
   return (
     <>
       <div className="max-w-3xl mx-auto animate-fadeIn">
         <div className="card">
-          <div className="text-center mb-8">
+            <div className="text-center mb-8">
             <div className="bg-gradient-to-br from-sky-400 to-indigo-500 p-6 rounded-3xl shadow-xl inline-block mb-4">
               <DocumentUploadIcon className="h-20 w-20 text-white" />
             </div>
@@ -68,15 +60,13 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
               Upload New Medical Record
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mt-2">
-              Select a file and categorize it for AI-powered analysis.
+              Upload your file and our AI will automatically categorize and analyze it.
             </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-8">
+          </div>          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
               <label className="block text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-sm font-bold mr-3">1</span>
-                Provide a file
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-sm font-bold mr-3">📄</span>
+                Select your medical record
               </label>
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
@@ -129,44 +119,21 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
 
             {selectedFile && (
               <div className="animate-slideUp">
-                <label
-                  htmlFor="category"
-                  className="block text-lg font-bold text-slate-800 dark:text-slate-100 mb-4"
-                >
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-sm font-bold mr-3">2</span>
-                  Categorize the record
-                </label>
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-3 rounded-xl shadow-lg">
-                    <TagIcon className="h-6 w-6 text-white" />
+                <div className="flex items-center justify-center gap-3 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
+                  <div className="animate-pulse">
+                    <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
                   </div>
-                  <select
-                    id="category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="block w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-base font-medium text-slate-900 dark:text-slate-100 transition-all duration-200"
-                  >
-                    <option value="" disabled>
-                      Select a category...
-                    </option>
-                    <option value="Lab Report">🧪 Lab Report</option>
-                    <option value="Prescription">💊 Prescription</option>
-                    <option value="Medical Image">🩻 Medical Image</option>
-                    <option value="Other">📋 Other (Please specify)</option>
-                  </select>
+                  <div>
+                    <p className="font-bold text-purple-900 dark:text-purple-200">
+                      🤖 AI will automatically categorize this document
+                    </p>
+                    <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                      No manual categorization needed!
+                    </p>
+                  </div>
                 </div>
-
-                {category === "Other" && (
-                  <div className="mt-4 animate-slideUp pl-12">
-                    <input
-                      type="text"
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      placeholder="Enter custom category name"
-                      className="block w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-base text-slate-900 dark:text-slate-100 transition-all duration-200"
-                    />
-                  </div>
-                )}
               </div>
             )}
 

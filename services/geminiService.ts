@@ -127,21 +127,21 @@ export const analyzeMedicalRecord = async (
         temperature: 0.1, // Lower temperature for more consistent results
         topP: 0.8,
         topK: 40,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048, // Increased for detailed summaries
       },
     });
 
 
     const imagePart = await fileToGenerativePart(file);
 
-    const prompt = `You are a medical document analysis AI. Analyze this medical record and extract ALL key information including vital signs.
+    const prompt = `You are an expert medical document analyzer. Analyze this medical record thoroughly and extract ALL relevant information.
 
-CRITICAL: Respond with ONLY valid JSON in this exact format:
+OUTPUT FORMAT: Return ONLY valid JSON (no markdown, no explanations):
 {
   "date": "YYYY-MM-DD",
   "type": "document type",
-  "summary": "brief summary",
-  "doctor": "doctor name",
+  "summary": "detailed summary with bullet points",
+  "doctor": "doctor/facility name",
   "vitals": {
     "bloodPressure": {"systolic": 120, "diastolic": 80},
     "heartRate": 72,
@@ -150,19 +150,70 @@ CRITICAL: Respond with ONLY valid JSON in this exact format:
   }
 }
 
-EXTRACTION RULES:
-- date: Look for any date on the document (visit date, report date, etc.). Format as YYYY-MM-DD. If no date found, use today's date.
-- type: Identify document type from these categories: "Lab Report", "Blood Test", "Prescription", "X-Ray Report", "MRI Report", "CT Scan", "Doctor's Note", "Discharge Summary", "Vaccination Record", "Medical Image", "Test Results", or "Medical Document"
-- summary: Write 1-2 sentences describing the key medical findings, test results, or purpose. Be specific about values, conditions, or medications mentioned.
-- doctor: Extract doctor's name, clinic name, or medical facility. If not found, use "Unknown"
-- vitals: Extract vital signs if found:
-  * bloodPressure: Look for "120/80", "BP: 130/85", etc.
-  * heartRate: Look for "72 bpm", "HR: 80", "Pulse 75", etc.
-  * temperature: Look for "98.6°F", "37°C", "Temp: 99.1", etc.
-  * glucose: Look for "95 mg/dL", "Glucose: 110", etc.
-  * Only include vitals fields if actual measurements are found
+EXTRACTION INSTRUCTIONS:
 
-IMPORTANT: Return ONLY the JSON object. No additional text, explanations, or formatting.`;
+1. DATE:
+   - Look for: Visit date, report date, test date, consultation date
+   - Format: YYYY-MM-DD (convert any date format to this)
+   - If multiple dates, use the most recent medical event date
+   - If no date found, use today's date
+
+2. TYPE:
+   - Choose from: "Lab Report", "Blood Test", "Prescription", "X-Ray Report", "MRI Report", "CT Scan", "Ultrasound", "Doctor's Note", "Discharge Summary", "Vaccination Record", "Medical Image", "Medical Document"
+   - Be specific (e.g., prefer "Blood Test" over "Lab Report" if it's specifically blood work)
+
+3. SUMMARY (MOST IMPORTANT - BE DETAILED):
+   - Write a comprehensive, structured summary with these sections:
+   
+   **Current Issue/Reason for Visit:**
+   - Main complaint or purpose of document
+   - Presenting symptoms or concerns
+   
+   **Medical History (if mentioned):**
+   - Previous conditions, surgeries, chronic diseases
+   - Relevant past medical events
+   
+   **Findings/Results:**
+   - Lab values with reference ranges (e.g., "Hemoglobin: 14.2 g/dL [normal: 13.5-17.5]")
+   - Test results, measurements, observations
+   - Abnormal findings highlighted
+   
+   **Diagnosis:**
+   - Primary diagnosis or assessment
+   - Differential diagnoses if mentioned
+   
+   **Medications/Treatment:**
+   - Prescribed medications with dosages
+   - Treatment plan or interventions
+   - Instructions given to patient
+   
+   **Recommendations/Follow-up:**
+   - Next steps, follow-up appointments
+   - Lifestyle recommendations
+   - Warning signs to watch for
+   
+   Format as bullet points for readability. Be specific with numbers, dosages, and measurements.
+
+4. DOCTOR:
+   - Extract: Doctor's full name, credentials (MD, DO, etc.)
+   - If no doctor name, look for: Clinic name, hospital name, medical facility
+   - Format: "Dr. FirstName LastName, MD" or "Facility Name"
+   - Use "Unknown" only if absolutely no provider info found
+
+5. VITALS (Extract ALL available measurements):
+   - bloodPressure: Look for BP, blood pressure (e.g., "120/80", "BP 130/85 mmHg")
+   - heartRate: HR, pulse, heart rate (e.g., "72 bpm", "Pulse: 80", "HR 75/min")
+   - temperature: Temp, temperature (e.g., "98.6°F", "37°C", "36.8C")
+   - glucose: Blood sugar, glucose, blood glucose (e.g., "95 mg/dL", "Glucose: 110", "5.5 mmol/L")
+   - respiratoryRate: RR, respiratory rate (e.g., "16/min", "RR: 18")
+   - oxygenSaturation: SpO2, O2 saturation (e.g., "98%", "SpO2: 97%")
+   - weight: Patient weight (e.g., "70 kg", "154 lbs")
+   - height: Patient height (e.g., "175 cm", "5'9\"")
+   - bmi: Body Mass Index (e.g., "24.5", "BMI: 22.3")
+   
+   Only include measurements that are explicitly stated in the document.
+
+CRITICAL: Return ONLY the JSON object. No markdown formatting, no code blocks, no explanations.`;
 
     const result = await model.generateContent([prompt, imagePart]);
     const response = result.response;
@@ -432,35 +483,89 @@ export const summarizeAllRecords = async (
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       generationConfig: {
-        temperature: 0.3, // Slightly higher for more natural language
+        temperature: 0.2, // Lower for more consistent, factual summaries
         topP: 0.8,
         topK: 40,
-        maxOutputTokens: 512, // Limit output for faster response
+        maxOutputTokens: 1024, // Increased for detailed structured summary
       },
-      systemInstruction: `You are an expert medical summarization AI. Create clear, concise health overviews for patients.
+      systemInstruction: `You are an expert medical data analyst creating comprehensive health summaries for patients.
 
-RULES:
-1. Focus on key trends, significant changes, and important results
-2. Use simple, patient-friendly language - avoid medical jargon
-3. NEVER provide medical advice, diagnosis, or treatment recommendations
-4. Do not make predictions about future health outcomes
-5. Write 2-3 sentences maximum as a cohesive summary
-6. Synthesize information - don't list records individually
-7. Highlight the most recent and significant findings`,
+CRITICAL RULES:
+1. Create structured, detailed summaries with clear sections
+2. Use bullet points for better readability
+3. Highlight key findings, trends, and patterns across records
+4. Use simple, patient-friendly language
+5. NEVER provide medical advice, diagnosis, or treatment recommendations
+6. Focus on factual information from the records
+7. Identify trends over time (improving, stable, declining)
+8. Mention abnormal results or concerning findings
+9. Note medication changes or new prescriptions
+10. Summarize doctor's recommendations when available`,
     });
 
-    // Sort records by date (most recent first) and limit to most recent 10 for performance
+    // Sort records by date (most recent first) and limit to most recent 15 for comprehensive analysis
     const sortedRecords = records
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 10);
+      .slice(0, 15);
 
-    const prompt = `Summarize these medical records for the patient:
+    // Group records by type for better analysis
+    const recordsByType = sortedRecords.reduce((acc, record) => {
+      const type = record.type || 'Other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(record);
+      return acc;
+    }, {} as Record<string, MedicalRecord[]>);
 
+    const prompt = `Analyze these medical records and create a comprehensive health summary:
+
+RECORDS (Most recent first):
 ${sortedRecords
-  .map((r, index) => `${index + 1}. ${r.date} - ${r.type}: ${r.summary}`)
-  .join("\n")}
+  .map((r, index) => `
+${index + 1}. Date: ${r.date}
+   Type: ${r.type}
+   Doctor/Facility: ${r.doctor}
+   Summary: ${r.summary}
+   Category: ${r.category || 'General'}
+`)
+  .join('\n')}
 
-Create a 2-3 sentence health overview focusing on the most important findings and recent trends. Use simple language the patient can understand.`;
+RECORD TYPES AVAILABLE:
+${Object.entries(recordsByType)
+  .map(([type, recs]) => `- ${type}: ${recs.length} record(s)`)
+  .join('\n')}
+
+CREATE A STRUCTURED SUMMARY WITH THESE SECTIONS:
+
+📋 **Recent Medical Activity:**
+- Summarize the most recent visits, tests, or consultations (last 2-3 entries)
+- Mention dates and purposes
+
+🏥 **Medical History & Conditions:**
+- List any chronic conditions or ongoing health issues mentioned
+- Note previous diagnoses or significant medical events
+- Include relevant surgical history if mentioned
+
+🔬 **Key Test Results & Findings:**
+- Highlight important lab values and their trends
+- Mention any abnormal results (with context if available)
+- Note imaging results (X-rays, MRIs, etc.)
+
+💊 **Current Medications & Treatments:**
+- List prescribed medications with dosages if available
+- Mention treatment plans or interventions
+- Note any medication changes
+
+📊 **Health Trends & Patterns:**
+- Identify improving, stable, or concerning trends
+- Compare recent vs. older results when possible
+- Mention vital sign patterns (BP, heart rate, etc.)
+
+⚕️ **Doctor's Recommendations:**
+- Summarize follow-up instructions
+- List lifestyle recommendations
+- Note any warning signs mentioned
+
+Use bullet points within each section. Be specific with numbers and measurements. Keep language simple and clear. If a section has no relevant information, write "No information available in current records."`
 
     const result = await model.generateContent(prompt);
     const response = result.response;

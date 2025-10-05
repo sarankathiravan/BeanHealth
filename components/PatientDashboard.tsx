@@ -11,6 +11,7 @@ import { View, Patient, Vitals, Medication, MedicalRecord, User, Doctor, ChatMes
 import { MedicalRecordsService } from "../services/medicalRecordsService";
 import { uploadFileToSupabase, uploadFileToSupabaseSimple, testStorageConnection, deleteFileFromSupabase } from "../services/storageService";
 import { analyzeMedicalRecord, summarizeAllRecords, ExtractedVitals } from "../services/geminiService";
+import { categorizeMedicalRecord } from "../services/categorizationService";
 import { UserService } from "../services/authService";
 import { PatientAdditionService } from "../services/patientInvitationService";
 import { ChatService } from "../services/chatService";
@@ -397,7 +398,7 @@ const PatientDashboard: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (file: File, category: string) => {
+  const handleFileUpload = async (file: File) => {
     if (!user?.id) {
       alert('Please log in to upload files.');
       return;
@@ -406,7 +407,12 @@ const PatientDashboard: React.FC = () => {
     setIsUploadLoading(true);
     
     try {
-      // Start file upload and combined AI analysis (saves API quota!)
+      // Step 1: AI categorizes the document (fast, minimal tokens)
+      console.log('🤖 Step 1: AI categorizing document...');
+      const category = await categorizeMedicalRecord(file);
+      console.log(`✅ Document categorized as: ${category}`);
+      
+      // Step 2: Start file upload and detailed AI analysis in parallel
       const uploadPromise = (async () => {
         try {
           // Try simplified upload first (skips bucket existence check)
@@ -419,8 +425,8 @@ const PatientDashboard: React.FC = () => {
       
       const analysisPromise = analyzeMedicalRecord(file);
       
-      // Wait for both operations to complete (reduced from 3 to 2 API calls!)
-
+      // Wait for both operations to complete
+      console.log('⏳ Step 2: Uploading file and analyzing content...');
       const [fileUrl, analysisResult] = await Promise.all([
         uploadPromise, 
         analysisPromise
@@ -429,8 +435,6 @@ const PatientDashboard: React.FC = () => {
       // Extract vitals from the combined analysis result
       const extractedVitals = analysisResult.extractedVitals;
       
-
-      
       // Create the medical record in the database
       const newRecord = await MedicalRecordsService.createMedicalRecord({
         patientId: user.id,
@@ -438,7 +442,7 @@ const PatientDashboard: React.FC = () => {
         type: analysisResult.type,
         summary: analysisResult.summary,
         doctor: analysisResult.doctor,
-        category: category,
+        category: category, // Use AI-generated category
         fileUrl: fileUrl,
       });
 
