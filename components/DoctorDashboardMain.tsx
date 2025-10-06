@@ -105,13 +105,23 @@ const DoctorDashboardMain: React.FC = () => {
       // Fetch patient's medical records
       const records = await MedicalRecordsService.getMedicalRecordsByPatientId(patient.id);
       
-      // Fetch patient's vitals
+      // Fetch patient's vitals - use getLatestVitals for current vitals
       let vitalsData;
       try {
-        vitalsData = await VitalsService.getPatientVitals(patient.id);
+        vitalsData = await VitalsService.getLatestVitals(patient.id);
+        console.log('Fetched vitals for patient:', patient.id, vitalsData);
       } catch (err) {
-        console.log('No vitals data available for patient');
+        console.log('No vitals data available for patient:', err);
         vitalsData = null;
+      }
+      
+      // Fetch patient's vitals history
+      let vitalsHistory;
+      try {
+        vitalsHistory = await VitalsService.getPatientVitals(patient.id);
+      } catch (err) {
+        console.log('No vitals history available');
+        vitalsHistory = [];
       }
       
       // Fetch patient's medications
@@ -136,7 +146,7 @@ const DoctorDashboardMain: React.FC = () => {
           heartRate: { value: 'N/A', unit: 'bpm', trend: 'stable' as const },
           temperature: { value: 'N/A', unit: '°F', trend: 'stable' as const }
         },
-        vitalsHistory: [],
+        vitalsHistory: vitalsHistory || [],
         medications: medicationsData || [],
         records: records || [],
         doctors: [],
@@ -145,6 +155,8 @@ const DoctorDashboardMain: React.FC = () => {
           (m.senderId === user?.id && m.recipientId === patient.id)
         )
       };
+      
+      console.log('Created patient data with vitals:', patientData.vitals);
       setSelectedPatient(patientData);
       setActiveView('patient-detail');
     } catch (err) {
