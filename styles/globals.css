@@ -8,53 +8,51 @@
 @tailwind utilities;
 
 :root {
-  /* Primary Brand Colors - Sky Blue with better contrast */
-  --primary-50: #f0f9ff;
-  --primary-100: #e0f2fe;
-  --primary-200: #bae6fd;
-  --primary-300: #7dd3fc;
-  --primary-400: #38bdf8;
-  --primary-500: #0ea5e9;
-  --primary-600: #0284c7;
-  --primary-700: #0369a1;
-  --primary-800: #075985;
-  --primary-900: #0c4a6e;
+  /* Primary Brand Colors - Burgundy/Rose for Healthcare */
+  --primary-50: #fff1f2;
+  --primary-100: #ffe4e6;
+  --primary-200: #fecdd3;
+  --primary-300: #fda4af;
+  --primary-400: #fb7185;
+  --primary-500: #f43f5e;
+  --primary-600: #e11d48;
+  --primary-700: #be123c;
+  --primary-800: #9f1239;
+  --primary-900: #881337;
   
-  /* Secondary Brand Colors - Indigo for depth */
-  --secondary-50: #eef2ff;
-  --secondary-100: #e0e7ff;
-  --secondary-200: #c7d2fe;
-  --secondary-300: #a5b4fc;
-  --secondary-400: #818cf8;
-  --secondary-500: #6366f1;
-  --secondary-600: #4f46e5;
-  --secondary-700: #4338ca;
-  --secondary-800: #3730a3;
-  --secondary-900: #312e81;
+  /* Secondary Brand Colors - Soft Gray for depth */
+  --secondary-50: #f9fafb;
+  --secondary-100: #f3f4f6;
+  --secondary-200: #e5e7eb;
+  --secondary-300: #d1d5db;
+  --secondary-400: #9ca3af;
+  --secondary-500: #6b7280;
+  --secondary-600: #4b5563;
+  --secondary-700: #374151;
+  --secondary-800: #1f2937;
+  --secondary-900: #111827;
   
-  /* Accent Colors - More refined palette */
-  --accent-purple: #8b5cf6;
-  --accent-purple-light: #a78bfa;
-  --accent-pink: #ec4899;
-  --accent-pink-light: #f472b6;
-  --accent-green: #10b981;
-  --accent-green-light: #34d399;
-  --accent-orange: #f59e0b;
-  --accent-orange-light: #fbbf24;
-  --accent-teal: #14b8a6;
-  --accent-cyan: #06b6d4;
+  /* Accent Colors - Healthcare-friendly palette */
+  --accent-success: #10b981;
+  --accent-success-light: #34d399;
+  --accent-info: #3b82f6;
+  --accent-info-light: #60a5fa;
+  --accent-warning: #f59e0b;
+  --accent-warning-light: #fbbf24;
+  --accent-rose: #e11d48;
+  --accent-rose-light: #fb7185;
   
-  /* Neutral Grays - Enhanced for better readability */
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  /* Neutral Grays - Subtle white tones for healthcare */
+  --gray-50: #fefefe;
+  --gray-100: #fafafa;
+  --gray-200: #f5f5f5;
+  --gray-300: #e8e8e8;
+  --gray-400: #d4d4d4;
+  --gray-500: #a3a3a3;
+  --gray-600: #737373;
+  --gray-700: #525252;
+  --gray-800: #404040;
+  --gray-900: #262626;
   
   /* Semantic Colors - WCAG AAA compliant */
   --success: #10b981;
@@ -242,43 +240,41 @@ a:hover {
     text-wrap: balance;
   }
   
-  /* Refined gradients - subtle and professional */
+  /* Healthcare-themed gradients - clean and professional */
   .gradient-primary {
-    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #881337 0%, #be123c 100%);
   }
   
   .gradient-primary-soft {
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(136, 19, 55, 0.08) 0%, rgba(190, 18, 60, 0.08) 100%);
   }
   
-  .gradient-accent {
-    background: linear-gradient(135deg, #ec4899 0%, #f59e0b 100%);
+  .gradient-light {
+    background: linear-gradient(to bottom right, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
   }
   
   .gradient-success {
-    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   }
   
   .gradient-mesh {
     background: 
-      radial-gradient(at 40% 20%, rgba(14, 165, 233, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
+      radial-gradient(at 40% 20%, rgba(136, 19, 55, 0.05) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(190, 18, 60, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(243, 244, 246, 0.8) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, rgba(249, 250, 251, 0.8) 0px, transparent 50%);
   }
   
-  /* Glass morphism effect */
+  /* Clean glass effect for healthcare */
   .glass-effect {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(229, 231, 235, 0.6);
   }
   
   .dark .glass-effect {
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(31, 41, 55, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
   
@@ -329,47 +325,47 @@ a:hover {
     animation: bounceIn var(--transition-bounce) ease-out;
   }
   
-  /* Focus states */
+  /* Focus states - Healthcare burgundy */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900;
+    @apply focus:outline-none focus:ring-2 focus:ring-rose-900 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
   }
   
   .focus-ring-inset {
-    @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-rose-900;
   }
 }
 
 /* Component Styles */
 /* stylelint-disable at-rule-no-unknown */
 @layer components {
-  /* Button Variants - Refined with better states */
+  /* Button Variants - Healthcare theme */
   .btn-primary {
-    @apply px-6 py-3.5 bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold rounded-xl shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+    @apply px-6 py-3.5 bg-rose-900 hover:bg-rose-800 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-secondary {
-    @apply px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 hover:text-sky-600 dark:hover:text-sky-400 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-6 py-3.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-rose-900 hover:text-rose-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-ghost {
-    @apply px-4 py-2.5 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400;
+    @apply px-4 py-2.5 text-gray-600 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400;
   }
   
   .btn-danger {
-    @apply px-6 py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2;
   }
   
   .btn-success {
-    @apply px-6 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+    @apply px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2;
   }
   
-  /* Card Variants - Enhanced depth */
+  /* Card Variants - Clean healthcare aesthetic */
   .card {
-    @apply bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 transition-all duration-200;
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200;
   }
   
   .card-hover {
-    @apply card hover:shadow-lg hover:border-sky-300/60 dark:hover:border-sky-700/60 hover:-translate-y-1 cursor-pointer;
+    @apply card hover:shadow-md hover:border-rose-900/30 dark:hover:border-rose-900/50 hover:-translate-y-0.5 cursor-pointer;
   }
   
   .card-glass {
@@ -377,7 +373,7 @@ a:hover {
   }
   
   .card-highlight {
-    @apply card border-l-4 border-l-sky-500;
+    @apply card border-l-4 border-l-rose-900;
   }
   
   /* Input Styles - Modern forms */

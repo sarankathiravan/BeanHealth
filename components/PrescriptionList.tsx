@@ -97,7 +97,7 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-900"></div>
       </div>
     );
   }
@@ -105,12 +105,12 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
           {isDoctor && patientId ? 'Patient Prescriptions' : 'Prescriptions'}
         </h3>
         <button
           onClick={loadPrescriptions}
-          className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           aria-label="Refresh prescriptions"
         >
           <RefreshIcon className="h-5 w-5" />
@@ -118,12 +118,12 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
       </div>
 
       {prescriptions.length === 0 ? (
-        <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <DocumentIcon className="h-16 w-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+          <DocumentIcon className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
             No prescriptions found
           </p>
-          <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
             {isDoctor ? 'Create prescriptions from patient chats' : 'Your doctor will send prescriptions here'}
           </p>
         </div>
@@ -132,26 +132,26 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
           {prescriptions.map((prescription) => (
             <div
               key={prescription.id}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 cursor-pointer"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 cursor-pointer"
               onClick={() => setSelectedPrescription(prescription)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <DocumentIcon className="h-5 w-5 text-sky-500" />
-                    <h4 className="font-semibold text-slate-800 dark:text-slate-100">
+                    <DocumentIcon className="h-5 w-5 text-rose-900" />
+                    <h4 className="font-semibold text-gray-800 dark:text-gray-100">
                       {isDoctor ? prescription.patientName : `Dr. ${prescription.doctorName}`}
                     </h4>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       prescription.status === 'active' 
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                     }`}>
                       {prescription.status}
                     </span>
                   </div>
                   
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                     {isDoctor && prescription.doctorSpecialty && (
                       <p className="mb-1">{prescription.doctorSpecialty}</p>
                     )}
@@ -162,13 +162,13 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
                     {prescription.medications.slice(0, 3).map((med, index) => (
                       <span
                         key={index}
-                        className="text-xs bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 px-3 py-1 rounded-full"
+                        className="text-xs bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-400 px-3 py-1 rounded-full"
                       >
                         {med.name}
                       </span>
                     ))}
                     {prescription.medications.length > 3 && (
-                      <span className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-full">
+                      <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-3 py-1 rounded-full">
                         +{prescription.medications.length - 3} more
                       </span>
                     )}
@@ -180,7 +180,7 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
                     e.stopPropagation();
                     handleDownloadPrescription(prescription);
                   }}
-                  className="ml-4 p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                  className="ml-4 p-2 text-rose-900 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
                   aria-label="Download prescription"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,13 +198,13 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div
-              className="fixed inset-0 transition-opacity bg-slate-500 bg-opacity-75 dark:bg-slate-900 dark:bg-opacity-75"
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"
               onClick={() => setSelectedPrescription(null)}
             ></div>
 
-            <div className="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
               {/* Header */}
-              <div className="bg-gradient-to-r from-sky-500 to-indigo-600 px-6 py-4">
+              <div className="bg-gradient-to-r from-rose-500 to-rose-900 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-2xl font-bold text-white">Prescription Details</h3>
@@ -225,20 +225,20 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
               <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
                 {/* Doctor and Patient Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Doctor</h4>
-                    <p className="font-semibold text-slate-800 dark:text-slate-100">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Doctor</h4>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">
                       Dr. {selectedPrescription.doctorName}
                     </p>
                     {selectedPrescription.doctorSpecialty && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {selectedPrescription.doctorSpecialty}
                       </p>
                     )}
                   </div>
-                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Patient</h4>
-                    <p className="font-semibold text-slate-800 dark:text-slate-100">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Patient</h4>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">
                       {selectedPrescription.patientName}
                     </p>
                   </div>
@@ -246,44 +246,44 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
 
                 {/* Medications */}
                 <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+                  <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
                     Medications
                   </h4>
                   <div className="space-y-3">
                     {selectedPrescription.medications.map((med, index) => (
                       <div
                         key={index}
-                        className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-700/30"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/30"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h5 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
+                          <h5 className="font-semibold text-gray-800 dark:text-gray-100 text-lg">
                             {index + 1}. {med.name}
                           </h5>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                           <div>
-                            <span className="text-slate-600 dark:text-slate-400 block">Dosage:</span>
-                            <span className="text-slate-800 dark:text-slate-200 font-medium">{med.dosage}</span>
+                            <span className="text-gray-600 dark:text-gray-400 block">Dosage:</span>
+                            <span className="text-gray-800 dark:text-gray-200 font-medium">{med.dosage}</span>
                           </div>
                           <div>
-                            <span className="text-slate-600 dark:text-slate-400 block">Frequency:</span>
-                            <span className="text-slate-800 dark:text-slate-200 font-medium">{med.frequency}</span>
+                            <span className="text-gray-600 dark:text-gray-400 block">Frequency:</span>
+                            <span className="text-gray-800 dark:text-gray-200 font-medium">{med.frequency}</span>
                           </div>
                           <div>
-                            <span className="text-slate-600 dark:text-slate-400 block">Duration:</span>
-                            <span className="text-slate-800 dark:text-slate-200 font-medium">{med.duration}</span>
+                            <span className="text-gray-600 dark:text-gray-400 block">Duration:</span>
+                            <span className="text-gray-800 dark:text-gray-200 font-medium">{med.duration}</span>
                           </div>
                           {med.timing && (
                             <div>
-                              <span className="text-slate-600 dark:text-slate-400 block">Timing:</span>
-                              <span className="text-slate-800 dark:text-slate-200 font-medium">{med.timing}</span>
+                              <span className="text-gray-600 dark:text-gray-400 block">Timing:</span>
+                              <span className="text-gray-800 dark:text-gray-200 font-medium">{med.timing}</span>
                             </div>
                           )}
                         </div>
                         {med.instructions && (
                           <div className="mt-3 text-sm">
-                            <span className="text-slate-600 dark:text-slate-400">Instructions: </span>
-                            <span className="text-slate-800 dark:text-slate-200">{med.instructions}</span>
+                            <span className="text-gray-600 dark:text-gray-400">Instructions: </span>
+                            <span className="text-gray-800 dark:text-gray-200">{med.instructions}</span>
                           </div>
                         )}
                       </div>
@@ -297,7 +297,7 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
                     <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-400 mb-2">
                       Additional Notes
                     </h4>
-                    <p className="text-slate-700 dark:text-slate-300 text-sm">
+                    <p className="text-gray-700 dark:text-gray-300 text-sm">
                       {selectedPrescription.notes}
                     </p>
                   </div>
@@ -305,16 +305,16 @@ const PrescriptionList: React.FC<PrescriptionListProps> = ({ user, patientId }) 
               </div>
 
               {/* Footer */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700">
+              <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => handlePreviewPrescription(selectedPrescription)}
-                  className="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                  className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                 >
                   Preview PDF
                 </button>
                 <button
                   onClick={() => handleDownloadPrescription(selectedPrescription)}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-lg hover:from-sky-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-900 rounded-lg hover:from-sky-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
                 >
                   Download PDF
                 </button>

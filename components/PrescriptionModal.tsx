@@ -211,12 +211,12 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
         <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
           {/* Background overlay */}
           <div
-            className="fixed inset-0 transition-opacity bg-slate-500 bg-opacity-75 dark:bg-slate-900 dark:bg-opacity-75"
+            className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"
             onClick={handleClose}
           ></div>
 
           {/* Modal panel */}
-          <div className="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+          <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -243,10 +243,10 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <h4 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                       Prescription Ready
                     </h4>
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-gray-600 dark:text-gray-400">
                       {createdPrescription.medications.length} medication{createdPrescription.medications.length > 1 ? 's' : ''} prescribed
                     </p>
                   </div>
@@ -254,12 +254,12 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
 
                 <div className="space-y-2 text-sm">
                   {createdPrescription.medications.map((med, index) => (
-                    <div key={index} className="flex items-center space-x-2 text-slate-700 dark:text-slate-300">
+                    <div key={index} className="flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                       <span className="font-semibold">{index + 1}.</span>
                       <span className="font-medium">{med.name}</span>
-                      <span className="text-slate-500">•</span>
+                      <span className="text-gray-500">•</span>
                       <span>{med.dosage}</span>
-                      <span className="text-slate-500">•</span>
+                      <span className="text-gray-500">•</span>
                       <span>{med.frequency}</span>
                     </div>
                   ))}
@@ -269,13 +269,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               <div className="text-center mb-6">
                 <button
                   onClick={handlePreviewPDF}
-                  className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium underline"
+                  className="text-rose-900 dark:text-rose-400 hover:text-rose-900 dark:hover:text-sky-300 font-medium underline"
                 >
                   👁️ Preview PDF in new tab
                 </button>
               </div>
 
-              <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl p-4 mb-6">
+              <div className="bg-rose-50 dark:bg-rose-900/20 border border-sky-200 dark:border-sky-800 rounded-xl p-4 mb-6">
                 <h4 className="font-semibold text-sky-900 dark:text-sky-100 mb-2">
                   What would you like to do?
                 </h4>
@@ -287,11 +287,11 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-3 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={handleBackToEdit}
                 disabled={isSubmitting}
-                className="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ← Back to Edit
               </button>
@@ -300,7 +300,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                 <button
                   onClick={handleDownloadOnly}
                   disabled={isSubmitting}
-                  className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   💾 Download Only
                 </button>
@@ -339,14 +339,14 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div
-          className="fixed inset-0 transition-opacity bg-slate-500 bg-opacity-75 dark:bg-slate-900 dark:bg-opacity-75"
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"
           onClick={handleClose}
         ></div>
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-sky-500 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-rose-500 to-rose-900 px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold text-white">Create Prescription</h3>
@@ -368,13 +368,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
             {/* Medications Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                   Medications
                 </h4>
                 <button
                   type="button"
                   onClick={handleAddMedication}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/30 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-rose-900 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"
                 >
                   <PlusCircleIcon className="h-5 w-5" />
                   <span>Add Medication</span>
@@ -384,10 +384,10 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               {medications.map((medication, index) => (
                 <div
                   key={index}
-                  className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50 dark:bg-slate-800/50 space-y-3"
+                  className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/50 space-y-3"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Medication {index + 1}
                     </span>
                     {medications.length > 1 && (
@@ -404,7 +404,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {/* Medication Name */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Medication Name *
                       </label>
                       <input
@@ -412,13 +412,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.name}
                         onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
                         placeholder="e.g., Amoxicillin"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
 
                     {/* Dosage */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Dosage *
                       </label>
                       <input
@@ -426,13 +426,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.dosage}
                         onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
                         placeholder="e.g., 500mg"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
 
                     {/* Frequency */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Frequency *
                       </label>
                       <input
@@ -440,13 +440,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.frequency}
                         onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
                         placeholder="e.g., 3 times daily"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
 
                     {/* Duration */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Duration *
                       </label>
                       <input
@@ -454,13 +454,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.duration}
                         onChange={(e) => handleMedicationChange(index, 'duration', e.target.value)}
                         placeholder="e.g., 7 days"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
 
                     {/* Timing */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Timing
                       </label>
                       <input
@@ -468,13 +468,13 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.timing}
                         onChange={(e) => handleMedicationChange(index, 'timing', e.target.value)}
                         placeholder="e.g., After meals"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
 
                     {/* Instructions */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Instructions
                       </label>
                       <input
@@ -482,7 +482,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                         value={medication.instructions}
                         onChange={(e) => handleMedicationChange(index, 'instructions', e.target.value)}
                         placeholder="e.g., Take with water"
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors"
                       />
                     </div>
                   </div>
@@ -492,7 +492,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
 
             {/* Additional Notes */}
             <div className="mt-6">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Additional Notes (Optional)
               </label>
               <textarea
@@ -500,18 +500,18 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Add any additional instructions or notes for the patient..."
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:border-transparent transition-colors resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-rose-900 dark:focus:ring-rose-400 focus:border-transparent transition-colors resize-none"
               ></textarea>
             </div>
           </form>
 
           {/* Footer */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700">
+          <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
@@ -519,7 +519,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               type="submit"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-lg hover:from-sky-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-900 rounded-lg hover:from-sky-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {isSubmitting ? (
                 <>

@@ -54,27 +54,27 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-center w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-full mx-auto mb-4">
               <AlertIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             
-            <h2 className="text-xl font-semibold text-center text-slate-900 dark:text-white mb-2">
+            <h2 className="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
               Something went wrong
             </h2>
             
-            <p className="text-slate-600 dark:text-slate-400 text-center mb-4">
+            <p className="text-gray-600 dark:text-gray-400 text-center mb-4">
               We're sorry, but something unexpected happened. Please try refreshing the page.
             </p>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mb-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-md overflow-auto max-h-48">
+              <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-md overflow-auto max-h-48">
                 <p className="text-xs font-mono text-red-600 dark:text-red-400 mb-2">
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
-                  <pre className="text-xs font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                  <pre className="text-xs font-mono text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
                     {this.state.errorInfo.componentStack}
                   </pre>
                 )}

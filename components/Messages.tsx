@@ -391,12 +391,12 @@ const Messages: React.FC<MessagesProps> = ({
   const cannotTurnOnUrgent = isPatient && !hasCredits && !isUrgent;
 
   return (
-    <div className="flex h-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div className="flex h-full bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Contact List Panel */}
-      <div className={`w-full md:w-80 border-r border-slate-200 dark:border-slate-700 flex flex-col bg-slate-50 dark:bg-slate-900 ${selectedContactId ? 'hidden md:flex' : 'flex'}`}>
-        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex-shrink-0 bg-white dark:bg-slate-800">
-          <h3 className="text-xl font-display font-bold text-slate-900 dark:text-slate-100">Messages</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{sortedContacts.length} conversations</p>
+      <div className={`w-full md:w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col bg-gray-50 dark:bg-gray-900 ${selectedContactId ? 'hidden md:flex' : 'flex'}`}>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800">
+          <h3 className="text-lg sm:text-xl font-display font-bold text-gray-900 dark:text-gray-100">Messages</h3>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{sortedContacts.length} conversations</p>
         </div>
         <div className="flex-1 overflow-y-auto scrollbar-thin">
           <div className="p-2">
@@ -409,8 +409,8 @@ const Messages: React.FC<MessagesProps> = ({
                       onClick={() => handleSelectContact(contact.id)}
                       className={`w-full text-left px-4 py-3 flex items-center space-x-3 rounded-xl transition-all duration-200 mb-1 ${
                         selectedContactId === contact.id 
-                          ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg scale-105' 
-                          : 'hover:bg-white dark:hover:bg-slate-800 hover:shadow-md'
+                          ? 'bg-gradient-to-r from-rose-500 to-rose-900 text-white shadow-lg scale-105' 
+                          : 'hover:bg-white dark:hover:bg-gray-800 hover:shadow-md'
                       }`}
                   >
                       <div className="relative flex-shrink-0">
@@ -418,7 +418,7 @@ const Messages: React.FC<MessagesProps> = ({
                           {hasUnreadUrgent && (
                             <span className="absolute -top-1 -right-1 flex h-4 w-4">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 ring-2 ring-white dark:ring-slate-800"></span>
+                              <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 ring-2 ring-white dark:ring-gray-800"></span>
                             </span>
                           )}
                       </div>
@@ -426,14 +426,14 @@ const Messages: React.FC<MessagesProps> = ({
                         <p className={`font-semibold truncate text-sm ${
                           selectedContactId === contact.id 
                             ? 'text-white' 
-                            : 'text-slate-800 dark:text-slate-100'
+                            : 'text-gray-800 dark:text-gray-100'
                         }`}>
                           {contact.name}
                         </p>
                         <p className={`text-xs truncate ${
                           selectedContactId === contact.id 
                             ? 'text-sky-100' 
-                            : 'text-slate-500 dark:text-slate-400'
+                            : 'text-gray-500 dark:text-gray-400'
                         }`}>
                           {(contact as Doctor).specialty || (contact as Patient).condition}
                         </p>
@@ -442,7 +442,7 @@ const Messages: React.FC<MessagesProps> = ({
                           <span className={`text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 ${
                             selectedContactId === contact.id
                               ? 'bg-white/20 text-white'
-                              : 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white'
+                              : 'bg-gradient-to-r from-rose-500 to-rose-900 text-white'
                           }`}>
                               {unreadMessages.length > 9 ? '9+' : unreadMessages.length}
                           </span>
@@ -459,19 +459,19 @@ const Messages: React.FC<MessagesProps> = ({
         {selectedContact ? (
           <>
             {/* Chat Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-4 flex-shrink-0 bg-white dark:bg-slate-800">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-4 flex-shrink-0 bg-white dark:bg-gray-800">
               <button 
                 onClick={() => setSelectedContactId(null)} 
-                className="md:hidden p-2 -ml-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-105 active:scale-95 transition-all duration-200"
+                className="md:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-200"
               >
-                <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-300"/>
+                <ArrowLeftIcon className="h-5 w-5 text-gray-600 dark:text-gray-300"/>
               </button>
               <div className="relative">
                 <InitialsAvatar contact={selectedContact} size="md" />
-                <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-slate-800"></span>
+                <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-display font-bold text-slate-900 dark:text-slate-100 truncate">{selectedContact.name}</h3>
+                <h3 className="text-lg font-display font-bold text-gray-900 dark:text-gray-100 truncate">{selectedContact.name}</h3>
                 <div className="flex items-center space-x-2 mt-0.5">
                   {typingUsers.has(selectedContact.id) ? (
                     <TypingIndicator 
@@ -489,7 +489,7 @@ const Messages: React.FC<MessagesProps> = ({
               {isDoctor && selectedContact.role === 'patient' && (
                 <button
                   onClick={() => setShowPrescriptionModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-xl hover:from-sky-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-900 rounded-xl hover:from-sky-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
                   aria-label="Create prescription"
                 >
                   <DocumentIcon className="h-5 w-5" />
@@ -503,19 +503,19 @@ const Messages: React.FC<MessagesProps> = ({
             <div 
               ref={messagesContainerRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 min-h-0 scrollbar-thin"
+              className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 min-h-0 scrollbar-thin"
               style={{ maxHeight: 'calc(100vh - 280px)' }}
             >
               <div className="px-6 py-4 max-w-4xl mx-auto">
                 <div className="space-y-4">
                   {currentConversationMessages.length === 0 ? (
                     <div className="text-center py-12">
-                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 mb-4">
-                        <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 mb-4">
+                        <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400">Start the conversation</p>
+                      <p className="text-gray-500 dark:text-gray-400">Start the conversation</p>
                     </div>
                   ) : (
                     currentConversationMessages.map((msg, index) => (
@@ -523,8 +523,8 @@ const Messages: React.FC<MessagesProps> = ({
                         <div className={`max-w-[75%] md:max-w-md ${msg.senderId === currentUser.id ? 'ml-12' : 'mr-12'}`}>
                           <div className={`group relative px-4 py-3 rounded-2xl text-sm break-words shadow-sm ${
                             msg.senderId === currentUser.id
-                              ? 'bg-gradient-to-br from-sky-500 to-indigo-600 text-white rounded-br-md'
-                              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-md border border-slate-200 dark:border-slate-700'
+                              ? 'bg-gradient-to-br from-rose-500 to-rose-900 text-white rounded-br-md'
+                              : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-bl-md border border-gray-200 dark:border-gray-700'
                           } ${msg.isUrgent ? 'ring-2 ring-red-500 ring-offset-2 dark:ring-offset-slate-900' : ''} ${
                             pendingMessages.has(msg.id) ? 'opacity-70' : ''
                           } hover:shadow-lg transition-all duration-200`}>
@@ -543,7 +543,7 @@ const Messages: React.FC<MessagesProps> = ({
                               <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
                             )}
                           </div>
-                          <div className={`text-xs text-slate-400 dark:text-slate-500 mt-1.5 px-2 flex items-center space-x-2 ${
+                          <div className={`text-xs text-gray-400 dark:text-gray-500 mt-1.5 px-2 flex items-center space-x-2 ${
                             msg.senderId === currentUser.id ? 'justify-end' : 'justify-start'
                           }`}>
                             {msg.senderId === currentUser.id && (
@@ -581,7 +581,7 @@ const Messages: React.FC<MessagesProps> = ({
                     setShouldAutoScroll(true);
                     scrollToBottom(true);
                   }}
-                  className="fixed bottom-32 right-8 p-3 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 z-10 animate-slideUp"
+                  className="fixed bottom-32 right-8 p-3 bg-gradient-to-r from-rose-500 to-rose-900 text-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 z-10 animate-slideUp"
                   aria-label="Scroll to bottom"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,7 +592,7 @@ const Messages: React.FC<MessagesProps> = ({
             </div>
             
             {/* Message Input Area */}
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
                {showCreditWarning && (
                 <div className="absolute bottom-full left-6 right-6 mb-3 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/50 dark:to-orange-900/50 text-yellow-900 dark:text-yellow-200 text-sm rounded-xl shadow-xl border border-yellow-200 dark:border-yellow-800 flex items-center justify-between animate-slide-up">
                     <div className="flex items-center">
@@ -610,7 +610,7 @@ const Messages: React.FC<MessagesProps> = ({
 
                {/* Upload Progress */}
                {uploadProgress && (
-                 <div className="mb-4 p-4 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
+                 <div className="mb-4 p-4 bg-gradient-to-r from-rose-50 to-rose-50 dark:from-rose-900/20 dark:to-indigo-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
                    <div className="flex items-center justify-between text-sm text-sky-800 dark:text-sky-200 mb-2 font-semibold">
                      <span className="flex items-center">
                        <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -623,34 +623,34 @@ const Messages: React.FC<MessagesProps> = ({
                    </div>
                    <div className="w-full bg-sky-200 dark:bg-sky-700 rounded-full h-2 overflow-hidden">
                      <div 
-                       className="bg-gradient-to-r from-sky-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
+                       className="bg-gradient-to-r from-rose-500 to-rose-900 h-2 rounded-full transition-all duration-300"
                        style={{ width: `${uploadProgress.progress}%` }}
                      ></div>
                    </div>
                  </div>
                )}
-              <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
+              <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
                  <div className="relative group flex-shrink-0">
                     <button
                         type="button"
                         onClick={handleToggleUrgent}
                         disabled={cannotTurnOnUrgent}
-                        className={`p-3 rounded-xl transition-all duration-200 ${
+                        className={`p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200 ${
                           isUrgent 
                             ? 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 scale-110' 
-                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-110 active:scale-95'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 active:scale-95'
                         } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                         aria-label="Toggle urgent message"
                     >
-                        <AlertIcon className="h-5 w-5" />
+                        <AlertIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                     {isPatient && (
-                      <span className="absolute -top-1 -right-1 text-xs bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-lg">
+                      <span className="absolute -top-1 -right-1 text-xs bg-gradient-to-r from-rose-500 to-rose-900 text-white font-bold rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center border-2 border-white dark:border-gray-800 shadow-lg">
                         {patientData?.urgentCredits}
                       </span>
                     )}
                     {cannotTurnOnUrgent && (
-                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-56 p-3 bg-slate-900 text-white text-xs rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 sm:w-56 p-2 sm:p-3 bg-gray-900 text-white text-xs rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                           You have no urgent credits. Please purchase more from the Billing page.
                           <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-slate-900"></div>
                       </div>
@@ -661,20 +661,20 @@ const Messages: React.FC<MessagesProps> = ({
                  <button
                     type="button"
                     onClick={() => setShowFilePicker(true)}
-                    className="p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-110 active:scale-95 transition-all duration-200 flex-shrink-0"
+                    className="p-2 sm:p-3 rounded-lg sm:rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-200 flex-shrink-0"
                     aria-label="Attach file"
                  >
-                    <DocumentUploadIcon className="h-5 w-5" />
+                    <DocumentUploadIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                  </button>
 
                  {/* Audio Recording Button */}
                  <button
                     type="button"
                     onClick={() => setShowAudioRecorder(true)}
-                    className="p-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-110 active:scale-95 transition-all duration-200 flex-shrink-0"
+                    className="p-2 sm:p-3 rounded-lg sm:rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-200 flex-shrink-0"
                     aria-label="Record audio"
                  >
-                    <MicrophoneIcon className="h-5 w-5" />
+                    <MicrophoneIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                  </button>
                 <input
                   type="text"
@@ -693,27 +693,27 @@ const Messages: React.FC<MessagesProps> = ({
                     }
                   }}
                   placeholder="Type your message..."
-                  className="flex-1 px-5 py-3 text-sm bg-slate-100 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 transition-all duration-200"
+                  className="flex-1 px-5 py-3 text-sm bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-900 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim()}
-                  className="group relative bg-gradient-to-r from-sky-500 to-indigo-600 text-white p-3 rounded-xl font-semibold hover:shadow-xl hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 flex-shrink-0 overflow-hidden"
+                  className="group relative bg-gradient-to-r from-rose-500 to-rose-900 text-white p-3 rounded-xl font-semibold hover:shadow-xl hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 flex-shrink-0 overflow-hidden"
                 >
                   <span className="relative z-10">
                     <PaperAirplaneIcon className="h-5 w-5"/>
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-rose-900 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
               </form>
             </div>
           </>
         ) : (
-          <div className="hidden md:flex flex-col items-center justify-center h-full text-center p-8 bg-slate-50 dark:bg-slate-900">
-            <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 shadow-xl border border-slate-200 dark:border-slate-700">
-              <EmptyMessagesIcon className="h-24 w-24 text-slate-400 dark:text-slate-500 mb-6 mx-auto" />
-              <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100 mb-3">Select a Conversation</h3>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm">Choose a contact from the list to start chatting and stay connected with your healthcare team.</p>
+          <div className="hidden md:flex flex-col items-center justify-center h-full text-center p-8 bg-gray-50 dark:bg-gray-900">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl border border-gray-200 dark:border-gray-700">
+              <EmptyMessagesIcon className="h-24 w-24 text-gray-400 dark:text-gray-500 mb-6 mx-auto" />
+              <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-gray-100 mb-3">Select a Conversation</h3>
+              <p className="text-gray-500 dark:text-gray-400 max-w-sm">Choose a contact from the list to start chatting and stay connected with your healthcare team.</p>
             </div>
           </div>
         )}
@@ -721,15 +721,15 @@ const Messages: React.FC<MessagesProps> = ({
 
       {/* File Upload Modals */}
       {showFilePicker && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-scale-in">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700 animate-scale-in">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-gray-100">
                 Choose File Type
               </h3>
               <button
                 onClick={() => setShowFilePicker(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-110 active:scale-95 transition-all duration-200"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-200"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -746,15 +746,15 @@ const Messages: React.FC<MessagesProps> = ({
       )}
 
       {showAudioRecorder && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-scale-in">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700 animate-scale-in">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-gray-100">
                 Record Audio Message
               </h3>
               <button
                 onClick={() => setShowAudioRecorder(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-110 active:scale-95 transition-all duration-200"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-200"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

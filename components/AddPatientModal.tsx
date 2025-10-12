@@ -96,15 +96,15 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-600">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Add Existing Patient
           </h3>
           <button
             onClick={handleClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <XIcon className="h-6 w-6" />
           </button>
@@ -117,10 +117,10 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
               <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mb-4">
                 <CheckIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
-              <h4 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">
+              <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Patient Added Successfully!
               </h4>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-gray-600 dark:text-gray-400">
                 {addedPatient?.name} has been added to your patient roster. 
                 You can now start communicating and managing their health data.
               </p>
@@ -129,7 +129,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
             <div className="space-y-4">
               {/* Search Section */}
               <div>
-                <label htmlFor="searchEmail" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="searchEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Search by Email Address
                 </label>
                 <div className="flex space-x-2">
@@ -139,7 +139,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
                     value={searchEmail}
                     onChange={(e) => setSearchEmail(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-700 dark:text-slate-100"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100"
                     placeholder="patient@example.com"
                   />
                   <button
@@ -168,14 +168,14 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
               {/* Search Results */}
               {searchResults.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Found {searchResults.length} patient{searchResults.length > 1 ? 's' : ''}:
                   </h4>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {searchResults.map((patient) => (
                       <div 
                         key={patient.id}
-                        className="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-600 rounded-lg"
+                        className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg"
                       >
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
@@ -186,14 +186,14 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
                             </div>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                               {patient.name}
                             </p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               {patient.email}
                             </p>
                             {patient.condition && (
-                              <p className="text-xs text-slate-400 dark:text-slate-500">
+                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                 {patient.condition}
                               </p>
                             )}
@@ -216,7 +216,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>

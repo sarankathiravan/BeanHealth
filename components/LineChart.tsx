@@ -23,7 +23,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lines, xAxisKey }) => {
   const svgHeight = height + padding * 2;
   
   if (!data || data.length < 2) {
-    return <div className="h-[350px] flex items-center justify-center text-slate-500 dark:text-slate-400">Not enough data to display chart.</div>;
+    return <div className="h-[350px] flex items-center justify-center text-gray-500 dark:text-gray-400">Not enough data to display chart.</div>;
   }
   
   const axisColor = theme === 'dark' ? '#94a3b8' : '#64748b';
@@ -131,7 +131,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lines, xAxisKey }) => {
             {lines.map(line => {
                 const pointData = data[findClosestIndex(tooltip.x)];
                 return (
-                     <circle key={line.dataKey} cx={tooltip.x} cy={yScale(pointData[line.dataKey])} r="5" fill={line.color} stroke={theme === 'dark' ? '#1e293b' : '#fff'} strokeWidth="2"/>
+                     <circle key={line.dataKey} cx={tooltip.x} cy={yScale(pointData[line.dataKey])} r="5" fill={line.color} stroke={theme === 'dark' ? '#fefefe' : '#fff'} strokeWidth="2"/>
                 );
             })}
           </g>
@@ -140,7 +140,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lines, xAxisKey }) => {
       {/* Legend */}
       <div className="flex justify-center space-x-4 mt-2">
         {lines.map(line => (
-          <div key={line.dataKey} className="flex items-center text-sm text-slate-600 dark:text-slate-300">
+          <div key={line.dataKey} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
             <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: line.color }}></span>
             <span className="capitalize">{line.dataKey}</span>
           </div>
@@ -149,7 +149,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lines, xAxisKey }) => {
        {/* Tooltip */}
        {tooltip && (
         <div
-          className="absolute bg-slate-800 dark:bg-slate-900 text-white p-2 rounded-lg shadow-lg pointer-events-none transition-opacity transform -translate-x-1/2 -translate-y-[calc(100%+15px)]"
+          className="absolute bg-gray-800 dark:bg-gray-900 text-white p-2 rounded-lg shadow-lg pointer-events-none transition-opacity transform -translate-x-1/2 -translate-y-[calc(100%+15px)]"
           style={{ left: tooltip.x, top: tooltip.y }}
         >
           {tooltip.content}

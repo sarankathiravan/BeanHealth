@@ -15,7 +15,7 @@ const Doctors: React.FC<DoctorsProps> = ({ doctors, onSelectDoctor, messagingEna
     return (
         <div>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 flex items-center mb-2 md:mb-0">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center mb-2 md:mb-0">
                     <DoctorIcon className="mr-3 h-8 w-8 text-indigo-600" />
                     My Care Team
                 </h2>
@@ -25,21 +25,21 @@ const Doctors: React.FC<DoctorsProps> = ({ doctors, onSelectDoctor, messagingEna
                 </button>
             </div>
             {doctors.length === 0 ? (
-                <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                    <EmptyDoctorsIcon className="mx-auto h-24 w-24 text-slate-400 dark:text-slate-500" />
-                    <h3 className="mt-4 text-xl font-semibold text-slate-800 dark:text-slate-100">No Doctors Found</h3>
-                    <p className="mt-2 text-slate-500 dark:text-slate-400">Add a doctor to your care team to get started.</p>
+                <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                    <EmptyDoctorsIcon className="mx-auto h-24 w-24 text-gray-400 dark:text-gray-500" />
+                    <h3 className="mt-4 text-xl font-semibold text-gray-800 dark:text-gray-100">No Doctors Found</h3>
+                    <p className="mt-2 text-gray-500 dark:text-gray-400">Add a doctor to your care team to get started.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {doctors.map(doctor => (
-                        <div key={doctor.id} className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm text-center flex flex-col items-center">
+                        <div key={doctor.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm text-center flex flex-col items-center">
                             <div className={`w-24 h-24 ${getInitialsColor(doctor.name, doctor.email)} rounded-full mb-4 ring-4 ring-indigo-200 dark:ring-indigo-800 flex items-center justify-center`}>
                               <span className="text-white text-2xl font-bold">
                                 {getInitials(doctor.name, doctor.email)}
                               </span>
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{doctor.name}</h3>
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{doctor.name}</h3>
                             <p className="text-indigo-600 dark:text-indigo-400 font-medium">{doctor.specialty}</p>
                             <div className="mt-4 flex space-x-2">
                                 <button 
@@ -49,7 +49,7 @@ const Doctors: React.FC<DoctorsProps> = ({ doctors, onSelectDoctor, messagingEna
                                 >
                                     Message
                                 </button>
-                                <button className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600">Profile</button>
+                                <button className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">Profile</button>
                             </div>
                         </div>
                     ))}

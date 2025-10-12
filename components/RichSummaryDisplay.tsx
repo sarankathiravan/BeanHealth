@@ -36,7 +36,7 @@ const RichSummaryDisplay: React.FC<RichSummaryDisplayProps> = ({ summary, classN
   if (!isJSON || !parsedData) {
     return (
       <div className={`prose prose-slate dark:prose-invert max-w-none ${className}`}>
-        <div className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+        <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
           {summary}
         </div>
       </div>
@@ -67,7 +67,7 @@ const RichSummaryDisplay: React.FC<RichSummaryDisplayProps> = ({ summary, classN
       icon: "⚕️",
       title: "Diagnosis",
       color: "text-indigo-700 dark:text-indigo-400",
-      bgColor: "bg-indigo-50 dark:bg-indigo-900/20"
+      bgColor: "bg-rose-50 dark:bg-indigo-900/20"
     },
     "Medications/Treatment": {
       icon: "💊",
@@ -91,14 +91,14 @@ const RichSummaryDisplay: React.FC<RichSummaryDisplayProps> = ({ summary, classN
         const config = sectionConfig[sectionKey] || {
           icon: "📄",
           title: sectionKey,
-          color: "text-slate-700 dark:text-slate-400",
-          bgColor: "bg-slate-50 dark:bg-slate-900/20"
+          color: "text-gray-700 dark:text-gray-400",
+          bgColor: "bg-gray-50 dark:bg-gray-900/20"
         };
 
         return (
           <div 
             key={sectionKey} 
-            className={`rounded-xl p-5 border border-slate-200 dark:border-slate-700 ${config.bgColor} transition-all duration-300 hover:shadow-md`}
+            className={`rounded-xl p-5 border border-gray-200 dark:border-gray-700 ${config.bgColor} transition-all duration-300 hover:shadow-md`}
           >
             <h4 className={`text-lg font-bold mb-3 flex items-center ${config.color}`}>
               <span className="text-2xl mr-2">{config.icon}</span>
@@ -108,9 +108,9 @@ const RichSummaryDisplay: React.FC<RichSummaryDisplayProps> = ({ summary, classN
               {items.map((item, index) => (
                 <li 
                   key={index} 
-                  className="flex items-start text-slate-700 dark:text-slate-300 leading-relaxed"
+                  className="flex items-start text-gray-700 dark:text-gray-300 leading-relaxed"
                 >
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 mt-2 mr-3 flex-shrink-0"></span>
                   <span className="flex-1">{item}</span>
                 </li>
               ))}

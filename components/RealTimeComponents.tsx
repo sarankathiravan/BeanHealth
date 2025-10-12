@@ -41,11 +41,11 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   if (!isTyping) return null;
   
   return (
-    <div className={`flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400 ${className}`}>
+    <div className={`flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 ${className}`}>
       <div className="flex space-x-1">
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
       <span>{userName} is typing...</span>
     </div>
@@ -78,14 +78,14 @@ export const MessageStatus: React.FC<MessageStatusProps> = ({
 
   return (
     <div className={`flex items-center space-x-1 text-xs ${className}`}>
-      <span className="text-slate-400 dark:text-slate-500">
+      <span className="text-gray-400 dark:text-gray-500">
         {formatTime(timestamp)}
       </span>
       {isUrgent && (
         <span className="text-red-500 font-bold">!</span>
       )}
       <div className={`w-4 h-4 flex items-center justify-center ${
-        isRead ? 'text-blue-500' : 'text-slate-400'
+        isRead ? 'text-blue-500' : 'text-gray-400'
       }`}>
         {isRead ? (
           // Double checkmark for read

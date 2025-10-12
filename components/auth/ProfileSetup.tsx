@@ -52,24 +52,21 @@ const ProfileSetup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-sky-300/20 dark:bg-sky-600/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-300/20 dark:bg-indigo-600/10 rounded-full blur-3xl animate-pulse"></div>
-      
-      <div className="relative z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 dark:border-slate-700/50 p-10 w-full max-w-lg animate-scale-in">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-display font-bold text-slate-900 dark:text-slate-100 mb-3">
+          <h2 className="text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-3">
             Complete Your Profile
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Tell us a bit about yourself to personalize your experience
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Full Name
             </label>
             <input
@@ -78,20 +75,20 @@ const ProfileSetup: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-100"
+              className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-gray-100"
               placeholder="Enter your full name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
               I am a...
             </label>
             <div className="grid grid-cols-2 gap-4">
               <label className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                 role === 'patient' 
-                  ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20' 
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                  ? 'border-rose-900 bg-rose-50 dark:bg-rose-900/20' 
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <input
                   type="radio"
@@ -103,8 +100,8 @@ const ProfileSetup: React.FC = () => {
                 />
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
                   role === 'patient'
-                    ? 'bg-sky-500 text-white'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    ? 'bg-rose-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -112,14 +109,14 @@ const ProfileSetup: React.FC = () => {
                 </div>
                 <span className={`text-sm font-semibold ${
                   role === 'patient'
-                    ? 'text-sky-700 dark:text-sky-400'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'text-rose-900 dark:text-rose-400'
+                    : 'text-gray-700 dark:text-gray-300'
                 }`}>Patient</span>
               </label>
               <label className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                 role === 'doctor' 
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                  ? 'border-indigo-500 bg-rose-50 dark:bg-indigo-900/20' 
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <input
                   type="radio"
@@ -131,8 +128,8 @@ const ProfileSetup: React.FC = () => {
                 />
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
                   role === 'doctor'
-                    ? 'bg-indigo-500 text-white'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    ? 'bg-rose-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -141,7 +138,7 @@ const ProfileSetup: React.FC = () => {
                 <span className={`text-sm font-semibold ${
                   role === 'doctor'
                     ? 'text-indigo-700 dark:text-indigo-400'
-                    : 'text-slate-700 dark:text-slate-300'
+                    : 'text-gray-700 dark:text-gray-300'
                 }`}>Doctor</span>
               </label>
             </div>
@@ -149,7 +146,7 @@ const ProfileSetup: React.FC = () => {
 
           {role === 'doctor' && (
             <div className="animate-slide-up">
-              <label htmlFor="specialty" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label htmlFor="specialty" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Specialty
               </label>
               <input
@@ -159,7 +156,7 @@ const ProfileSetup: React.FC = () => {
                 onChange={(e) => setSpecialty(e.target.value)}
                 required
                 placeholder="e.g., Cardiology, Pediatrics"
-                className="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-100"
+                className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-gray-100"
               />
             </div>
           )}
@@ -167,7 +164,7 @@ const ProfileSetup: React.FC = () => {
           {role === 'patient' && (
             <div className="space-y-6 animate-slide-up">
               <div>
-                <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Date of Birth
                 </label>
                 <input
@@ -176,12 +173,12 @@ const ProfileSetup: React.FC = () => {
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
                   required
-                  className="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-100"
+                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label htmlFor="condition" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Primary Health Condition <span className="text-slate-400 font-normal">(Optional)</span>
+                <label htmlFor="condition" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Primary Health Condition <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   id="condition"
@@ -189,7 +186,7 @@ const ProfileSetup: React.FC = () => {
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
                   placeholder="e.g., Diabetes, Hypertension"
-                  className="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-100"
+                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-900 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-gray-100"
                 />
               </div>
             </div>
@@ -198,7 +195,7 @@ const ProfileSetup: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full py-4 px-6 border-none rounded-xl shadow-lg text-base font-bold text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:shadow-xl hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 overflow-hidden mt-8"
+            className="group relative w-full py-4 px-6 border-none rounded-xl shadow-sm text-base font-bold text-white bg-rose-900 hover:bg-rose-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-rose-900 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 overflow-hidden mt-8"
           >
             <span className="relative z-10 flex items-center justify-center">
               {loading ? (
@@ -213,10 +210,10 @@ const ProfileSetup: React.FC = () => {
                 'Complete Setup'
               )}
             </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 };

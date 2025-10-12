@@ -20,10 +20,10 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-display font-bold text-slate-900 dark:text-slate-100 mb-4">
+        <h2 className="text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-4">
           Welcome Back
         </h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+        <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
           Sign in with your Google account to access<br className="hidden sm:block" /> your BeanHealth dashboard
         </p>
       </div>
@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="group relative w-full flex items-center justify-center px-6 py-4 border-2 border-slate-300 dark:border-slate-600 rounded-xl shadow-sm bg-white dark:bg-slate-800 text-base font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-sky-400 dark:hover:border-sky-500 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
+          className="group relative w-full flex items-center justify-center px-6 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-base font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-750 hover:border-sky-400 dark:hover:border-rose-900 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-rose-900 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
         >
           <svg className="w-6 h-6 mr-3 flex-shrink-0" viewBox="0 0 24 24">
             <path
@@ -54,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
           </svg>
           {loading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-slate-600 dark:text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -67,24 +67,24 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
 
         <div className="relative py-4">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+            <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium">
+            <span className="px-4 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium">
               Secure authentication powered by Google
             </span>
           </div>
         </div>
         
         {/* Security badges */}
-        <div className="flex items-center justify-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <span>SSL Secured</span>
           </div>
-          <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+          <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -97,7 +97,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToChooser }) => {
       <div className="mt-10 text-center">
         <button
           onClick={onSwitchToChooser}
-          className="inline-flex items-center text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 transition-colors"
+          className="inline-flex items-center text-sm font-medium text-rose-900 dark:text-rose-400 hover:text-rose-900 dark:hover:text-sky-300 transition-colors"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

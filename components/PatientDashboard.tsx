@@ -656,7 +656,7 @@ const PatientDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Sidebar */}
       <Sidebar
         activeView={activeView}
@@ -668,7 +668,7 @@ const PatientDashboard: React.FC = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-slate-900 bg-opacity-50 md:hidden"
+          className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -682,7 +682,7 @@ const PatientDashboard: React.FC = () => {
           onUpdateAvatar={handleUpdateAvatar}
         />
 
-        <main className="flex-1 p-6 overflow-y-auto">{renderContent()}</main>
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto">{renderContent()}</main>
       </div>
     </div>
   );

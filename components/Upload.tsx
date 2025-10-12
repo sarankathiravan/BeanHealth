@@ -53,19 +53,19 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
       <div className="max-w-3xl mx-auto animate-fadeIn">
         <div className="card">
             <div className="text-center mb-8">
-            <div className="bg-gradient-to-br from-sky-400 to-indigo-500 p-6 rounded-3xl shadow-xl inline-block mb-4">
+            <div className="bg-gradient-to-br from-sky-400 to-rose-500 p-6 rounded-3xl shadow-xl inline-block mb-4">
               <DocumentUploadIcon className="h-20 w-20 text-white" />
             </div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent">
               Upload New Medical Record
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
               Upload your file and our AI will automatically categorize and analyze it.
             </p>
           </div>          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label className="block text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-sm font-bold mr-3">📄</span>
+              <label className="block text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r from-rose-500 to-rose-900 text-white text-sm font-bold mr-3">📄</span>
                 Select your medical record
               </label>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -82,32 +82,32 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
                   onDrop={handleDrop}
                   className={`flex-1 border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-300 ${
                     selectedFile
-                      ? "border-sky-500 dark:border-sky-400 bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-sky-900/30 dark:to-indigo-900/30 shadow-lg scale-105"
-                      : "border-slate-300 dark:border-slate-600 hover:border-sky-500 dark:hover:border-sky-400 hover:shadow-md hover:scale-105"
+                      ? "border-rose-900 dark:border-sky-400 bg-gradient-to-br from-rose-50 to-rose-50 dark:from-rose-900/30 dark:to-indigo-900/30 shadow-lg scale-105"
+                      : "border-gray-300 dark:border-gray-600 hover:border-rose-900 dark:hover:border-sky-400 hover:shadow-md hover:scale-105"
                   }`}
                 >
                   {selectedFile ? (
                     <div className="space-y-2">
-                      <DocumentUploadIcon className="h-10 w-10 text-sky-600 dark:text-sky-400 mx-auto" />
-                      <p className="font-bold text-sky-700 dark:text-sky-400 text-lg">
+                      <DocumentUploadIcon className="h-10 w-10 text-rose-900 dark:text-rose-400 mx-auto" />
+                      <p className="font-bold text-rose-900 dark:text-rose-400 text-lg">
                         {selectedFile.name}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Click to change file</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Click to change file</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <DocumentUploadIcon className="h-12 w-12 text-slate-400 mx-auto" />
-                      <p className="text-slate-600 dark:text-slate-400 font-medium">
+                      <DocumentUploadIcon className="h-12 w-12 text-gray-400 mx-auto" />
+                      <p className="text-gray-600 dark:text-gray-400 font-medium">
                         Drag & drop or click to select
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">PDF or Image files</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">PDF or Image files</p>
                     </div>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsCameraOpen(true)}
-                  className="flex items-center justify-center gap-3 sm:w-auto w-full p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 dark:hover:border-sky-400 rounded-2xl text-slate-600 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:shadow-md hover:scale-105 transition-all duration-300 group"
+                  className="flex items-center justify-center gap-3 sm:w-auto w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-rose-900 dark:hover:border-sky-400 rounded-2xl text-gray-600 dark:text-gray-400 hover:text-rose-900 dark:hover:text-rose-400 hover:shadow-md hover:scale-105 transition-all duration-300 group"
                 >
                   <div className="bg-gradient-to-br from-purple-400 to-pink-500 p-3 rounded-xl group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
                     <CameraIcon className="h-7 w-7 text-white" />
@@ -119,7 +119,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
 
             {selectedFile && (
               <div className="animate-slideUp">
-                <div className="flex items-center justify-center gap-3 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
+                <div className="flex items-center justify-center gap-3 p-6 bg-gradient-to-r from-purple-50 to-rose-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
                   <div className="animate-pulse">
                     <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -157,7 +157,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload, isLoading }) => {
       </div>
 
       {isCameraOpen && (
-        <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
           <CameraCapture
             onPhotoTaken={handlePhotoTaken}
             onClose={() => setIsCameraOpen(false)}

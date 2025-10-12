@@ -53,10 +53,10 @@ const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({ onClose, on
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" aria-modal="true" role="dialog">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md transform transition-all">
-        <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Update Profile Photo</h2>
-          <button onClick={onClose} className="p-1 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        <div className="p-6 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Update Profile Photo</h2>
+          <button onClick={onClose} className="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
             <XIcon className="h-6 w-6" />
           </button>
         </div>
@@ -66,7 +66,7 @@ const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({ onClose, on
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors"
+            className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors"
           >
             <input
               type="file"
@@ -78,7 +78,7 @@ const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({ onClose, on
             {imageSrc ? (
               <img src={imageSrc} alt="Preview" className="mx-auto h-40 w-40 rounded-full object-cover" />
             ) : (
-              <div className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
                 <UploadIcon className="h-12 w-12 mb-2"/>
                 <p className="font-semibold">Click to upload or drag and drop</p>
                 <p className="text-sm">PNG, JPG, or WEBP (max 5MB)</p>
@@ -88,17 +88,17 @@ const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({ onClose, on
           {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
         </div>
 
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700 rounded-b-xl">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end space-x-3 border-t border-gray-200 dark:border-gray-700 rounded-b-xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600"
+            className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={!imageSrc}
-            className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-slate-400 dark:disabled:bg-slate-500 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 dark:disabled:bg-gray-500 disabled:cursor-not-allowed"
           >
             Save Photo
           </button>

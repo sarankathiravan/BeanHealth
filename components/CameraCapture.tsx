@@ -76,7 +76,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoTaken, onClose }) 
   };
 
   return (
-    <div className="bg-slate-800 text-white p-4 rounded-lg shadow-2xl w-full max-w-2xl relative">
+    <div className="bg-gray-800 text-white p-4 rounded-lg shadow-2xl w-full max-w-2xl relative">
       <button onClick={onClose} className="absolute top-2 right-2 p-2 rounded-full bg-black/30 hover:bg-black/50 z-10">
         <XIcon className="h-6 w-6"/>
       </button>
@@ -84,7 +84,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoTaken, onClose }) 
       {error ? (
         <div className="p-8 text-center">
             <h3 className="text-xl font-bold text-red-400 mb-2">Camera Error</h3>
-            <p className="text-slate-300">{error}</p>
+            <p className="text-gray-300">{error}</p>
         </div>
       ) : (
         <div className="relative">
@@ -99,7 +99,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoTaken, onClose }) 
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
                 {photoDataUrl ? (
                     <>
-                        <button onClick={handleRetake} className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-full font-semibold transition-colors">
+                        <button onClick={handleRetake} className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-full font-semibold transition-colors">
                             <RefreshIcon className="h-5 w-5"/>
                             Retake
                         </button>

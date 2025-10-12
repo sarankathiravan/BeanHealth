@@ -19,6 +19,12 @@ interface DashboardProps {
     temperature?: string;
     glucose?: string;
   };
+  aiSummary?: string;
+  onRefreshSummary?: () => Promise<void>;
+  isSummaryLoading?: boolean;
+  onSummaryChange?: (summary: string) => void;
+  summaryNote?: string;
+  onSummaryNoteChange?: (note: string) => void;
 }
 
 const VitalCard: React.FC<{
@@ -63,14 +69,14 @@ const VitalCard: React.FC<{
   };
 
   return (
-    <div className="group relative bg-white dark:bg-slate-800 p-6 lg:p-7 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-sky-500/5 via-indigo-600/5 to-transparent rounded-2xl transition-opacity duration-300"></div>
+    <div className="group relative bg-white dark:bg-gray-800 p-4 sm:p-6 lg:p-7 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in">
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-rose-500/5 via-rose-600/5 to-transparent rounded-xl sm:rounded-2xl transition-opacity duration-300"></div>
       <div className="relative flex items-start">
-        <div className={`p-4 rounded-xl mr-4 ${iconBgColor} shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300`}>
+        <div className={`p-3 sm:p-4 rounded-lg sm:rounded-xl mr-3 sm:mr-4 ${iconBgColor} shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300 flex-shrink-0`}>
           {icon}
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2.5 tracking-wide uppercase">{label}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:mb-2.5 tracking-wide uppercase truncate">{label}</p>
           {isEditing ? (
               <input 
                   ref={inputRef}
@@ -79,12 +85,12 @@ const VitalCard: React.FC<{
                   onChange={(e) => setCurrentValue(e.target.value)}
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
-                  className="w-full bg-slate-100 dark:bg-slate-700 text-3xl font-bold text-slate-900 dark:text-slate-100 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full bg-gray-100 dark:bg-gray-700 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-900"
               />
           ) : (
-              <div className="flex items-baseline">
-                <p className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">{value}</p>
-                <span className="ml-2.5 text-base lg:text-lg font-medium text-slate-500 dark:text-slate-400">{unit}</span>
+              <div className="flex items-baseline flex-wrap">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+                <span className="ml-1.5 sm:ml-2.5 text-sm sm:text-base lg:text-lg font-medium text-gray-500 dark:text-gray-400">{unit}</span>
               </div>
           )}
           {trend && (
@@ -125,25 +131,25 @@ const Dashboard: React.FC<DashboardProps> = ({
     vitalsLastUpdatedFromRecord
 }) => {
   return (
-    <div className="space-y-8 p-6 lg:p-8 animate-fade-in max-w-[1600px] mx-auto">
+    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8 animate-fade-in max-w-[1600px] mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 rounded-3xl p-8 lg:p-10 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-rose-700 via-rose-800 to-rose-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-15"></div>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-rose-400/20 rounded-full blur-2xl"></div>
         <div className="relative z-10">
-          <h2 className="text-3xl lg:text-4xl font-display font-bold text-white mb-3 tracking-tight">Your Health Dashboard</h2>
-          <p className="text-sky-50 text-base lg:text-lg leading-relaxed max-w-2xl">Track your vitals, medications, and health insights all in one place</p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-white mb-2 sm:mb-3 tracking-tight">Your Health Dashboard</h2>
+          <p className="text-rose-50 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">Track your vitals, medications, and health insights all in one place</p>
         </div>
       </div>
       
       {/* Vitals Section */}
       <div>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100 tracking-tight">Health Vitals</h3>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Last updated today</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+          <h3 className="text-xl sm:text-2xl font-display font-bold text-gray-900 dark:text-gray-100 tracking-tight">Health Vitals</h3>
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Last updated today</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           <VitalCard 
             label="Blood Pressure" 
             value={patient.vitals.bloodPressure.value} 
@@ -179,8 +185,8 @@ const Dashboard: React.FC<DashboardProps> = ({
       
       {/* Medication Section */}
       <div>
-        <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100 mb-6 tracking-tight">Medications</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <h3 className="text-xl sm:text-2xl font-display font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6 tracking-tight">Medications</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <MedicationCard 
               medications={patient.medications} 
               onAdd={onMedicationAdd}

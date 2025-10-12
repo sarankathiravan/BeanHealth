@@ -8,19 +8,19 @@ interface NotesProps {
 
 const Notes: React.FC<NotesProps> = ({ notes, onNotesChange }) => {
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm h-full flex flex-col">
-      <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
-        <NotesIcon className="mr-2 text-slate-500 dark:text-slate-400" />
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm h-full flex flex-col">
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
+        <NotesIcon className="mr-2 text-gray-500 dark:text-gray-400" />
         Personal Health Notes
       </h3>
-      <p className="text-slate-500 dark:text-slate-400 mb-4">
+      <p className="text-gray-500 dark:text-gray-400 mb-4">
         Use this space to keep track of symptoms, questions for your doctor, or any other health-related thoughts. Your notes are saved automatically.
       </p>
       <textarea
         value={notes}
         onChange={(e) => onNotesChange(e.target.value)}
         placeholder="Start typing your notes here..."
-        className="w-full flex-1 p-4 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-colors resize-none bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
+        className="w-full flex-1 p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
         aria-label="Personal Health Notes"
       />
     </div>

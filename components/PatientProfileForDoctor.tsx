@@ -70,7 +70,7 @@ const PatientProfileForDoctor: React.FC<PatientProfileForDoctorProps> = ({ patie
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
             activeView === view
               ? 'bg-indigo-600 text-white'
-              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
           }`}
         >
           {label}
@@ -81,17 +81,17 @@ const PatientProfileForDoctor: React.FC<PatientProfileForDoctorProps> = ({ patie
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                    <button onClick={onBack} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                        <ArrowLeftIcon className="h-6 w-6 text-slate-600 dark:text-slate-300"/>
+                    <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        <ArrowLeftIcon className="h-6 w-6 text-gray-600 dark:text-gray-300"/>
                     </button>
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">{patient.name}</h2>
-                        <p className="text-slate-500 dark:text-slate-400">Viewing patient profile</p>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{patient.name}</h2>
+                        <p className="text-gray-500 dark:text-gray-400">Viewing patient profile</p>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm flex items-center space-x-2 flex-wrap">
+            <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm flex items-center space-x-2 flex-wrap">
                 <TabButton view="dashboard" label="Dashboard" />
                 <TabButton view="records" label="Records" />
                 <TabButton view="progress" label="Progress" />
