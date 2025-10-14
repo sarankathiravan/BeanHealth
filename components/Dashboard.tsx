@@ -70,7 +70,7 @@ const VitalCard: React.FC<{
 
   return (
     <div className="group relative bg-white dark:bg-gray-800 p-4 sm:p-6 lg:p-7 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-rose-500/5 via-rose-600/5 to-transparent rounded-xl sm:rounded-2xl transition-opacity duration-300"></div>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-rose-50 dark:bg-transparent rounded-xl sm:rounded-2xl transition-opacity duration-300"></div>
       <div className="relative flex items-start">
         <div className={`p-3 sm:p-4 rounded-lg sm:rounded-xl mr-3 sm:mr-4 ${iconBgColor} shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300 flex-shrink-0`}>
           {icon}
@@ -133,10 +133,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8 animate-fade-in max-w-[1600px] mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-rose-700 via-rose-800 to-rose-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg">
+      <div className="relative overflow-hidden bg-rose-900 dark:bg-rose-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-15"></div>
         <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-rose-400/20 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-rose-800/20 rounded-full blur-2xl"></div>
         <div className="relative z-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-white mb-2 sm:mb-3 tracking-tight">Your Health Dashboard</h2>
           <p className="text-rose-50 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">Track your vitals, medications, and health insights all in one place</p>
@@ -157,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             trend={patient.vitals.bloodPressure.trend} 
             onSave={(newValue) => onVitalsChange('bloodPressure', newValue)}
             icon={<BloodPressureIcon className="h-7 w-7 text-red-600" />}
-            iconBgColor="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/50 dark:to-red-800/50"
+            iconBgColor="bg-red-100 dark:bg-red-900/30"
             lastUpdatedFromRecord={vitalsLastUpdatedFromRecord?.bloodPressure}
           />
           <VitalCard 
@@ -166,8 +166,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             unit={patient.vitals.heartRate.unit} 
             trend={patient.vitals.heartRate.trend} 
             onSave={(newValue) => onVitalsChange('heartRate', newValue)}
-            icon={<FeatureVitalsIcon className="h-7 w-7 text-sky-600" />}
-            iconBgColor="bg-gradient-to-br from-sky-100 to-sky-200 dark:from-sky-900/50 dark:to-sky-800/50"
+            icon={<FeatureVitalsIcon className="h-7 w-7 text-sky-600 dark:text-sky-400" />}
+            iconBgColor="bg-sky-100 dark:bg-sky-900/30"
             lastUpdatedFromRecord={vitalsLastUpdatedFromRecord?.heartRate}
           />
           <VitalCard 
@@ -176,8 +176,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             unit={patient.vitals.temperature.unit} 
             trend={patient.vitals.temperature.trend} 
             onSave={(newValue) => onVitalsChange('temperature', newValue)}
-            icon={<TemperatureIcon className="h-7 w-7 text-orange-600" />}
-            iconBgColor="bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/50 dark:to-orange-800/50"
+            icon={<TemperatureIcon className="h-7 w-7 text-orange-600 dark:text-orange-400" />}
+            iconBgColor="bg-orange-100 dark:bg-orange-900/30"
             lastUpdatedFromRecord={vitalsLastUpdatedFromRecord?.temperature}
           />
         </div>

@@ -530,3 +530,205 @@ a:hover {
   opacity: 0;
   transition: opacity var(--transition-base);
 }
+
+/* ===================================
+   DARK MODE - IMPROVED READABILITY
+   =================================== */
+
+/* Dark mode background colors */
+.dark {
+  background-color: #121212;
+  color: #e8e8e8;
+}
+
+/* Dark mode card and surface colors */
+.dark .card,
+.dark .bg-white {
+  background-color: #1e1e1e !important;
+  border-color: #2a2a2a !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #121212 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e1e1e !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: #2a2a2a !important;
+}
+
+.dark .bg-gray-800 {
+  background-color: #1e1e1e !important;
+}
+
+.dark .bg-gray-900 {
+  background-color: #121212 !important;
+}
+
+/* Dark mode text colors - improved contrast */
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: #e8e8e8 !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #b8b8b8 !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: #888888 !important;
+}
+
+.dark .text-gray-300 {
+  color: #b8b8b8 !important;
+}
+
+.dark .text-gray-200,
+.dark .text-gray-100 {
+  color: #e8e8e8 !important;
+}
+
+/* Dark mode border colors */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #2a2a2a !important;
+}
+
+.dark .border-gray-700,
+.dark .border-gray-600 {
+  border-color: #383838 !important;
+}
+
+/* Dark mode solid buttons - remove gradients */
+.dark .bg-rose-900,
+.dark .bg-primary-900,
+.dark [class*="bg-gradient-to"] {
+  background: #be123c !important;
+  background-image: none !important;
+}
+
+.dark .hover\:bg-rose-800:hover,
+.dark .hover\:bg-rose-900:hover {
+  background: #e11d48 !important;
+  background-image: none !important;
+}
+
+.dark .active\:bg-rose-950:active {
+  background: #9f1239 !important;
+  background-image: none !important;
+}
+
+/* Dark mode input fields */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #2a2a2a !important;
+  border-color: #383838 !important;
+  color: #e8e8e8 !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: #2a2a2a !important;
+  border-color: #be123c !important;
+  ring-color: #be123c !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #888888 !important;
+}
+
+/* Dark mode hover states */
+.dark .hover\:bg-gray-100:hover {
+  background-color: #2a2a2a !important;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #383838 !important;
+}
+
+.dark .hover\:bg-gray-700:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* Dark mode glass effect */
+.dark .glass-effect {
+  background: rgba(30, 30, 30, 0.85) !important;
+  border-color: rgba(56, 56, 56, 0.5) !important;
+}
+
+/* Dark mode shadows - softer for dark backgrounds */
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dark mode scrollbar - better visibility */
+.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #383838 !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a !important;
+}
+
+/* Dark mode specific text readability */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #e8e8e8 !important;
+}
+
+.dark p {
+  color: #b8b8b8 !important;
+}
+
+.dark a {
+  color: #fb7185 !important;
+}
+
+.dark a:hover {
+  color: #fda4af !important;
+}
+
+/* Remove gradients from badges and pills in dark mode */
+.dark [class*="bg-gradient"] {
+  background-image: none !important;
+}
+
+/* Dark mode rose/primary colors - solid instead of gradient */
+.dark .from-rose-700,
+.dark .from-rose-800,
+.dark .from-rose-900,
+.dark .via-rose-700,
+.dark .via-rose-800,
+.dark .via-rose-900,
+.dark .to-rose-700,
+.dark .to-rose-800,
+.dark .to-rose-900 {
+  background-image: none !important;
+  background-color: #be123c !important;
+}
+
+/* Dark mode specific component fixes */
+.dark .backdrop-blur-xl {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
