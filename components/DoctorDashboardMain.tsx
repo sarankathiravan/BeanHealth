@@ -203,12 +203,12 @@ const DoctorDashboardMain: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="bg-gradient-to-br from-sky-400 to-rose-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-              <UserGroupIcon className="h-7 w-7 text-white" />
+            <div className="p-4 rounded-2xl transition-all duration-300 group-hover:scale-110">
+              <UserGroupIcon className="h-7 w-7 text-rose-700 dark:text-rose-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Patients</p>
-              <p className="text-4xl font-bold bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent">
+              <p className="text-4xl font-bold text-rose-700 dark:text-rose-400">
                 {loading ? '...' : patients.length}
               </p>
             </div>
@@ -217,12 +217,12 @@ const DoctorDashboardMain: React.FC = () => {
 
         <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-              <MessagesIcon className="h-7 w-7 text-white" />
+            <div className="p-4 rounded-2xl transition-all duration-300 group-hover:scale-110">
+              <MessagesIcon className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">New Messages</p>
-              <p className="text-4xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
+              <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
                 {unreadMessagesCount}
               </p>
             </div>
@@ -231,12 +231,12 @@ const DoctorDashboardMain: React.FC = () => {
 
         <div className="card group hover-lift">
           <div className="flex items-center">
-            <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-              <DocumentIcon className="h-7 w-7 text-white" />
+            <div className="p-4 rounded-2xl transition-all duration-300 group-hover:scale-110">
+              <DocumentIcon className="h-7 w-7 text-amber-600 dark:text-amber-400" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Reviews</p>
-              <p className="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">0</p>
+              <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">0</p>
             </div>
           </div>
         </div>
