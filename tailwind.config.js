@@ -39,21 +39,6 @@ export default {
           900: '#111827',
           950: '#030712',
         },
-        // Dark mode specific colors for better readability
-        'dark-bg': {
-          primary: '#121212',    // Main background
-          secondary: '#1e1e1e',  // Cards/elevated surfaces
-          tertiary: '#2a2a2a',   // Hover states
-        },
-        'dark-text': {
-          primary: '#e8e8e8',    // Main text - high contrast
-          secondary: '#b8b8b8',  // Secondary text
-          tertiary: '#888888',   // Muted text
-        },
-        'dark-border': {
-          primary: '#2a2a2a',    // Subtle borders
-          secondary: '#383838',  // More visible borders
-        },
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
