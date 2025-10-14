@@ -530,3 +530,56 @@ a:hover {
   opacity: 0;
   transition: opacity var(--transition-base);
 }
+
+/* Convert all gradient buttons to solid colors */
+.bg-gradient-to-r.from-rose-500,
+.bg-gradient-to-r.from-rose-700,
+.bg-gradient-to-br.from-rose-500,
+.bg-gradient-to-br.from-rose-700 {
+  background: #be123c !important; /* rose-700 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-emerald-500,
+.bg-gradient-to-br.from-emerald-400 {
+  background: #10b981 !important; /* emerald-500 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-purple-500,
+.bg-gradient-to-br.from-purple-400 {
+  background: #a855f7 !important; /* purple-500 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-amber-500,
+.bg-gradient-to-br.from-amber-400 {
+  background: #f59e0b !important; /* amber-500 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-yellow-500,
+.bg-gradient-to-br.from-yellow-400 {
+  background: #eab308 !important; /* yellow-500 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-sky-400,
+.bg-gradient-to-br.from-sky-400 {
+  background: #38bdf8 !important; /* sky-400 solid */
+  background-image: none !important;
+}
+
+.bg-gradient-to-r.from-blue-500,
+.bg-gradient-to-br.from-blue-500 {
+  background: #3b82f6 !important; /* blue-500 solid */
+  background-image: none !important;
+}
+
+/* Remove hover gradient effects */
+button:hover .bg-gradient-to-r,
+button:hover .bg-gradient-to-br,
+a:hover .bg-gradient-to-r,
+a:hover .bg-gradient-to-br {
+  background-image: none !important;
+}

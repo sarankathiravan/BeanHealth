@@ -49,11 +49,11 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patient, onBack }
 
   const getCategoryColor = (category: string) => {
     switch(category.toLowerCase()) {
-      case 'lab report': return 'bg-gradient-to-r from-blue-500 to-cyan-500';
-      case 'prescription': return 'bg-gradient-to-r from-purple-500 to-pink-500';
-      case 'medical image': return 'bg-gradient-to-r from-amber-500 to-orange-500';
-      case 'doctor\'s note': return 'bg-gradient-to-r from-emerald-500 to-teal-500';
-      default: return 'bg-gradient-to-r from-slate-500 to-slate-600';
+      case 'lab report': return 'bg-blue-500';
+      case 'prescription': return 'bg-purple-500';
+      case 'medical image': return 'bg-amber-500';
+      case 'doctor\'s note': return 'bg-emerald-500';
+      default: return 'bg-slate-500';
     }
   };
 

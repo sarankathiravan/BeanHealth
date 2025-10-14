@@ -46,10 +46,10 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
 
   const getCategoryColor = (category: string) => {
     switch(category.toLowerCase()) {
-        case 'lab report': return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg';
-        case 'prescription': return 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg';
-        case 'medical image': return 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg';
-        default: return 'bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-lg';
+        case 'lab report': return 'bg-blue-500 text-white shadow-lg';
+        case 'prescription': return 'bg-purple-500 text-white shadow-lg';
+        case 'medical image': return 'bg-amber-500 text-white shadow-lg';
+        default: return 'bg-slate-500 text-white shadow-lg';
     }
   }
 
@@ -62,7 +62,7 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
           return (
             <div key={record.id} className="card group hover-lift animate-slideUp" style={{ animationDelay: `${index * 50}ms` }}>
               <div className="flex items-start space-x-3 sm:space-x-4 p-4 sm:p-6">
-                <div className="bg-gradient-to-br from-rose-700 to-rose-900 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 flex-shrink-0">
+                <div className="bg-rose-700 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 flex-shrink-0">
                   <DocumentIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
                           href={record.fileUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-rose-500 to-rose-900 text-white hover:shadow-lg hover:scale-110 transition-all duration-200"
+                          className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-rose-700 text-white hover:bg-rose-800 hover:shadow-lg hover:scale-110 transition-all duration-200"
                           aria-label={`Preview record from ${new Date(record.date).toLocaleDateString()}`}
                         >
                           <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -89,7 +89,7 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
                       )}
                       <button 
                         onClick={() => handleRemoveClick(record.id)}
-                        className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:shadow-lg hover:scale-110 transition-all duration-200"
+                        className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-rose-600 text-white hover:bg-rose-700 hover:shadow-lg hover:scale-110 transition-all duration-200"
                         aria-label={`Remove record from ${new Date(record.date).toLocaleDateString()}`}
                       >
                         <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
