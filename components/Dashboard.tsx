@@ -133,13 +133,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8 animate-fade-in max-w-[1600px] mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-rose-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-15"></div>
-        <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-rose-800/20 rounded-full blur-2xl"></div>
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
         <div className="relative z-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-white mb-2 sm:mb-3 tracking-tight">Your Health Dashboard</h2>
-          <p className="text-rose-50 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">Track your vitals, medications, and health insights all in one place</p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3 tracking-tight">Your Health Dashboard</h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">Track your vitals, medications, and health insights all in one place</p>
         </div>
       </div>
       

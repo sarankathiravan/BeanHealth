@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, onMenuClick, onUpdateAv
             </button>
             <div className="animate-fade-in min-w-0 flex-1">
                 <h2 className="text-base sm:text-xl lg:text-2xl font-display font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
-                  Welcome back, <span className="bg-gradient-to-r from-rose-700 via-rose-800 to-rose-900 bg-clip-text text-transparent">{user.name}</span>
+                  Welcome back, <span className="text-rose-700 dark:text-rose-400">{user.name}</span>
                 </h2>
                 <p className="hidden sm:block text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1 truncate">
                   {user.role === 'patient' ? "Here's your latest health overview" : "Here's an overview of your patients"}
