@@ -439,18 +439,18 @@ const DoctorDashboardMain: React.FC = () => {
               onClick={() => setActiveView('dashboard')}
               className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeView === 'dashboard'
-                  ? 'border-rose-900 bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent'
+                  ? 'border-rose-900 text-rose-900 dark:text-rose-400'
                   : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
-              <DashboardIcon className={`inline h-5 w-5 mr-2 ${activeView === 'dashboard' ? 'text-rose-900' : ''}`} />
+              <DashboardIcon className={`inline h-5 w-5 mr-2 ${activeView === 'dashboard' ? 'text-rose-900 dark:text-rose-400' : ''}`} />
               Dashboard
             </button>
             <button
               onClick={() => setActiveView('messages')}
               className={`relative py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeView === 'messages'
-                  ? 'border-rose-900 bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent'
+                  ? 'border-rose-900 text-rose-900 dark:text-rose-400'
                   : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
