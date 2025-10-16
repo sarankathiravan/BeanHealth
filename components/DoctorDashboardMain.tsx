@@ -178,24 +178,22 @@ const DoctorDashboardMain: React.FC = () => {
     <>
       {/* Welcome Section */}
       <div className="mb-8 animate-fadeIn">
-        <div className="card">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent">
-                Welcome, {profile?.name || user?.email}!
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Your practice dashboard and patient overview
-              </p>
-            </div>
-            <button
-              onClick={handleAddPatientClick}
-              className="btn-primary flex items-center justify-center mt-4 md:mt-0"
-            >
-              <UserPlusIcon className="h-5 w-5 mr-2" />
-              Add New Patient
-            </button>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              Welcome, {profile?.name || user?.email}!
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Your practice dashboard and patient overview
+            </p>
           </div>
+          <button
+            onClick={handleAddPatientClick}
+            className="btn-primary flex items-center justify-center mt-4 md:mt-0"
+          >
+            <UserPlusIcon className="h-5 w-5 mr-2" />
+            Add New Patient
+          </button>
         </div>
       </div>
 
@@ -244,9 +242,9 @@ const DoctorDashboardMain: React.FC = () => {
 
       {/* Main Content */}
       <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Patients */}
-          <div className="card">
+          <div className="card lg:col-span-2">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Recent Patients</h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Quick access to recently added patients</p>
@@ -265,7 +263,7 @@ const DoctorDashboardMain: React.FC = () => {
                   <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
                   <button 
                     onClick={fetchPatients}
-                    className="mt-4 px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-900 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+                    className="mt-4 px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-200"
                   >
                     Try again
                   </button>
@@ -336,44 +334,22 @@ const DoctorDashboardMain: React.FC = () => {
           <div className="card">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Getting Started</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Complete these steps to set up your practice</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Quick actions</p>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '0ms' }}>
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 group animate-slideUp">
                   <div className="flex items-center space-x-4">
-                    <div className="bg-gradient-to-br from-purple-400 to-pink-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
-                      <SparklesIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Complete your profile</span>
-                  </div>
-                  <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
-                    Complete
-                  </button>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-rose-50 to-rose-50 dark:from-rose-900/30 dark:to-indigo-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '100ms' }}>
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-gradient-to-br from-sky-400 to-rose-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
-                      <UserGroupIcon className="h-6 w-6 text-white" />
+                    <div className="p-3 rounded-xl">
+                      <UserGroupIcon className="h-6 w-6 text-rose-700 dark:text-rose-400" />
                     </div>
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Add patients</span>
                   </div>
                   <button 
                     onClick={handleAddPatientClick}
-                    className="px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-900 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+                    className="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all duration-200"
                   >
                     Add
-                  </button>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-2xl hover:shadow-md hover:scale-105 transition-all duration-200 group animate-slideUp" style={{ animationDelay: '200ms' }}>
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-3 rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-200">
-                      <DocumentIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Set up practice info</span>
-                  </div>
-                  <button className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
-                    Setup
                   </button>
                 </div>
               </div>
