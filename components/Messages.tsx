@@ -400,12 +400,12 @@ const Messages: React.FC<MessagesProps> = ({
         </div>
         <div className="flex-1 overflow-y-auto scrollbar-thin">
           <div className="p-2">
-            {sortedContacts.map(contact => {
+            {sortedContacts.map((contact, index) => {
                const unreadMessages = messages.filter(m => m.senderId === contact.id && m.recipientId === currentUser.id && !m.isRead);
                const hasUnreadUrgent = unreadMessages.some(m => m.isUrgent);
               return (
-                  <button
-                      key={contact.id}
+                  <div key={contact.id} className={index < sortedContacts.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}>
+                    <button
                       onClick={() => handleSelectContact(contact.id)}
                       className={`w-full text-left px-4 py-3 flex items-center space-x-3 rounded-xl transition-all duration-200 mb-1 ${
                         selectedContactId === contact.id 
@@ -447,7 +447,8 @@ const Messages: React.FC<MessagesProps> = ({
                               {unreadMessages.length > 9 ? '9+' : unreadMessages.length}
                           </span>
                       )}
-                  </button>
+                    </button>
+                  </div>
               )
             })}
           </div>
