@@ -38,7 +38,7 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ activeView, setActiveView
                 className={`w-full flex items-center p-3 rounded-lg text-left transition-all duration-200 ease-in-out ${
                   activeView === item.view
                     ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-white dark:text-white hover:bg-rose-50/50 dark:hover:bg-gray-700/50'
+                    : 'text-gray-700 dark:text-white hover:bg-rose-50/50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 <span className="mr-3">{item.icon}</span>
