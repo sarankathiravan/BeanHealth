@@ -29,10 +29,10 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
   if (records.length === 0) {
     return (
       <div className="card text-center py-20 animate-fadeIn">
-        <div className="bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-rose-900/30 dark:to-indigo-900/30 p-8 rounded-3xl inline-block mb-6">
+        <div className="p-8 rounded-3xl inline-block mb-6">
           <EmptyRecordsIcon className="h-32 w-32 text-rose-900 dark:text-rose-400" />
         </div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent">No Records Found</h3>
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">No Records Found</h3>
         <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-md mx-auto">Upload your first medical record to get started with AI-powered health insights.</p>
       </div>
     );
@@ -55,7 +55,7 @@ const Records: React.FC<RecordsProps> = ({ records, onRemoveRecord }) => {
 
   return (
     <div className="animate-fadeIn">
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-rose-500 to-rose-900 bg-clip-text text-transparent mb-4 sm:mb-6">Your Medical Records</h2>
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">Your Medical Records</h2>
       <div className="space-y-3 sm:space-y-4">
         {records.map((record, index) => {
           const isExpanded = expandedRecords.has(record.id);
