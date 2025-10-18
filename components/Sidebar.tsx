@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isOpen, on
         ></div>
       )}
       
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl shadow-xl flex-shrink-0 flex flex-col transform transition-all duration-300 ease-out md:relative md:translate-x-0 md:z-10 border-r border-gray-200/60 dark:border-gray-700/60 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/50 dark:bg-gray-800/50 backdrop-blur-xl shadow-xl flex-shrink-0 flex flex-col transform transition-all duration-300 ease-out md:relative md:translate-x-0 md:z-10 border-r border-gray-200/60 dark:border-gray-700/60 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200/60 dark:border-gray-700/60">
           <button 
@@ -69,13 +69,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isOpen, on
                   className={`group relative w-full flex items-center px-4 py-3.5 rounded-xl text-left transition-all duration-200 overflow-hidden ${
                     activeView === item.view
                       ? 'bg-gradient-to-r from-rose-500 to-rose-900 text-white shadow-md scale-[1.02]'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:scale-[1.02] active:scale-95'
+                      : 'text-white dark:text-white hover:bg-gray-100/50 dark:hover:bg-gray-700/50 hover:scale-[1.02] active:scale-95'
                   }`}
                 >
                   {activeView === item.view && (
                     <div className="absolute inset-0 bg-gradient-to-r from-rose-900 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
-                  <span className={`relative mr-3.5 ${activeView === item.view ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-rose-900 dark:group-hover:text-rose-400'} transition-colors duration-200`}>
+                  <span className={`relative mr-3.5 ${activeView === item.view ? 'text-white' : 'text-white dark:text-white group-hover:text-rose-900 dark:group-hover:text-rose-400'} transition-colors duration-200`}>
                     {item.icon}
                   </span>
                   <span className="relative font-semibold text-[15px]">{item.label}</span>
