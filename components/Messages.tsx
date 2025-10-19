@@ -462,14 +462,14 @@ const Messages: React.FC<MessagesProps> = ({
         {selectedContact ? (
           <>
             {/* Chat Header */}
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-4 flex-shrink-0 bg-white dark:bg-gray-800">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-2 sm:space-x-4 flex-shrink-0 bg-white dark:bg-gray-800">
               <button 
                 onClick={() => setSelectedContactId(null)} 
                 className="md:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-200"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-gray-600 dark:text-gray-300"/>
               </button>
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <InitialsAvatar contact={selectedContact} size="md" />
                 <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></span>
               </div>
@@ -492,10 +492,10 @@ const Messages: React.FC<MessagesProps> = ({
               {/* E-Prescription List Button - For both doctor and patient */}
               <button
                 onClick={() => setShowPrescriptionListModal(true)}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-rose-900 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                className="flex-shrink-0 flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-rose-900 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
                 aria-label="View E-Prescriptions"
               >
-                <DocumentIcon className="h-5 w-5" />
+                <DocumentIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="hidden sm:inline">E-Prescription</span>
                 <span className="sm:hidden">E-Rx</span>
               </button>
@@ -504,10 +504,10 @@ const Messages: React.FC<MessagesProps> = ({
               {isDoctor && selectedContact.role === 'patient' && (
                 <button
                   onClick={() => setShowPrescriptionModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-900 rounded-xl hover:from-sky-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                  className="flex-shrink-0 flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-900 rounded-xl hover:from-sky-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
                   aria-label="Create prescription"
                 >
-                  <DocumentIcon className="h-5 w-5" />
+                  <DocumentIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span className="hidden sm:inline">Send Prescription</span>
                   <span className="sm:hidden">Rx</span>
                 </button>
