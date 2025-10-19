@@ -7,6 +7,11 @@ import { DocumentIcon } from './icons/DocumentIcon';
 import { XIcon } from './icons/XIcon';
 import { RefreshIcon } from './icons/RefreshIcon';
 
+/**
+ * E-Prescription List Modal Component
+ * Displays prescriptions between a doctor and patient in a date-wise list
+ * Available for both doctors and patients
+ */
 interface PrescriptionListModalProps {
   isOpen: boolean;
   onClose: () => void;
