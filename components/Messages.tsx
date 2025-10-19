@@ -19,6 +19,7 @@ import { uploadChatFile, uploadAudioRecording } from '../services/storageService
 import { ChatService } from '../services/chatService';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../utils/toastUtils';
 import PrescriptionModal from './PrescriptionModal';
+import PrescriptionListModal from './PrescriptionListModal';
 import { DocumentIcon } from './icons/DocumentIcon';
 
 type Contact = Doctor | Patient;
@@ -53,6 +54,7 @@ const Messages: React.FC<MessagesProps> = ({
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [showPrescriptionListModal, setShowPrescriptionListModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isPatient = currentUser.role === 'patient';
@@ -486,7 +488,19 @@ const Messages: React.FC<MessagesProps> = ({
                   )}
                 </div>
               </div>
-              {/* Prescription Button - Only for doctors */}
+              
+              {/* E-Prescription List Button - For both doctor and patient */}
+              <button
+                onClick={() => setShowPrescriptionListModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-rose-900 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label="View E-Prescriptions"
+              >
+                <DocumentIcon className="h-5 w-5" />
+                <span className="hidden sm:inline">E-Prescription</span>
+                <span className="sm:hidden">E-Rx</span>
+              </button>
+
+              {/* Send Prescription Button - Only for doctors */}
               {isDoctor && selectedContact.role === 'patient' && (
                 <button
                   onClick={() => setShowPrescriptionModal(true)}
@@ -783,6 +797,17 @@ const Messages: React.FC<MessagesProps> = ({
             // Just close the modal
             setShowPrescriptionModal(false);
           }}
+        />
+      )}
+
+      {/* E-Prescription List Modal - For both doctor and patient */}
+      {selectedContact && (
+        <PrescriptionListModal
+          isOpen={showPrescriptionListModal}
+          onClose={() => setShowPrescriptionListModal(false)}
+          currentUserId={currentUser.id}
+          contactId={selectedContact.id}
+          isDoctor={isDoctor}
         />
       )}
     </div>
